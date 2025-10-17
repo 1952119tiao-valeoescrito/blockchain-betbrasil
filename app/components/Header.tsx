@@ -50,11 +50,26 @@ export default function Header() {
           
           {/* Logo */}
           <button onClick={() => handleNavClick(`/${locale}`)} className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-sm">B³</span>
-            </div>
-            <span className="text-white font-bold text-xl hidden sm:inline">Blockchain Bet Brasil</span>
-            <span className="text-white font-bold text-xl sm:hidden">B³</span>
+           <div className="flex items-center space-x-3">
+  {/* Logo com borda e sombra */}
+  <div className="flex items-center justify-center bg-white/10 p-1 rounded-lg border border-emerald-400/20 shadow-lg">
+    <img 
+      src="/images/logo.png" 
+      alt="Blockchain Bet Brasil" 
+      className="h-7 w-7 object-contain"
+    />
+  </div>
+  
+  {/* Texto para desktop */}
+  <span className="text-white font-bold text-xl hidden sm:inline bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
+    BLOCKCHAIN BET BRASIL
+  </span>
+  
+  {/* Texto alternativo para mobile */}
+  <span className="text-white font-bold text-xl sm:hidden">
+    B³
+  </span>
+</div>
           </button>
 
           {/* Menu Desktop */}

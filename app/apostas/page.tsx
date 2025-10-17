@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-
+import CountdownTimer from '../components/CountdownTimer';
 export default function AplicacoesPage() {
   const [prognosticos, setPrognosticos] = useState<Array<{ x: string; y: string }>>(
     Array(5).fill({ x: '', y: '' })
@@ -419,10 +419,10 @@ export default function AplicacoesPage() {
               )}
             </div>
           </div>
-
+<CountdownTimer />
           {/* Rodapé */}
           <div className="text-center mt-8 text-slate-500 text-sm">
-            <p>© 2024 Sistema de Investimento - Modo Desenvolvimento</p>
+            <p>© 2025 Sistema de Investimento - Modo Desenvolvimento</p>
             <p className="mt-1 text-xs">Contratos Blockchain: Em implementação</p>
           </div>
         </div>

@@ -284,7 +284,7 @@ export default function InvestBetPage() {
       {/* Rodapé */}
       <footer className="w-full bg-slate-800 mt-16 border-t border-slate-700">
         <div className="container mx-auto text-center p-6 text-slate-400 text-sm">
-          <p>© 2024 Blockchain Bet Brasil. Todos os direitos reservados.</p>
+          <p>© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
           <p className="mt-2">Source: 601700 | Auditoria de Segurança Ativa</p>
         </div>
       </footer>

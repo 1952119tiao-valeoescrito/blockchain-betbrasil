@@ -26,10 +26,10 @@ const ComoJogarPage: React.FC = () => {
                 <div className="bg-slate-700/50 p-4 rounded-lg">
                   <h3 className="text-xl font-bold text-white mb-2">🎯 Formato das Aplicações</h3>
                   <p className="text-slate-300">
-                    Cada aplicação consiste em <strong>5 prognósticos</strong> no formato <strong>X/Y</strong>, onde X e Y são números de 1 a 25.
+                    Cada aplicação consiste em <strong>5 prognósticos</strong> no formato <strong>X/Y</strong>, onde X e Y são números de 1 a 25; pode repetir e/ou inverter prognósticos livremente.
                   </p>
                   <p className="text-slate-400 text-sm mt-2">
-                    Exemplo: <code className="bg-slate-600 px-2 py-1 rounded">15/20</code>, <code className="bg-slate-600 px-2 py-1 rounded">1/25</code>, <code className="bg-slate-600 px-2 py-1 rounded">10/5</code>
+                    Exemplo: <code className="bg-slate-600 px-2 py-1 rounded">15/20</code>, <code className="bg-slate-600 px-2 py-1 rounded">1/25</code>, <code className="bg-slate-600 px-2 py-1 rounded">10/5</code>, <code className="bg-slate-600 px-2 py-1 rounded">13/25</code>, <code className="bg-slate-600 px-2 py-1 rounded">17/5</code>
                   </p>
                 </div>
                 <div className="bg-slate-700/50 p-4 rounded-lg">
@@ -47,7 +47,7 @@ const ComoJogarPage: React.FC = () => {
                     Ganhe acertando <strong>5, 4, 3, 2 ou até 1 ponto</strong>! Quanto mais pontos, maior o retorno.
                   </p>
                   <p className="text-slate-400 text-sm mt-2">
-                    Distribuição: 50% (5pts), 20% (4pts), 15% (3pts), 10% (2pts), 5% (1pt)
+                    Distribuição: 50% (5pts), 20% (4pts), 15% (3pts), 10% (2pts), 5% (1pt), rateado entre os acertadores em cada etapa de pontuação.
                   </p>
                 </div>
                 <div className="bg-slate-700/50 p-4 rounded-lg">
@@ -161,9 +161,9 @@ const ComoJogarPage: React.FC = () => {
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
-                  <h4 className="text-lg font-bold text-amber-300 mb-2">🎲 Diversifique Seus Números</h4>
+                  <h4 className="text-lg font-bold text-amber-300 mb-2">🎲 Diversifique Seus Prognósticos</h4>
                   <p className="text-slate-300">
-                    Use números altos e baixos, pares e ímpares. A diversificação aumenta suas chances!
+                    Use prognósticos altos e baixos, pares e ímpares. A diversificação aumenta suas chances!
                   </p>
                 </div>
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
@@ -177,7 +177,7 @@ const ComoJogarPage: React.FC = () => {
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
                   <h4 className="text-lg font-bold text-amber-300 mb-2">🔄 Invista Regularmente</h4>
                   <p className="text-slate-300">
-                    Com o sistema de bônus, mesmo sem acertar você acumula para aplicações grátis!
+                    Com o sistema de bônus, cada aplicação com zero ponto (8x)= 1 aplicação grátis!
                   </p>
                 </div>
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">

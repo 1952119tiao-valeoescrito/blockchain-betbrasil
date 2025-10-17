@@ -35,13 +35,18 @@ const HomePage: React.FC = () => {
       <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="apostas" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">B³</span>
-              </div>
-              <span className="text-white font-bold text-xl">Blockchain Bet Brasil</span>
-            </Link>
+           {/* Logo */}
+            <Link href="apostas" className="flex items-center space-x-2 sm:space-x-3">
+  {/* Logo responsivo */}
+  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center overflow-hidden">
+    <img 
+      src="/images/logo.png" 
+      alt="Blockchain Bet Brasil Logo" 
+      className="w-full h-full object-cover"
+    />
+  </div>
+  <span className="text-white font-bold text-lg sm:text-xl">BLOCKCHAIN BET BRASIL</span>
+</Link>
 
             {/* Menu Desktop */}
             <div className="hidden md:flex items-center space-x-8">
@@ -219,11 +224,10 @@ const HomePage: React.FC = () => {
                   <path d="M12 17h.01"></path>
                 </svg>
                 <div className="text-amber-900">
-                  <p className="font-extrabold text-xl md:text-2xl">PLATAFORMA DE INVESTIMENTO E ENTRETENIMENTO GAMIFICADO.</p>
+                  <p className="font-extrabold text-xl md:text-2xl">🚀 BLOCKCHAIN BET BRASIL - O BBB DA WEB3 ESTÁ NO AR!</p>
                   <p className="font-semibold text-lg md:text-xl">
-                    AINDA ESTAMOS EM FASE DE TESTES, NÃO UTILIZE FUNDOS REAIS.<br />
-                    NÃO SE TRATA DE JOGO DE AZAR: Na Blockchain Bet Brasil, a grande diferença está no sistema de contemplação, que ACABA com a ideia de
-                    &quot;perdedor absoluto&quot;.
+                    📍 ALÔ MUNDO... CHEGUEI, AVISA LÁ! 🌎<br />
+                    É com grande alegria que anuncio o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai revolucionar o universo de investimentos gamificados na Web3!
                   </p>
                 </div>
               </div>
@@ -366,7 +370,7 @@ const HomePage: React.FC = () => {
       {/* Footer Padronizado */}
       <footer className="w-full bg-slate-800 mt-auto border-t border-slate-700">
         <div className="container mx-auto text-center p-6 text-slate-400 text-sm">
-          <p className="mb-2">© 2024 Blockchain Bet Brasil. Todos os direitos reservados.</p>
+          <p className="mb-2">© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
           <p className="mt-2">Source: 601700 | Auditoria de Segurança Ativa</p>
           <div className="flex justify-center gap-4 mt-4">
             <a className="hover:text-emerald-400 transition-colors duration-200" href="termos-de-uso">
