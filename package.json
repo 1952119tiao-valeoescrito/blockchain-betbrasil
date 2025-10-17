@@ -1,27 +1,32 @@
 {
-  "name": "blockchain-betbrasil-frontend",
-  "version": "0.1.0",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "next lint"
   },
   "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "next": "15.5.5"
+    "aes-js": "^4.0.0-beta.5",
+    "ethers": "^6.15.0",
+    "js-tokens": "^4.0.0",
+    "loose-envify": "^1.4.0",
+    "next": "^15.5.5",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-scripts": "^0.0.0",
+    "scheduler": "^0.23.2",
+    "tslib": "^2.7.0",
+    "undici-types": "^6.19.8",
+    "ws": "^8.17.1"
   },
   "devDependencies": {
-    "typescript": "^5",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
-    "eslint": "^9",
-    "eslint-config-next": "15.5.5",
-    "@eslint/eslintrc": "^3"
+    "@types/node": "24.8.0",
+    "@types/react": "19.2.2",
+    "@vitejs/plugin-react": "^4.7.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.3.0",
+    "typescript": "5.9.3",
+    "vite": "^7.1.10"
   }
 }
