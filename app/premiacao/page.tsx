@@ -559,7 +559,7 @@ export default function PremiacaoPage() {
         <br />
         <p>
           <a href="https://blockchain-betbrasil.io" className="text-blue-400 hover:underline">
-            JÁ ESTAMOS NA BLOCKCHAIN
+           DEUS SEJA LOUVADO.
           </a>
         </p>
         <br />
