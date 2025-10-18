@@ -5,8 +5,7 @@ import Script from 'next/script';
 const GoogleAnalytics = () => {
   const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   
-  // Não carregar analytics em desenvolvimento
-  if (process.env.NODE_ENV !== 'production' || !gaMeasurementId) {
+  if (!gaMeasurementId) {
     return null;
   }
 
@@ -24,11 +23,7 @@ const GoogleAnalytics = () => {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${gaMeasurementId}', {
-              page_title: document.title,
-              page_location: window.location.href,
-              debug_mode: ${process.env.NODE_ENV === 'development'}
-            });
+            gtag('config', '${gaMeasurementId}');
           `,
         }}
       />
