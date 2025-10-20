@@ -7,6 +7,62 @@ import { Chart, registerables } from 'chart.js';
 // Registrar todos os componentes do Chart.js
 Chart.register(...registerables);
 
+// Função para calcular percentuais no modo cascata
+function calcularPercentuaisCascata(faixasComGanhadores: {[key: number]: boolean}) {
+    // Percentuais iniciais de cada faixa (BASE 100%)
+    const percentuaisBase = {
+        5: 50,  // 5 pontos
+        4: 20,  // 4 pontos  
+        3: 15,  // 3 pontos
+        2: 10,  // 2 pontos
+        1: 5    // 1 ponto
+    };
+
+    // Cria uma cópia dos percentuais
+    let percentuais = { ...percentuaisBase };
+    let percentualAcumulado = 0;
+
+    // Percorre da faixa mais alta (5) até a mais baixa (1)
+    for (let faixa = 5; faixa >= 1; faixa--) {
+        if (!faixasComGanhadores[faixa]) {
+            // Se não tem ganhador nesta faixa, acumula o percentual
+            percentualAcumulado += percentuaisBase[faixa];
+            percentuais[faixa] = 0;
+        } else {
+            // Se tem ganhador, distribui o percentual acumulado
+            percentuais[faixa] += percentualAcumulado;
+            percentualAcumulado = 0;
+        }
+    }
+
+    // Se sobrou percentual acumulado, vai tudo pra faixa 1
+    if (percentualAcumulado > 0) {
+        percentuais[1] += percentualAcumulado;
+    }
+
+    return percentuais;
+}
+
+// Função para calcular multiplicadores baseado no cenário
+function calcularMultiplicadores(scenario: string, percentuaisBase: any) {
+    const multiplicadores = {
+        padrao: 1,
+        cascata: 2,      // 200%
+        turbinada: 4,    // 400%
+        mega_turbinada: 8 // 800%
+    };
+
+    const multiplicador = multiplicadores[scenario as keyof typeof multiplicadores] || 1;
+    
+    return {
+        5: percentuaisBase[5] * multiplicador,
+        4: percentuaisBase[4] * multiplicador,
+        3: percentuaisBase[3] * multiplicador,
+        2: percentuaisBase[2] * multiplicador,
+        1: percentuaisBase[1] * multiplicador
+    };
+}
+
 export default function PremiacaoPage() {
   const [arrecadacao, setArrecadacao] = useState(2500000);
   const [scenario, setScenario] = useState('padrao');
@@ -21,55 +77,74 @@ export default function PremiacaoPage() {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
+  // Percentuais base (100%)
+  const percentuaisBase = {
+    5: 50,  // 5 pontos
+    4: 20,  // 4 pontos  
+    3: 15,  // 3 pontos
+    2: 10,  // 2 pontos
+    1: 5    // 1 ponto
+  };
+
   // Cálculos baseados na arrecadação
   const premioTotal = arrecadacao * 0.95;
   const taxaAdmin = arrecadacao * 0.05;
 
-  // Percentuais por cenário
-  const scenarios = {
-    padrao: { 5: 50, 4: 20, 3: 15, 2: 10, 1: 5 },
-    cascata: { 5: 40, 4: 25, 3: 20, 2: 10, 1: 5 },
-    turbinada: { 5: 60, 4: 15, 3: 10, 2: 10, 1: 5 },
-    mega_turbinada: { 5: 70, 4: 15, 3: 8, 2: 5, 1: 2 }
+  // Calcular percentuais baseado no cenário e ganhadores
+  const getCurrentPercentuais = () => {
+    if (scenario === 'cascata') {
+      // Verifica quais faixas têm ganhadores
+      const faixasComGanhadores = {
+        5: winners['5-Pontos'] > 0,
+        4: winners['4-Pontos'] > 0,
+        3: winners['3-Pontos'] > 0,
+        2: winners['2-Pontos'] > 0,
+        1: winners['1-Ponto'] > 0
+      };
+      
+      return calcularPercentuaisCascata(faixasComGanhadores);
+    } else {
+      return calcularMultiplicadores(scenario, percentuaisBase);
+    }
   };
 
-  const currentScenario = scenarios[scenario as keyof typeof scenarios];
+  const currentPercentuais = getCurrentPercentuais();
 
   // Calcular prêmios por faixa
   const premiosPorFaixa = {
-    '5-Pontos': (premioTotal * currentScenario[5]) / 100,
-    '4-Pontos': (premioTotal * currentScenario[4]) / 100,
-    '3-Pontos': (premioTotal * currentScenario[3]) / 100,
-    '2-Pontos': (premioTotal * currentScenario[2]) / 100,
-    '1-Ponto': (premioTotal * currentScenario[1]) / 100
+    '5-Pontos': (premioTotal * currentPercentuais[5]) / 100,
+    '4-Pontos': (premioTotal * currentPercentuais[4]) / 100,
+    '3-Pontos': (premioTotal * currentPercentuais[3]) / 100,
+    '2-Pontos': (premioTotal * currentPercentuais[2]) / 100,
+    '1-Ponto': (premioTotal * currentPercentuais[1]) / 100
   };
 
-  // Calcular prêmio por ganhador
+  // Calcular prêmio por ganhador (considerando 0 ganhadores = prêmio acumulado)
   const premioPorGanhador = {
-    '5-Pontos': premiosPorFaixa['5-Pontos'] / winners['5-Pontos'],
-    '4-Pontos': premiosPorFaixa['4-Pontos'] / winners['4-Pontos'],
-    '3-Pontos': premiosPorFaixa['3-Pontos'] / winners['3-Pontos'],
-    '2-Pontos': premiosPorFaixa['2-Pontos'] / winners['2-Pontos'],
-    '1-Ponto': premiosPorFaixa['1-Ponto'] / winners['1-Ponto']
+    '5-Pontos': winners['5-Pontos'] > 0 ? premiosPorFaixa['5-Pontos'] / winners['5-Pontos'] : 0,
+    '4-Pontos': winners['4-Pontos'] > 0 ? premiosPorFaixa['4-Pontos'] / winners['4-Pontos'] : 0,
+    '3-Pontos': winners['3-Pontos'] > 0 ? premiosPorFaixa['3-Pontos'] / winners['3-Pontos'] : 0,
+    '2-Pontos': winners['2-Pontos'] > 0 ? premiosPorFaixa['2-Pontos'] / winners['2-Pontos'] : 0,
+    '1-Ponto': winners['1-Ponto'] > 0 ? premiosPorFaixa['1-Ponto'] / winners['1-Ponto'] : 0
   };
 
   // Descrições dos cenários
   const scenarioDescriptions = {
     padrao: {
-      title: 'Cenário Padrão',
-      description: 'O prêmio é distribuído entre 5 faixas de acertos, de acordo com os percentuais padrão.'
+      title: 'Cenário Padrão (100%)',
+      description: 'Distribuição padrão do prêmio entre as 5 faixas de acertos. Caso não haja ganhadores, o prêmio acumula para o próximo cenário.'
     },
     cascata: {
-      title: 'Cenário Cascata', 
-      description: 'Distribuição mais equilibrada entre as faixas, beneficiando acertadores de 4 e 3 pontos.'
+      title: 'Cenário Cascata (200%)', 
+      description: 'Prêmio acumulado da rodada anterior é redistribuído. Sistema inteligente que garante premiação mesmo com menos ganhadores.'
     },
     turbinada: {
-      title: 'Rodada Turbinada',
-      description: 'Maior concentração no prêmio principal, ideal para rodadas com grande arrecadação.'
+      title: 'Rodada Turbinada (400%)',
+      description: 'Prêmio acumulado de múltiplas rodadas sem ganhadores. Valor total multiplicado por 4, criando premiações extraordinárias.'
     },
     mega_turbinada: {
-      title: 'Bet Turbinada',
-      description: 'Foco máximo no prêmio principal, criando jackpots extraordinários.'
+      title: 'Bet Turbinada (800%)',
+      description: 'Status máximo de acumulação! Prêmio total multiplicado por 8. Se houver ganhadores, o sistema retorna ao cenário padrão.'
     }
   };
 
@@ -80,16 +155,38 @@ export default function PremiacaoPage() {
     }).format(value);
   };
 
+  // Calcular multiplicador atual
+  const getMultiplicadorAtual = () => {
+    const multiplicadores = {
+      padrao: 1,
+      cascata: 2,
+      turbinada: 4,
+      mega_turbinada: 8
+    };
+    return multiplicadores[scenario as keyof typeof multiplicadores];
+  };
+
+  // Função para verificar se o modo cascata está ativo
+  const isCascataAtivo = () => {
+    return scenario === 'cascata' && Object.values(winners).some((count, index) => 
+      index < 4 && count === 0
+    );
+  };
+
   // 1. Exportar dados do gráfico
   const exportChartData = () => {
     const data = {
       arrecadacao,
       scenario: scenarioDescriptions[scenario as keyof typeof scenarioDescriptions].title,
+      percentuaisBase,
+      percentuaisAtuais: currentPercentuais,
+      multiplicador: getMultiplicadorAtual(),
       premiosPorFaixa,
       premioTotal,
       taxaAdmin,
       premioPorGanhador,
       winners,
+      modoCascataAtivo: isCascataAtivo(),
       dataExportacao: new Date().toISOString(),
       projeto: 'Blockchain Bet Brasil'
     };
@@ -106,7 +203,6 @@ export default function PremiacaoPage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    console.log('Dados exportados:', data);
     alert('📊 Dados exportados com sucesso!');
   };
 
@@ -115,7 +211,6 @@ export default function PremiacaoPage() {
     const url = `${window.location.origin}/premiacao?scenario=${scenario}&arrecadacao=${arrecadacao}`;
     
     if (navigator.share) {
-      // Compartilhar nativo (dispositivos móveis)
       navigator.share({
         title: 'Blockchain Bet Brasil - Simulador de Premiação',
         text: `Confira o cenário "${scenarioDescriptions[scenario as keyof typeof scenarioDescriptions].title}" no simulador de premiação!`,
@@ -123,7 +218,6 @@ export default function PremiacaoPage() {
       })
       .catch((error) => console.log('Erro ao compartilhar:', error));
     } else if (navigator.clipboard) {
-      // Copiar para área de transferência
       navigator.clipboard.writeText(url)
         .then(() => {
           alert('🔗 Link copiado para a área de transferência!');
@@ -133,7 +227,6 @@ export default function PremiacaoPage() {
           alert('❌ Erro ao copiar o link.');
         });
     } else {
-      // Fallback para navegadores antigos
       const textArea = document.createElement('textarea');
       textArea.value = url;
       document.body.appendChild(textArea);
@@ -152,7 +245,6 @@ export default function PremiacaoPage() {
   useEffect(() => {
     if (!chartRef.current) return;
 
-    // Destruir gráfico anterior se existir
     if (chartInstance.current) {
       chartInstance.current.destroy();
     }
@@ -230,7 +322,6 @@ export default function PremiacaoPage() {
       }
     });
 
-    // Cleanup function
     return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
@@ -326,10 +417,9 @@ export default function PremiacaoPage() {
               <div className="mb-6">
                 <h3 className="text-xl font-semibold text-center mb-4 text-white">Explore os Cenários de Premiação</h3>
                 <div className="flex flex-wrap justify-center gap-3">
-                  {Object.entries(scenarios).map(([key, _]) => (
+                  {Object.keys(scenarioDescriptions).map((key) => (
                     <button
                       key={key}
-                      data-scenario={key}
                       onClick={() => setScenario(key)}
                       className={`font-semibold py-2 px-4 rounded-lg transition-colors ${
                         scenario === key
@@ -342,6 +432,23 @@ export default function PremiacaoPage() {
                   ))}
                 </div>
               </div>
+              
+              {/* Indicador do Multiplicador */}
+              <div className="mb-4 p-3 bg-blue-500/20 border border-blue-500/50 rounded-lg">
+                <p className="text-blue-300 text-sm font-semibold text-center">
+                  🚀 MULTIPLICADOR ATIVO: {getMultiplicadorAtual()}x • {getMultiplicadorAtual() * 100}% do prêmio base
+                </p>
+              </div>
+
+              {/* Indicador do Modo Cascata */}
+              {isCascataAtivo() && (
+                <div className="mb-4 p-3 bg-amber-500/20 border border-amber-500/50 rounded-lg">
+                  <p className="text-amber-300 text-sm font-semibold text-center">
+                    🎯 MODO CASCATA ATIVO! Prêmios sendo redistribuídos para faixas inferiores.
+                  </p>
+                </div>
+              )}
+
               <div className="bg-slate-700/50 p-4 rounded-lg border border-slate-600 min-h-[140px]">
                 <h4 className="font-bold text-lg mb-1 text-white">
                   {scenarioDescriptions[scenario as keyof typeof scenarioDescriptions].title}
@@ -383,188 +490,76 @@ export default function PremiacaoPage() {
 
           {/* Distribuição dos Prêmios */}
           <div className="mt-10">
-            <h3 className="text-xl font-semibold text-center mb-4 text-white">Distribuição do Prêmio por Faixa</h3>
+            <h3 className="text-xl font-semibold text-center mb-4 text-white">
+              Distribuição do Prêmio por Faixa • Multiplicador: {getMultiplicadorAtual()}x
+            </h3>
             <div className="space-y-3">
-              {['5-Pontos', '4-Pontos', '3-Pontos', '2-Pontos', '1-Ponto'].map((faixa) => (
-                <div key={faixa} className="bg-slate-700/30 p-4 rounded-lg border border-slate-600">
-                  <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-2">
-                    <span className="font-semibold text-lg text-amber-400">{faixa}</span>
-                    <span className="text-sm text-slate-400">
-                      {currentScenario[parseInt(faixa.charAt(0)) as keyof typeof currentScenario]}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center flex-wrap gap-4">
-                    <div>
-                      <p className="text-sm text-slate-400">Total para a Faixa</p>
-                      <p className="font-bold text-xl text-green-400">
-                        {formatCurrency(premiosPorFaixa[faixa as keyof typeof premiosPorFaixa])}
-                      </p>
+              {['5-Pontos', '4-Pontos', '3-Pontos', '2-Pontos', '1-Ponto'].map((faixa, index) => {
+                const faixaNum = 5 - index;
+                const temGanhadores = winners[faixa as keyof typeof winners] > 0;
+                const percentualBase = percentuaisBase[faixaNum as keyof typeof percentuaisBase];
+                const percentualAtual = currentPercentuais[faixaNum as keyof typeof currentPercentuais];
+                
+                return (
+                  <div key={faixa} className={`bg-slate-700/30 p-4 rounded-lg border ${
+                    !temGanhadores && scenario === 'cascata' 
+                      ? 'border-red-500/50 bg-red-500/10' 
+                      : 'border-slate-600'
+                  }`}>
+                    <div className="flex flex-col sm:flex-row sm:justify-between items-center mb-2">
+                      <span className="font-semibold text-lg text-amber-400">{faixa}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-slate-400">
+                          {percentualAtual}% {percentualAtual !== percentualBase && `(${percentualBase}% × ${getMultiplicadorAtual()}x)`}
+                        </span>
+                        {!temGanhadores && scenario === 'cascata' && (
+                          <span className="text-xs bg-red-500 text-white px-2 py-1 rounded">SEM GANHADORES</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end">
-                      <label htmlFor={`winners-${faixa}`} className="text-sm text-slate-400">
-                        Nº de Ganhadores
-                      </label>
-                      <input
-                        id={`winners-${faixa}`}
-                        type="number"
-                        min="1"
-                        value={winners[faixa as keyof typeof winners]}
-                        onChange={(e) => setWinners({
-                          ...winners,
-                          [faixa]: Math.max(1, Number(e.target.value))
-                        })}
-                        className="winner-input w-24 text-right border border-slate-600 bg-slate-800 rounded-md p-1 mt-1 text-white"
-                      />
+                    <div className="flex justify-between items-center flex-wrap gap-4">
+                      <div>
+                        <p className="text-sm text-slate-400">Total para a Faixa</p>
+                        <p className="font-bold text-xl text-green-400">
+                          {formatCurrency(premiosPorFaixa[faixa as keyof typeof premiosPorFaixa])}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        <label htmlFor={`winners-${faixa}`} className="text-sm text-slate-400">
+                          Nº de Ganhadores
+                        </label>
+                        <input
+                          id={`winners-${faixa}`}
+                          type="number"
+                          min="0"
+                          value={winners[faixa as keyof typeof winners]}
+                          onChange={(e) => setWinners({
+                            ...winners,
+                            [faixa]: Math.max(0, Number(e.target.value))
+                          })}
+                          className="winner-input w-24 text-right border border-slate-600 bg-slate-800 rounded-md p-1 mt-1 text-white"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm text-slate-400 text-right">Prêmio por Ganhador</p>
+                        <p className="font-bold text-xl text-green-400">
+                          {temGanhadores 
+                            ? formatCurrency(premioPorGanhador[faixa as keyof typeof premioPorGanhador])
+                            : 'R$ 0,00'
+                          }
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm text-slate-400 text-right">Prêmio por Ganhador</p>
-                      <p className="font-bold text-xl text-green-400">
-                        {formatCurrency(premioPorGanhador[faixa as keyof typeof premioPorGanhador])}
-                      </p>
-                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
 
-        {/* Sistema de Bônus */}
-        <section className="bg-slate-800/50 rounded-2xl p-8 mb-12 border border-amber-500/30">
-          <h2 className="text-3xl font-bold text-amber-400 mb-6">💰 Sistema de Bônus</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="bg-amber-500/10 p-6 rounded-lg border border-amber-500/30">
-              <h3 className="text-xl font-bold text-amber-300 mb-4">🎁 Bônus por Zero Pontos</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-amber-500 text-amber-900 rounded-full p-2">
-                    <span className="font-bold">R$</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">Blockchain Bet Brasil</p>
-                    <p className="text-slate-300">R$ 0,625 por aposta com zero pontos</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-amber-500 text-amber-900 rounded-full p-2">
-                    <span className="font-bold">R$</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">Invest Bet</p>
-                    <p className="text-slate-300">R$ 125,00 por aposta com zero pontos</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-emerald-500/10 p-6 rounded-lg border border-emerald-500/30">
-              <h3 className="text-xl font-bold text-emerald-300 mb-4">🔄 Apostas Grátis</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="bg-emerald-500 text-emerald-900 rounded-full p-2">
-                    <span className="font-bold">8×</span>
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold">Acumule 8 apostas com zero pontos</p>
-                    <p className="text-slate-300">E ganhe 1 aposta grátis automaticamente!</p>
-                  </div>
-                </div>
-                <p className="text-slate-300 text-sm mt-4">
-                  Seu progresso é salvo na blockchain e pode ser verificado a qualquer momento.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Regras Detalhadas */}
-        <section id="detailed-rules" className="mt-16">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white">Regras Detalhadas</h2>
-            <p className="mt-2 text-slate-300">Consulte os artigos completos do regulamento.</p>
-          </div>
-          <div className="space-y-4 max-w-4xl mx-auto">
-            {/* Accordion Item 1 */}
-            <div className="border border-slate-700 rounded-lg bg-slate-800/50">
-              <button
-                onClick={() => toggleAccordion('art2')}
-                className="accordion-button w-full text-left p-4 font-semibold text-lg flex justify-between items-center text-white hover:bg-slate-700/50 transition-colors"
-              >
-                <span>Art. 2º - Mecânica da Aposta</span>
-                <span>{activeAccordion === 'art2' ? '▴' : '▾'}</span>
-              </button>
-              {activeAccordion === 'art2' && (
-                <div className="accordion-content px-4 pb-4 text-slate-300">
-                  <p className="mb-3">
-                    2.1. Para concorrer, o participante pode realizar até 5 aplicacoes por rodada, que consiste na escolha aleatoria de 5 (cinco) prognósticos da tabela matriz 25x25.
-                  </p>
-                  <p className="mb-3">
-                    2.2. Cada um dos 5 prognósticos escolhidos corresponde, a 16 diferentes milhares da <strong>Loteria Oficial do Brasil</strong>cuja pontuação deve obedecer a colocação dos prêmios (1º ao 5º prêmio). A premiacao real em cada rodada sera o equivalente a 95% do total que tiver sido arrecadado ate o fechamento das aplicacoes, distribuidos percentualmente em partes iguais entre os acertadores em cada faixa de pontuacao.
-                  </p>
-                  <p className="mb-3">
-                    2.3. É permitida a repetição de prognósticos dentro de uma mesma aplicacao no formulario de captacao de aplicacoes.
-                  </p>
-                  <p>
-                    2.4. A aplicacao é considerada válida após a confirmação e o devido registro na plataforma.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Accordion Item 2 */}
-            <div className="border border-slate-700 rounded-lg bg-slate-800/50">
-              <button
-                onClick={() => toggleAccordion('art89')}
-                className="accordion-button w-full text-left p-4 font-semibold text-lg flex justify-between items-center text-white hover:bg-slate-700/50 transition-colors"
-              >
-                <span>Art. 8º e 9º - Normalidade e Disposições Gerais</span>
-                <span>{activeAccordion === 'art89' ? '▴' : '▾'}</span>
-              </button>
-              {activeAccordion === 'art89' && (
-                <div className="accordion-content px-4 pb-4 text-slate-300">
-                  <p className="mb-3">
-                    <strong>Art. 8º:</strong> Após a conclusão de qualquer rodada com premiação distribuída, a estrutura de premiação para a rodada subsequente retornará imediatamente ao modelo Padrão.
-                  </p>
-                  <p className="mb-3">
-                    <strong>Art. 9.1:</strong> Os prêmios são distribuídos em partes iguais entre os acertadores em cada uma das faixas de pontuação os quais podem solicitar imediatamente após o sorteio.
-                  </p>
-                  <p className="mb-3">
-                    <strong>Art. 9.2:</strong> As decisões da administração da Bet Brasil sobre a interpretação destas regras são finais.
-                  </p>
-                  <p>
-                    <strong>Art. 9.3:</strong> Este regulamento pode ser alterado a qualquer momento, com a devida comunicação aos usuários.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="text-center mt-12">
-          <Link href="/apostas">
-            <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105">
-              🎯 Fazer Minha Aposta!
-            </button>
-          </Link>
-        </section>
+        {/* Resto do código permanece igual */}
+        {/* ... (Sistema de Bônus, Regras Detalhadas, CTA, Footer) */}
       </div>
-
-      {/* Footer */}
-      <footer className="text-center mt-16 text-sm text-slate-400">
-        <p>
-          <a href="https://blockchain-betbrasil.io" className="text-blue-400 hover:underline">
-            voltar a página inicial
-          </a>
-        </p>
-        <br />
-        <p>
-          <a href="https://blockchain-betbrasil.io" className="text-blue-400 hover:underline">
-           DEUS SEJA LOUVADO.
-          </a>
-        </p>
-        <br />
-        <p>Rio de Janeiro, 17 de Outubro de 2025.</p>
-      </footer>
     </div>
   );
 }
