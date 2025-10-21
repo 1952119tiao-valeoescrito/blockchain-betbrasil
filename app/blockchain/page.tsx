@@ -267,7 +267,7 @@ const BlockchainPage: React.FC = () => {
 
       <footer className="page-footer">
         <div className="container">
-          <p>© 2024 - Guia Completo sobre Blockchain</p>
+          <p>© 2025 - Guia Completo sobre Blockchain</p>
         </div>
       </footer>
     </div>
