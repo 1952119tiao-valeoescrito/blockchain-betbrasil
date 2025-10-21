@@ -221,7 +221,7 @@ export default function TabelaPrognosticosPage() {
           <br />
           <p>
             <a href="/como-jogar" className="text-blue-400 hover:underline">
-              ❓ Como Jogar
+              ❓ Como Investir
             </a>
           </p>
           <br />
