@@ -363,7 +363,7 @@ export default function PremiacaoPage() {
                 Cada aposta consiste na escolha aleatória de 5 prognósticos de uma{' '}
                 <a href="/tabela-de-prognosticos" className="text-blue-400 hover:underline">
                   tabela matriz 25x25, um para cada faixa de prêmio
-                </a>. <Link href="/blockchain" className="text-blue-400 hover:underline">O QUE É BLOCKCHAIN?</Link>
+                </a>. <Link href="/blockchain" className="text-white-400 hover:underline"><p>O QUE É BLOCKCHAIN?</p></Link>
               </p>
             </div>
             <div className="bg-white/10 p-6 rounded-xl shadow-sm border border-slate-700">
