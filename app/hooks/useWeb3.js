@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { CONTRACT_ADDRESSES } from '../contracts/addresses';
-import MockTokenABI from '../contracts/abis/MockERC20Fixed.json';
-import BetBrasilABI from '../contracts/abis/BlockchainBetBrasilV3.json';
+import { CONTRACT_ADDRESSES } from '../../contracts/addresses';
+import MockTokenABI from '../../contracts/abis/MockERC20Fixed.json';
+import BetBrasilABI from '../../contracts/abis/BlockchainBetBrasilV3.json';
 
 export const useWeb3 = () => {
   const [provider, setProvider] = useState(null);

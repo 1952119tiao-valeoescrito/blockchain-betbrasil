@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import CountdownTimer from '../components/CountdownTimer';
-import { useWeb3 } from '../../hooks/useWeb3';
+import { useWeb3 } from '../hooks/useWeb3';
 import { CONTRACT_ADDRESSES } from '../../contracts/addresses';
 import { ethers } from 'ethers';
 
