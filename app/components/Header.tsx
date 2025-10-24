@@ -62,7 +62,7 @@ export default function Header() {
   
   {/* Texto para desktop */}
   <span className="text-white font-bold text-xl hidden sm:inline bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">
-    BLOCKCHAIN BET BRASIL
+    Blockchain Bet BRASIL
   </span>
   
   {/* Texto alternativo para mobile */}

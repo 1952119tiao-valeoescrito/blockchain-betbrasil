@@ -9,16 +9,21 @@ const HomePage: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const connectWallet = async () => {
-    try {
-      console.log('Conectando carteira...');
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockAddress = '0x742...d35E1';
-      setWalletAddress(mockAddress);
-      setIsConnected(true);
-    } catch (error) {
-      console.error('Erro ao conectar carteira:', error);
-    }
-  };
+  try {
+    console.log('Conectando carteira...');
+    
+    // Importar a função real do web3.ts
+    const { connectWallet: connectRealWallet } = await import('../lib/web3');
+    const address = await connectRealWallet();
+    
+    setWalletAddress(address);
+    setIsConnected(true);
+    console.log('Carteira conectada:', address);
+  } catch (error) {
+    console.error('Erro ao conectar carteira:', error);
+    alert('Erro ao conectar carteira. Verifique se o MetaMask está instalado.');
+  }
+};
 
   const disconnectWallet = () => {
     setWalletAddress('');
@@ -45,7 +50,7 @@ const HomePage: React.FC = () => {
       className="w-full h-full object-cover"
     />
   </div>
-  <span className="text-white font-bold text-lg sm:text-xl">BLOCKCHAIN BET BRASIL</span>
+  <span className="text-white font-bold text-lg sm:text-xl">Blockchain Bet Brasil</span>
 </Link>
 
             {/* Menu Desktop */}
@@ -373,7 +378,7 @@ const HomePage: React.FC = () => {
           <p className="mb-2">© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
           <p className="mt-2">Source: 601700 | Auditoria de Segurança Ativa</p>
           <div className="flex justify-center gap-4 mt-4">
-            <a className="hover:text-emerald-400 transition-colors duration-200" href="termos-de-uso">
+            <a className="hover:text-emerald-400 transition-colors duration-200" href="https://blockchain-betbrasil.io/termos-de-uso">
               Termos de Uso
             </a>
             <span>|</span>
