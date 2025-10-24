@@ -3,35 +3,43 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import CountdownTimer from '../components/CountdownTimer';
+import { useWeb3 } from '../../hooks/useWeb3';
+import { CONTRACT_ADDRESSES } from '../../contracts/addresses';
+import { ethers } from 'ethers';
+
 export default function AplicacoesPage() {
   const [prognosticos, setPrognosticos] = useState<Array<{ x: string; y: string }>>(
     Array(5).fill({ x: '', y: '' })
   );
   const [tipoAplicacao, setTipoAplicacao] = useState<'regular' | 'premium'>('regular');
-  const [isConnected, setIsConnected] = useState(false);
-  const [walletAddress, setWalletAddress] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [aplicacaoEnviada, setAplicacaoEnviada] = useState(false);
 
+  // HOOK WEB3 REAL - SUBSTITUI os estados antigos
+  const { 
+    isConnected, 
+    account, 
+    contracts, 
+    connectWallet, 
+    disconnectWallet 
+  } = useWeb3();
+
   const handleInputChange = (index: number, campo: 'x' | 'y', valor: string) => {
-    // Remove caracteres não numéricos
     const apenasNumeros = valor.replace(/[^0-9]/g, '');
-    
-    // Converte para número para validar entre 1-25
     const numero = parseInt(apenasNumeros);
     
-    // Se estiver vazio ou for número válido entre 1-25, atualiza
     if (apenasNumeros === '' || (numero >= 1 && numero <= 25)) {
       const novosPrognosticos = [...prognosticos];
       novosPrognosticos[index] = {
         ...novosPrognosticos[index],
-        [campo]: apenasNumeros.slice(0, 2) // máximo 2 dígitos
+        [campo]: apenasNumeros.slice(0, 2)
       };
       setPrognosticos(novosPrognosticos);
     }
   };
 
+  // FUNÇÃO handleSubmit ATUALIZADA PARA BLOCKCHAIN REAL
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -45,7 +53,6 @@ export default function AplicacoesPage() {
       return;
     }
 
-    // Valida se todos os números estão entre 1-25
     const numerosInvalidos = prognosticos.some(p => {
       const numX = parseInt(p.x);
       const numY = parseInt(p.y);
@@ -60,71 +67,103 @@ export default function AplicacoesPage() {
     setIsLoading(true);
 
     try {
-      // SIMULAÇÃO - Enquanto contrato não está pronto
-      console.log('📤 Simulando envio da aplicação...', {
+      // CONVERTE PROGNÓSTICOS PARA O FORMATO DO CONTRATO
+      const prognosticosArray = prognosticos.map(p => [
+        BigInt(parseInt(p.x)), 
+        BigInt(parseInt(p.y))
+      ]);
+
+      console.log('📤 Enviando aplicação para blockchain...', {
         tipo: tipoAplicacao,
-        prognosticos,
-        wallet: walletAddress,
-        valor: tipoAplicacao === 'regular' ? 'R$ 5,00' : 'R$ 1.000,00'
+        prognosticos: prognosticosArray,
+        wallet: account
       });
 
-      // Simula delay de transação na blockchain
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // VERIFICA SE CONTRATOS ESTÃO CARREGADOS
+      if (!contracts.mockToken || !contracts.betBrasil) {
+        throw new Error('Contratos não carregados. Reconecte a carteira.');
+      }
 
-      // Simula sucesso (mas mostra que é simulação)
+      // VALOR DA APLICAÇÃO EM WEI
+      const valorAplicacao = tipoAplicacao === 'regular' ? 
+        ethers.parseUnits("5", 18) : // 5 tokens
+        ethers.parseUnits("1000", 18); // 1000 tokens
+
+      // VERIFICA SALDO ANTES
+      const saldo = await contracts.mockToken.balanceOf(account);
+      if (saldo < valorAplicacao) {
+        throw new Error(`Saldo insuficiente! Necessário: ${tipoAplicacao === 'regular' ? '5' : '1000'} tokens`);
+      }
+
+      // 1. APROVAÇÃO DO TOKEN
+      console.log('⏳ Aprovando tokens...');
+      const approveTx = await contracts.mockToken.approve(
+        CONTRACT_ADDRESSES.betBrasil,
+        valorAplicacao
+      );
+      await approveTx.wait();
+      console.log('✅ Tokens aprovados!');
+
+      // 2. FAZER A APOSTA
+      console.log('⏳ Enviando aplicação...');
+      const betTx = await contracts.betBrasil.aplicar(prognosticosArray);
+      
+      console.log('⏳ Aguardando confirmação...');
+      const receipt = await betTx.wait();
+      
+      console.log('✅ Aplicação confirmada!', receipt);
+      
       setAplicacaoEnviada(true);
       
-      console.log('✅ Aplicação simulada com sucesso!');
-      
-      // Feedback visual
-      alert(`🎯 Aplicação ${tipoAplicacao === 'regular' ? 'Regular' : 'Premium'} SIMULADA!\n\nPrógnosticos: ${prognosticos.map(p => `${p.x}/${p.y}`).join(', ')}\n\n⚠️ CONTRATO AINDA NÃO IMPLEMENTADO`);
+      alert(`🎯 APLICAÇÃO CONFIRMADA NA BLOCKCHAIN!\n\nHash: ${receipt.hash.slice(0, 10)}...\nPrógnosticos: ${prognosticos.map(p => `${p.x}/${p.y}`).join(', ')}`);
 
-    } catch (error) {
-      console.error('❌ Erro ao simular aplicação:', error);
-      alert('❌ Erro ao simular aplicação. Verifique o console.');
+    } catch (error: any) {
+      console.error('❌ Erro na aplicação:', error);
+      
+      if (error.message.includes('user rejected')) {
+        alert('❌ Transação rejeitada pelo usuário.');
+      } else if (error.message.includes('Saldo insuficiente')) {
+        alert(`❌ ${error.message}`);
+      } else if (error.message.includes('Contratos não carregados')) {
+        alert('❌ Erro de conexão. Reconecte a carteira.');
+      } else {
+        alert('❌ Erro ao processar aplicação: ' + error.message);
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const connectWallet = async () => {
+  // FUNÇÃO connectWallet ATUALIZADA
+  const connectWalletReal = async () => {
     try {
-      console.log('🔗 Conectando carteira...');
-      
-      // Simulação de conexão
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const mockAddress = '0x742d35Ed6632D5E1BD822352153B04A1B5b4D7e9';
-      setWalletAddress(mockAddress);
-      setIsConnected(true);
-      
-      console.log('✅ Carteira conectada:', mockAddress);
+      await connectWallet();
+      console.log('✅ Carteira conectada via hook Web3');
     } catch (error) {
       console.error('❌ Erro ao conectar carteira:', error);
       alert('❌ Erro ao conectar carteira');
     }
   };
 
-  const disconnectWallet = () => {
-    setWalletAddress('');
-    setIsConnected(false);
+  // FUNÇÃO disconnectWallet ATUALIZADA
+  const disconnectWalletReal = () => {
+    disconnectWallet();
     setAplicacaoEnviada(false);
+    setPrognosticos(Array(5).fill({ x: '', y: '' }));
   };
 
   const formatWalletAddress = (address: string) => {
+    if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  // Função para verificar se todos os prognósticos estão preenchidos
   const todosPreenchidos = prognosticos.every(p => p.x && p.y);
 
-  // Função para resetar o formulário
   const resetarAplicacao = () => {
     setPrognosticos(Array(5).fill({ x: '', y: '' }));
     setAplicacaoEnviada(false);
   };
 
-  // Valores dos bônus por tipo de aplicação
   const bonusConfig = {
     regular: {
       bonusZero: 'R$ 0,625',
@@ -138,11 +177,9 @@ export default function AplicacoesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-      {/* Menu Fixo */}
       <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <Link href="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-sm">B³</span>
@@ -150,7 +187,6 @@ export default function AplicacoesPage() {
               <span className="text-white font-bold text-xl">Blockchain Bet Brasil</span>
             </Link>
 
-            {/* Menu Desktop */}
             <div className="hidden md:flex items-center space-x-8">
               <Link href="/como-jogar" className="text-emerald-400 font-semibold">
                Como Funciona
@@ -169,15 +205,14 @@ export default function AplicacoesPage() {
               </Link>
             </div>
 
-            {/* Botão Conectar Carteira */}
             <div className="hidden md:flex items-center space-x-4">
               {isConnected ? (
                 <div className="flex items-center space-x-3">
                   <div className="bg-emerald-500/20 border border-emerald-500 text-emerald-400 px-3 py-1 rounded-lg text-sm">
-                    {formatWalletAddress(walletAddress)}
+                    {formatWalletAddress(account)}
                   </div>
                   <button
-                    onClick={disconnectWallet}
+                    onClick={disconnectWalletReal}
                     className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors text-sm"
                   >
                     Desconectar
@@ -185,7 +220,7 @@ export default function AplicacoesPage() {
                 </div>
               ) : (
                 <button
-                  onClick={connectWallet}
+                  onClick={connectWalletReal}
                   className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-6 py-2 rounded-lg transition-all duration-300 font-semibold shadow-lg"
                 >
                   Conectar Carteira
@@ -193,15 +228,14 @@ export default function AplicacoesPage() {
               )}
             </div>
 
-            {/* Menu Mobile */}
             <div className="flex md:hidden items-center space-x-2">
               {isConnected ? (
                 <div className="bg-emerald-500/20 border border-emerald-500 text-emerald-400 px-2 py-1 rounded text-xs mr-2">
-                  {formatWalletAddress(walletAddress)}
+                  {formatWalletAddress(account)}
                 </div>
               ) : (
                 <button
-                  onClick={connectWallet}
+                  onClick={connectWalletReal}
                   className="bg-gradient-to-r from-emerald-500 to-green-500 text-white px-3 py-1 rounded text-xs font-semibold mr-2"
                 >
                   Conectar
@@ -217,7 +251,6 @@ export default function AplicacoesPage() {
             </div>
           </div>
 
-          {/* Menu Mobile Expandido */}
           {isMenuOpen && (
             <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 shadow-xl">
               <div className="flex flex-col space-y-0 p-4">
@@ -240,14 +273,14 @@ export default function AplicacoesPage() {
                 <div className="pt-4 mt-4 border-t border-slate-700">
                   {isConnected ? (
                     <button
-                      onClick={disconnectWallet}
+                      onClick={disconnectWalletReal}
                       className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg transition-colors text-sm font-medium"
                     >
                       Desconectar Carteira
                     </button>
                   ) : (
                     <button
-                      onClick={connectWallet}
+                      onClick={connectWalletReal}
                       className="w-full bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white py-3 px-4 rounded-lg transition-all duration-300 font-semibold"
                     >
                       Conectar Carteira
@@ -260,7 +293,6 @@ export default function AplicacoesPage() {
         </div>
       </nav>
 
-      {/* Conteúdo Principal */}
       <div className="pt-20 pb-8">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center mb-8">
@@ -268,15 +300,8 @@ export default function AplicacoesPage() {
             <p className="text-slate-300 text-lg">
               Escolha entre nossa aplicação regular de R$5,00 ou a premium Invest-Bet de R$1.000,00
             </p>
-            
-            {/* ALERTA DE DESENVOLVIMENTO */}
-            <div className="mt-4 bg-amber-500/20 border border-amber-500 text-amber-300 p-3 rounded-lg max-w-md mx-auto">
-              <p className="font-bold">⚠️ MODO DESENVOLVIMENTO</p>
-              <p className="text-sm">Contratos ainda não implementados</p>
-            </div>
           </div>
 
-          {/* Seletor de Tipo de Aplicação */}
           <div className="flex gap-4 mb-8 justify-center">
             <button
               onClick={() => {
@@ -306,7 +331,6 @@ export default function AplicacoesPage() {
             </button>
           </div>
 
-          {/* Formulário de Aplicação */}
           <div className="bg-slate-800/50 rounded-xl border border-slate-700 shadow-2xl">
             <div className="w-full p-6">
               <div className="text-center mb-6">
@@ -322,13 +346,10 @@ export default function AplicacoesPage() {
               {aplicacaoEnviada ? (
                 <div className="text-center space-y-4">
                   <div className="bg-emerald-500/20 border border-emerald-500 text-emerald-400 p-4 rounded-lg">
-                    <p className="text-xl font-bold">✅ APLICAÇÃO SIMULADA!</p>
+                    <p className="text-xl font-bold">✅ APLICAÇÃO CONFIRMADA NA BLOCKCHAIN!</p>
                     <p className="text-sm mt-2">Prógnosticos enviados:</p>
                     <p className="font-mono text-sm bg-slate-700 p-2 rounded mt-2">
                       {prognosticos.map((p, i) => `${p.x}/${p.y}`).join(' | ')}
-                    </p>
-                    <p className="text-xs mt-3 text-amber-300">
-                      ⚠️ Contratos ainda não implementados
                     </p>
                   </div>
                   <button
@@ -340,7 +361,6 @@ export default function AplicacoesPage() {
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Prognósticos */}
                   <div className="bg-slate-700/30 p-4 rounded-lg">
                     <label className="block text-lg font-bold text-white mb-4 text-center">
                       Seus 5 Prognósticos (1-25)
@@ -399,10 +419,10 @@ export default function AplicacoesPage() {
                     {isLoading ? (
                       <>
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Simulando...
+                        Processando na Blockchain...
                       </>
                     ) : isConnected ? (
-                      `Simular Aplicação - ${tipoAplicacao === 'regular' ? 'R$ 5,00' : 'R$ 1.000,00'}`
+                      `Confirmar Aplicação - ${tipoAplicacao === 'regular' ? 'R$ 5,00' : 'R$ 1.000,00'}`
                     ) : (
                       'Conecte Carteira'
                     )}
@@ -413,17 +433,17 @@ export default function AplicacoesPage() {
               {!isConnected && !aplicacaoEnviada && (
                 <div className="mt-3 text-center">
                   <div className="text-amber-400 text-xs bg-amber-500/10 p-2 rounded">
-                    🔗 Conecte sua carteira para simular aplicações
+                    🔗 Conecte sua carteira para fazer aplicações na blockchain
                   </div>
                 </div>
               )}
             </div>
           </div>
-<CountdownTimer />
-          {/* Rodapé */}
+          
+          <CountdownTimer />
+
           <div className="text-center mt-8 text-slate-500 text-sm">
-            <p>© 2025 Sistema de Investimento - Modo Desenvolvimento</p>
-            <p className="mt-1 text-xs">Contratos Blockchain: Em implementação</p>
+            <p>© 2025 Blockchain Bet Brasil - Todos os direitos reservados</p>
           </div>
         </div>
       </div>
