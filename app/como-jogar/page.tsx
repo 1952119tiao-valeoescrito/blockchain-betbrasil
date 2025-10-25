@@ -12,10 +12,10 @@ const ComoJogarPage: React.FC = () => {
               </button>
             </a>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-              Como Investir no Blockchain Bet Brasil
+              Como Interagir no Blockchain Bet Brasil
             </h1>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
-              Aprenda as regras, entenda como funciona o sistema de aplicações e descubra como maximizar suas chances de ser contemplado!
+              Aprenda as regras, entenda como funciona o sistema dessa competição e descubra como maximizar suas chances de ser contemplado!
             </p>
           </header>
 
@@ -24,40 +24,40 @@ const ComoJogarPage: React.FC = () => {
             <div className="grid md:grid-cols-2 gap-8">
               <div className="space-y-4">
                 <div className="bg-slate-700/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">🎯 Formato das Aplicações</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">🎯 Formato das Estratégias</h3>
                   <p className="text-slate-300">
-                    Cada aplicação consiste em <strong>5 prognósticos</strong> no formato <strong>X/Y</strong>, onde X e Y são números de 1 a 25; pode repetir e/ou inverter prognósticos livremente.
+                    Cada estratégia consiste em <strong>5 prognósticos</strong> no formato <strong>X/Y</strong>, onde X e Y são números de 1 a 25; pode repetir e/ou inverter prognósticos livremente.
                   </p>
                   <p className="text-slate-400 text-sm mt-2">
                     Exemplo: <code className="bg-slate-600 px-2 py-1 rounded">15/20</code>, <code className="bg-slate-600 px-2 py-1 rounded">1/25</code>, <code className="bg-slate-600 px-2 py-1 rounded">10/5</code>, <code className="bg-slate-600 px-2 py-1 rounded">13/25</code>, <code className="bg-slate-600 px-2 py-1 rounded">17/5</code>
                   </p>
                 </div>
                 <div className="bg-slate-700/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">💰 Valor das Aplicações</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">💰 Valor das Adesões</h3>
                   <ul className="text-slate-300 space-y-2">
-                    <li>• <strong>Blockchain Bet Brasil:</strong> R$ 5,00 por aplicação</li>
-                    <li>• <strong>Invest Bet:</strong> R$ 1.000,00 por aplicação</li>
+                    <li>• <strong>Blockchain Bet Brasil:</strong> R$ 5,00 por adesão</li>
+                    <li>• <strong>Invest Bet:</strong> R$ 1.000,00 por adesão</li>
                   </ul>
                 </div>
               </div>
               <div className="space-y-4">
                 <div className="bg-slate-700/50 p-4 rounded-lg">
-                  <h3 className="text-xl font-bold text-white mb-2">🏆 Sistema de Premiação</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">🏆 Sistema de Contemplação</h3>
                   <p className="text-slate-300">
-                    Ganhe acertando <strong>5, 4, 3, 2 ou até 1 ponto</strong>! Quanto mais pontos, maior o retorno.
+                    Monte sua estratégia e seja contemplado com <strong>5, 4, 3, 2 ou até 1 ponto</strong>! Quanto mais pontos, maior sua experiência.
                   </p>
                   <p className="text-slate-400 text-sm mt-2">
-                    Distribuição: 50% (5pts), 20% (4pts), 15% (3pts), 10% (2pts), 5% (1pt), rateado entre os acertadores em cada etapa de pontuação.
+                    Distribuição: 50% (5pts), 20% (4pts), 15% (3pts), 10% (2pts), 5% (1pt), rateado entre os contemplados em cada etapa de pontuação.
                   </p>
                 </div>
                 <div className="bg-slate-700/50 p-4 rounded-lg">
                   <h3 className="text-xl font-bold text-white mb-2">🎁 Sistema de Bônus</h3>
                   <p className="text-slate-300">
-                    <strong>Zero pontos não é derrota!</strong> Receba bônus e acumule aplicações grátis.
+                    <strong>Zero pontos não é derrota!</strong> Retorno automático à competição gratuitamente.
                   </p>
                   <ul className="text-slate-400 text-sm mt-2 space-y-1">
-                    <li>• Aplicação Regular / Invest-Bet: R$ 0,625 / R$125,00 de bônus por aplicação com zero pontos</li>
-                    <li>• A cada 8 aplicações com zero pontos: 1 aplicação grátis!</li>
+                    <li>• Adesão Regular / Invest-Bet: R$ 0,625 / R$125,00 de bônus por integração com zero pontos</li>
+                    <li>• A cada 8 adesões com zero pontos: 1 adesão grátis!</li>
                   </ul>
                 </div>
               </div>
@@ -70,7 +70,7 @@ const ComoJogarPage: React.FC = () => {
                 Tabela de Referência de Prognósticos
               </h2>
               <p className="text-gray-400 mb-6 text-center">
-                Esta tabela serve como uma referência completa de todos os 625 prognósticos possíveis em nosso sistema, no formato &quot;x/y&quot;. Use-a para consultar e planejar suas aplicações.
+                Esta tabela serve como uma referência completa de todos os 625 prognósticos possíveis em nosso sistema, no formato &quot;x/y&quot;. Use-a para consultar e planejar suas estratégias.
               </p>
               <div className="overflow-x-auto rounded-lg border border-gray-700">
                 <table className="min-w-full bg-gray-800 text-white">
@@ -177,7 +177,7 @@ const ComoJogarPage: React.FC = () => {
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
                   <h4 className="text-lg font-bold text-amber-300 mb-2">🔄 Invista Regularmente</h4>
                   <p className="text-slate-300">
-                    Com o sistema de bônus, cada aplicação com zero ponto (8x)= 1 aplicação grátis!
+                    Com o sistema de bônus, cada adesão com zero ponto (8x)= 1 adesão grátis!
                   </p>
                 </div>
                 <div className="bg-amber-500/10 p-4 rounded-lg border border-amber-500/30">
@@ -193,7 +193,7 @@ const ComoJogarPage: React.FC = () => {
           <section className="text-center mt-12">
             <a href="apostas">
               <button className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold py-4 px-8 rounded-lg text-lg transition-all duration-300 transform hover:scale-105">
-                🎯 Fazer Minha Primeira Aplicação!
+                🎯 Fazer Minha Primeira Adesão!
               </button>
             </a>
           </section>

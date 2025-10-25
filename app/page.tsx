@@ -232,7 +232,7 @@ const HomePage: React.FC = () => {
                   <p className="font-extrabold text-xl md:text-2xl">🚀 BLOCKCHAIN BET BRASIL - O BBB DA WEB3 ESTÁ NO AR!</p>
                   <p className="font-semibold text-lg md:text-xl">
                     📍 ALÔ MUNDO... CHEGUEI, AVISA LÁ! 🌎<br />
-                    É com grande alegria que anuncio o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai revolucionar o universo de investimentos gamificados na Web3!
+                    É com grande alegria que anuncio o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai redefinir o futuro das estratégias com interação gamificada na Web3!
                   </p>
                 </div>
               </div>
