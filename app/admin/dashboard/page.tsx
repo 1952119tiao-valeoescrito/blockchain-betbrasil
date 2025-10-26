@@ -1,10 +1,8 @@
-// app/admin/dashboard/page.tsx - ATUALIZADO COM VERIFICAÇÃO DE ROLE
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
-// Tipos para os dados
 interface UserStats {
   total: number;
   novos: number;
@@ -25,26 +23,24 @@ interface RevenueStats {
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const [user, setUser] = useState<string>('');
-  const [userRole, setUserRole] = useState<string>(''); // ✅ NOVO: Estado para a role
+  const [user, setUser] = useState('');
+  const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Dados mockados para demonstração
   const [stats, setStats] = useState({
-    usuarios: { total: 1542, novos: 23, ativos: 1245 } as UserStats,
-    apostas: { total: 8921, emAndamento: 156, finalizados: 8765 } as BetStats,
-    receita: { total: 152430.50, hoje: 3250.75, mes: 45210.25 } as RevenueStats,
+    usuarios: { total: 1542, novos: 23, ativos: 1245 },
+    apostas: { total: 8921, emAndamento: 156, finalizados: 8765 },
+    receita: { total: 152430.50, hoje: 3250.75, mes: 45210.25 },
     transacoes: { total: 2845, pendentes: 12 },
     convites: { enviados: 15, ativos: 8, pendentes: 3 }
   });
 
   useEffect(() => {
-    // Verificar se o usuário está autenticado
     const checkAuth = () => {
       const token = localStorage.getItem('adminToken');
       const adminUser = localStorage.getItem('adminUser');
-      const adminRole = localStorage.getItem('adminRole'); // ✅ NOVO: Pega a role
+      const adminRole = localStorage.getItem('adminRole');
       
       if (!token || !adminUser) {
         router.push('/admin');
@@ -52,7 +48,7 @@ export default function AdminDashboard() {
       }
       
       setUser(adminUser);
-      setUserRole(adminRole || 'user'); // ✅ NOVO: Seta a role
+      setUserRole(adminRole || 'user');
       setLoading(false);
     };
 
@@ -62,13 +58,12 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminRole'); // ✅ NOVO: Remove a role também
+    localStorage.removeItem('adminRole');
     router.push('/admin');
   };
 
   const handleRefreshData = () => {
     setLoading(true);
-    // Simular atualização de dados
     setTimeout(() => {
       setStats(prev => ({
         usuarios: {
@@ -90,13 +85,12 @@ export default function AdminDashboard() {
         }
       }));
       setLoading(false);
-    }, 1000);
+    }, 800);
   };
 
   const handleGerenciarConvites = () => {
-    // ✅ NOVO: Verifica permissão antes de redirecionar
     if (userRole !== 'super-admin') {
-      alert('❌ Acesso restrito para super administradores');
+      alert('Acesso restrito para super administradores');
       return;
     }
     router.push('/admin/convites');
@@ -115,7 +109,6 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100">
-      {/* Header */}
       <header className="bg-slate-800/50 border-b border-slate-700">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
@@ -130,7 +123,6 @@ export default function AdminDashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
-              {/* ✅ NOVO: Mostra a role do usuário */}
               <span className="text-slate-300">
                 Bem-vindo, <strong>{user}</strong> 
                 <span className="text-emerald-400 ml-2">({userRole})</span>
@@ -152,16 +144,15 @@ export default function AdminDashboard() {
         </div>
       </header>
 
-      {/* Navigation Tabs */}
       <nav className="bg-slate-800/30 border-b border-slate-700">
         <div className="container mx-auto px-4">
           <div className="flex space-x-8">
             {[
-              { id: 'overview', label: '📊 Visão Geral', icon: '📊' },
-              { id: 'users', label: '👥 Usuários', icon: '👥' },
-              { id: 'bets', label: '🎯 Apostas', icon: '🎯' },
-              { id: 'transactions', label: '💰 Transações', icon: '💰' },
-              { id: 'reports', label: '📈 Relatórios', icon: '📈' }
+              { id: 'overview', label: '📊 Visão Geral' },
+              { id: 'users', label: '👥 Usuários' },
+              { id: 'bets', label: '🎯 Apostas' },
+              { id: 'transactions', label: '💰 Transações' },
+              { id: 'reports', label: '📈 Relatórios' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -179,11 +170,8 @@ export default function AdminDashboard() {
         </div>
       </nav>
 
-      {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
-        {/* Cards de Estatísticas */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Card Usuários */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-300">👥 Usuários</h3>
@@ -195,7 +183,6 @@ export default function AdminDashboard() {
             <p className="text-slate-400 text-sm mt-2">{stats.usuarios.ativos.toLocaleString()} ativos</p>
           </div>
 
-          {/* Card Apostas */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-300">🎯 Apostas</h3>
@@ -207,7 +194,6 @@ export default function AdminDashboard() {
             <p className="text-slate-400 text-sm mt-2">{stats.apostas.emAndamento} em andamento</p>
           </div>
 
-          {/* Card Receita */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-300">💰 Receita</h3>
@@ -223,7 +209,6 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Card Convites Administrativos */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-slate-300">🎫 Convites</h3>
@@ -244,7 +229,6 @@ export default function AdminDashboard() {
             >
               {userRole === 'super-admin' ? 'Gerenciar Convites' : 'Acesso Restrito'}
             </button>
-            {/* ✅ NOVO: Mensagem de permissão */}
             {userRole !== 'super-admin' && (
               <p className="text-xs text-slate-500 mt-2 text-center">
                 Apenas para super administradores
@@ -253,7 +237,6 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Conteúdo das Tabs */}
         <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
           {activeTab === 'overview' && (
             <div>
@@ -331,7 +314,6 @@ export default function AdminDashboard() {
           )}
         </div>
 
-        {/* Footer do Dashboard */}
         <div className="mt-6 text-center text-slate-500 text-sm">
           <p>Blockchain Bet Brasil • Sistema Administrativo • {new Date().getFullYear()}</p>
           <p className="mt-1">Usuário: {user} • Nível: {userRole} • Última atualização: {new Date().toLocaleString('pt-BR')}</p>

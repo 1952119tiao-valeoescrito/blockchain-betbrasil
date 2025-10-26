@@ -231,8 +231,8 @@ const HomePage: React.FC = () => {
                 <div className="text-amber-900">
                   <p className="font-extrabold text-xl md:text-2xl">🚀 BLOCKCHAIN BET BRASIL - O BBB DA WEB3 ESTÁ NO AR!</p>
                   <p className="font-semibold text-lg md:text-xl">
-                    📍 ALÔ MUNDO... CHEGUEI, AVISA LÁ! 🌎<br />
-                    É com grande alegria que anuncio o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai redefinir o futuro das estratégias com interação gamificada na Web3!
+                    📍 INTERAÇÃO E ESTRATÉGIA 🌎<br />
+                    É com grande alegria que anunciamos o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai redefinir o futuro das estratégias com interação gamificada na Web3!
                   </p>
                 </div>
               </div>
@@ -243,13 +243,13 @@ const HomePage: React.FC = () => {
               </h3>
               <div className="my-4">
                 <h2 className="text-3xl md:text-5xl font-bold text-slate-100">
-                  Blockchain Bet Brasil - O BBB da Web3.<span className="text-emerald-400"><br />Investimento e diversão sem paredão.</span>
+                  Blockchain Bet Brasil - O BBB da Web3.<span className="text-emerald-400"><br />Interação e estratégia, sem paredão.</span>
                 </h2>
                 <p className="mt-4 text-2xl md:text-3xl font-bold text-amber-300 animate-pulse-fast">Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!</p>
               </div>
               <p className="text-xl md:text-2xl text-slate-300 max-w-3xl">
-                Prepare-se para uma experiência de investimento descentralizada como nunca visto antes. Com tecnologia blockchain e um sistema de compensação
-                inovador, com bônus para zero retorno, sua habilidade e estratégia se unem para revolucionar essa escassez econômica que você vive hoje.
+                Prepare-se para uma competição descentralizada como nunca visto antes. Com tecnologia blockchain e um sistema de compensação
+                inovador, com bônus para zero acerto, convidamos você, com suas habilidades e estratégia, para interagir com outros participantes nesse torneio gamificado.
               </p>
               <div className="mt-8 w-full flex flex-col md:flex-row justify-center items-stretch gap-8 px-4">
                 <div className="bg-blue-600 text-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center flex-1 transition-transform transform hover:scale-105">
