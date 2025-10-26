@@ -1,4 +1,4 @@
-// app/admin/dashboard/page.tsx
+// app/admin/dashboard/page.tsx - ATUALIZADO COM VERIFICAÇÃO DE ROLE
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -26,6 +26,7 @@ interface RevenueStats {
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<string>('');
+  const [userRole, setUserRole] = useState<string>(''); // ✅ NOVO: Estado para a role
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -34,7 +35,8 @@ export default function AdminDashboard() {
     usuarios: { total: 1542, novos: 23, ativos: 1245 } as UserStats,
     apostas: { total: 8921, emAndamento: 156, finalizados: 8765 } as BetStats,
     receita: { total: 152430.50, hoje: 3250.75, mes: 45210.25 } as RevenueStats,
-    transacoes: { total: 2845, pendentes: 12 }
+    transacoes: { total: 2845, pendentes: 12 },
+    convites: { enviados: 15, ativos: 8, pendentes: 3 }
   });
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export default function AdminDashboard() {
     const checkAuth = () => {
       const token = localStorage.getItem('adminToken');
       const adminUser = localStorage.getItem('adminUser');
+      const adminRole = localStorage.getItem('adminRole'); // ✅ NOVO: Pega a role
       
       if (!token || !adminUser) {
         router.push('/admin');
@@ -49,6 +52,7 @@ export default function AdminDashboard() {
       }
       
       setUser(adminUser);
+      setUserRole(adminRole || 'user'); // ✅ NOVO: Seta a role
       setLoading(false);
     };
 
@@ -58,6 +62,7 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
+    localStorage.removeItem('adminRole'); // ✅ NOVO: Remove a role também
     router.push('/admin');
   };
 
@@ -77,10 +82,24 @@ export default function AdminDashboard() {
         receita: {
           ...prev.receita,
           hoje: Math.random() * 5000 + 2000
+        },
+        convites: {
+          ...prev.convites,
+          enviados: prev.convites.enviados + 1,
+          pendentes: Math.floor(Math.random() * 5)
         }
       }));
       setLoading(false);
     }, 1000);
+  };
+
+  const handleGerenciarConvites = () => {
+    // ✅ NOVO: Verifica permissão antes de redirecionar
+    if (userRole !== 'super-admin') {
+      alert('❌ Acesso restrito para super administradores');
+      return;
+    }
+    router.push('/admin/convites');
   };
 
   if (loading) {
@@ -111,7 +130,11 @@ export default function AdminDashboard() {
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-slate-300">Bem-vindo, <strong>{user}</strong></span>
+              {/* ✅ NOVO: Mostra a role do usuário */}
+              <span className="text-slate-300">
+                Bem-vindo, <strong>{user}</strong> 
+                <span className="text-emerald-400 ml-2">({userRole})</span>
+              </span>
               <button 
                 onClick={handleRefreshData}
                 className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
@@ -200,16 +223,33 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Card Transações */}
+          {/* Card Convites Administrativos */}
           <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">⚡ Transações</h3>
-              <span className="bg-yellow-500/20 text-yellow-400 text-sm px-2 py-1 rounded">
-                {stats.transacoes.pendentes}
+              <h3 className="text-lg font-semibold text-slate-300">🎫 Convites</h3>
+              <span className="bg-purple-500/20 text-purple-400 text-sm px-2 py-1 rounded">
+                {stats.convites.pendentes} pendentes
               </span>
             </div>
-            <p className="text-3xl font-bold text-white">{stats.transacoes.total.toLocaleString()}</p>
-            <p className="text-slate-400 text-sm mt-2">{stats.transacoes.pendentes} pendentes</p>
+            <p className="text-3xl font-bold text-white">{stats.convites.enviados}</p>
+            <p className="text-slate-400 text-sm mt-2">{stats.convites.ativos} ativos • {stats.convites.pendentes} pendentes</p>
+            <button 
+              onClick={handleGerenciarConvites}
+              className={`w-full mt-4 text-white py-2 px-4 rounded-lg transition-colors text-sm ${
+                userRole === 'super-admin' 
+                  ? 'bg-purple-500 hover:bg-purple-400' 
+                  : 'bg-gray-500 cursor-not-allowed'
+              }`}
+              disabled={userRole !== 'super-admin'}
+            >
+              {userRole === 'super-admin' ? 'Gerenciar Convites' : 'Acesso Restrito'}
+            </button>
+            {/* ✅ NOVO: Mensagem de permissão */}
+            {userRole !== 'super-admin' && (
+              <p className="text-xs text-slate-500 mt-2 text-center">
+                Apenas para super administradores
+              </p>
+            )}
           </div>
         </div>
 
@@ -219,7 +259,6 @@ export default function AdminDashboard() {
             <div>
               <h2 className="text-2xl font-bold text-white mb-6">📊 Visão Geral do Sistema</h2>
               
-              {/* Gráficos/Estatísticas */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-slate-900/50 rounded-xl p-6">
                   <h3 className="text-lg font-semibold text-slate-300 mb-4">Atividade Recente</h3>
@@ -227,6 +266,7 @@ export default function AdminDashboard() {
                     {[
                       { action: 'Novo usuário registrado', time: '2 min atrás', user: 'joao123' },
                       { action: 'Aposta realizada', time: '5 min atrás', value: 'R$ 50,00' },
+                      { action: 'Convite administrativo enviado', time: '8 min atrás', user: 'novo@admin.com' },
                       { action: 'Saque processado', time: '10 min atrás', value: 'R$ 100,00' },
                       { action: 'Depósito confirmado', time: '15 min atrás', value: 'R$ 200,00' }
                     ].map((item, index) => (
@@ -245,7 +285,10 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-semibold text-slate-300 mb-4">Alertas do Sistema</h3>
                   <div className="space-y-3">
                     <div className="p-3 bg-yellow-500/20 border border-yellow-500 rounded-lg">
-                      <p className="text-yellow-400 text-sm">⚠️ 12 transações pendentes de verificação</p>
+                      <p className="text-yellow-400 text-sm">⚠️ {stats.transacoes.pendentes} transações pendentes de verificação</p>
+                    </div>
+                    <div className="p-3 bg-purple-500/20 border border-purple-500 rounded-lg">
+                      <p className="text-purple-400 text-sm">🎫 {stats.convites.pendentes} convites pendentes de ativação</p>
                     </div>
                     <div className="p-3 bg-green-500/20 border border-green-500 rounded-lg">
                       <p className="text-green-400 text-sm">✅ Sistema operando normalmente</p>
@@ -291,7 +334,7 @@ export default function AdminDashboard() {
         {/* Footer do Dashboard */}
         <div className="mt-6 text-center text-slate-500 text-sm">
           <p>Blockchain Bet Brasil • Sistema Administrativo • {new Date().getFullYear()}</p>
-          <p className="mt-1">Última atualização: {new Date().toLocaleString('pt-BR')}</p>
+          <p className="mt-1">Usuário: {user} • Nível: {userRole} • Última atualização: {new Date().toLocaleString('pt-BR')}</p>
         </div>
       </main>
     </div>
