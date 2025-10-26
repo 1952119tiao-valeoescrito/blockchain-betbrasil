@@ -4,141 +4,49 @@
 import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-// ✅ ABI COMPLETA do Blockchain Bet Brasil (a mesma que você já usa)
+// ✅ ABI COMPATÍVEL com ethers v6 - Blockchain Bet
 const BLOCKCHAIN_BET_ABI = [
-  {
-    "inputs": [
-      {"internalType": "address","name": "_stablecoin","type": "address"},
-      {"internalType": "address","name": "_vrfCoordinator","type": "address"},
-      {"internalType": "uint64","name": "_subscriptionId","type": "uint64"},
-      {"internalType": "bytes32","name": "_keyHash","type": "bytes32"}
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {"inputs": [],"name": "ReentrancyGuardReentrantCall","type": "error"},
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
-      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
-    ],
-    "name": "BonusConcedido",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "address","name": "jogador","type": "address"}
-    ],
-    "name": "FreeAplicacaoConcedida",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
-      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
-      {"indexed": false,"internalType": "uint256[5]","name": "prognosticos","type": "uint256[5]"}
-    ],
-    "name": "NovaAplicacaoFeita",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
-      {"indexed": false,"internalType": "uint256","name": "timestamp","type": "uint256"}
-    ],
-    "name": "NovaRodadaIniciada",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
-      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
-    ],
-    "name": "PremioRecebido",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
-      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
-      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
-    ],
-    "name": "PremioReivindicado",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
-      {"indexed": false,"internalType": "uint256[5]","name": "resultados","type": "uint256[5]"}
-    ],
-    "name": "ResultadosProcessados",
-    "type": "event"
-  },
-  {"inputs": [],"name": "BONUS_ZERO_PONTOS","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "MAX_APLICACOES_POR_RODADA","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "PRECO_APLICACAO","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "TAXA_PLATAFORMA_PERCENTUAL","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "abrirRodada","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "aplicacoesParaFreeAplicacao","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "aplicacoesZeroPontos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256[5]","name": "_prognosticos","type": "uint256[5]"}],"name": "aplicar","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "bonusAcumulados","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "bonusZeroPontos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "freeAplicacoesConcedidas","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "jogador","type": "address"}],"name": "getStatusJogador","outputs": [
-      {"internalType": "uint256","name": "bonusAcumulado","type": "uint256"},
-      {"internalType": "uint256","name": "freeAplicacoesDisponiveis","type": "uint256"},
-      {"internalType": "uint256","name": "totalAplicacoesZeroPontos","type": "uint256"},
-      {"internalType": "uint256","name": "premiosRecebidos","type": "uint256"}
-    ],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "owner","outputs": [{"internalType": "address","name": "","type": "address"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "pause","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "paused","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "percentuaisPremio","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "_rodadaId","type": "uint256"}],"name": "reivindicarPremio","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "rodadaAtualId","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "rodadas","outputs": [
-      {"internalType": "uint256","name": "id","type": "uint256"},
-      {"internalType": "enum BlockchainBetBrasilV3.StatusRodada","name": "status","type": "uint8"},
-      {"internalType": "uint256","name": "totalArrecadado","type": "uint256"},
-      {"internalType": "uint256","name": "premioTotal","type": "uint256"},
-      {"internalType": "bool","name": "resultadosForamInseridos","type": "bool"},
-      {"internalType": "uint256","name": "timestampAbertura","type": "uint256"},
-      {"internalType": "uint256","name": "timestampFechamentoAplicacoes","type": "uint256"},
-      {"internalType": "uint256","name": "timestampResultadosProcessados","type": "uint256"},
-      {"internalType": "uint256","name": "s_requestId","type": "uint256"},
-      {"internalType": "uint256","name": "poteAcumulado","type": "uint256"}
-    ],"stateMutability": "view","type": "function"},
-  {"inputs": [
-      {"internalType": "uint256","name": "_novoBonus","type": "uint256"},
-      {"internalType": "uint256","name": "_novoLimiteFreeAplicacao","type": "uint256"}
-    ],"name": "setConfiguracoesBonus","outputs": [],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [],"name": "stablecoin","outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "totalPremiosRecebidos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "unpause","outputs": [],"stateMutability": "nonpayable","type": "function"}
+  "function rodadaAtualId() view returns (uint256)",
+  "function rodadas(uint256) view returns ((uint256 id, uint8 status, uint256 totalArrecadado, uint256 premioTotal, bool resultadosForamInseridos, uint256 timestampAbertura, uint256 timestampFechamentoAplicacoes, uint256 timestampResultadosProcessados, uint256 s_requestId, uint256 poteAcumulado))",
+  "function getStatusJogador(address) view returns (uint256 bonusAcumulado, uint256 freeAplicacoesDisponiveis, uint256 totalAplicacoesZeroPontos, uint256 premiosRecebidos)",
+  "function aplicar(uint256[5] _prognosticos)",
+  "function reivindicarPremio(uint256 _rodadaId)",
+  "function abrirRodada()",
+  "function pause()",
+  "function unpause()",
+  "function setConfiguracoesBonus(uint256 _novoBonus, uint256 _novoLimiteFreeAplicacao)",
+  "function owner() view returns (address)",
+  "function paused() view returns (bool)",
+  "function PRECO_APLICACAO() view returns (uint256)",
+  "function BONUS_ZERO_PONTOS() view returns (uint256)",
+  "function aplicacoesParaFreeAplicacao() view returns (uint256)",
+  
+  // Events
+  "event NovaRodadaIniciada(uint256 indexed rodadaId, uint256 timestamp)",
+  "event NovaAplicacaoFeita(uint256 indexed rodadaId, address indexed jogador, uint256[5] prognosticos)",
+  "event ResultadosProcessados(uint256 indexed rodadaId, uint256[5] resultados)",
+  "event PremioReivindicado(uint256 indexed rodadaId, address indexed jogador, uint256 valor)",
+  "event BonusConcedido(address indexed jogador, uint256 valor)",
+  "event FreeAplicacaoConcedida(address indexed jogador)"
 ] as const;
 
-// ✅ ABI da Stablecoin (resumida para as funções essenciais)
+// ✅ ABI COMPATÍVEL com ethers v6 - Stablecoin
 const STABLECOIN_ABI = [
-  {"inputs": [{"internalType": "address","name": "owner","type": "address"},{"internalType": "address","name": "spender","type": "address"}],"name": "allowance","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "spender","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "approve","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [{"internalType": "address","name": "account","type": "address"}],"name": "balanceOf","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "decimals","outputs": [{"internalType": "uint8","name": "","type": "uint8"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "name","outputs": [{"internalType": "string","name": "","type": "string"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "symbol","outputs": [{"internalType": "string","name": "","type": "string"}],"stateMutability": "view","type": "function"},
-  {"inputs": [],"name": "totalSupply","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
-  {"inputs": [{"internalType": "address","name": "to","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "transfer","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"},
-  {"inputs": [{"internalType": "address","name": "from","type": "address"},{"internalType": "address","name": "to","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "transferFrom","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"}
+  "function balanceOf(address) view returns (uint256)",
+  "function approve(address, uint256) returns (bool)",
+  "function decimals() view returns (uint8)",
+  "function name() view returns (string)",
+  "function symbol() view returns (string)",
+  "function totalSupply() view returns (uint256)",
+  "function transfer(address to, uint256 amount) returns (bool)",
+  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+  
+  // Events
+  "event Transfer(address indexed from, address indexed to, uint256 value)",
+  "event Approval(address indexed owner, address indexed spender, uint256 value)"
 ] as const;
 
-// ✅ Endereços dos contratos (use os mesmos do seu dashboard)
+// ✅ Endereços dos contratos
 const CONTRACT_ADDRESSES = {
   blockchainBet: process.env.NEXT_PUBLIC_BET_CONTRACT || "0x5FbDB2315678afecb367f032d93F642f64180aa3",
   stablecoin: process.env.NEXT_PUBLIC_STABLECOIN_CONTRACT || "0xd3a5Ec24959F38E9aF48423D7d3E8e2618870229"
@@ -156,43 +64,85 @@ export default function AdminDashboardPage() {
   });
 
   const connectWallet = async () => {
+    console.log('🔧 Iniciando conexão debug...');
+    
     try {
       if (typeof window.ethereum === 'undefined') {
-        alert('MetaMask não instalado!');
+        alert('❌ MetaMask não instalado!');
         return;
       }
 
+      console.log('✅ MetaMask detectado');
+
+      // 1. Conectar provider
       const provider = new ethers.BrowserProvider(window.ethereum);
-      await provider.send("eth_requestAccounts", []);
+      console.log('🔗 Provider criado');
+
+      // 2. Pedir contas
+      const accounts = await provider.send("eth_requestAccounts", []);
+      console.log('📨 Contas:', accounts);
+
+      if (!accounts || accounts.length === 0) {
+        alert('❌ Nenhuma conta conectada!');
+        return;
+      }
+
+      // 3. Criar signer
       const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      console.log('👤 Usuário:', userAddress);
+
+      // 4. Criar contratos COM ABIs COMPATÍVEIS
+      console.log('📄 Criando contrato BlockchainBet...');
       const contract = new ethers.Contract(
         CONTRACT_ADDRESSES.blockchainBet, 
         BLOCKCHAIN_BET_ABI, 
         signer
       );
 
+      console.log('✅ Contrato criado com sucesso!');
+
+      // 5. Testar chamada simples
+      console.log('🧪 Testando chamada...');
+      try {
+        const owner = await contract.owner();
+        console.log('👑 Owner:', owner);
+        
+        const isOwner = userAddress.toLowerCase() === owner.toLowerCase();
+        console.log('🔐 É owner?', isOwner);
+        
+        if (!isOwner) {
+          alert('⚠️ Você não é o owner do contrato! Apenas visualização.');
+        }
+      } catch (testError) {
+        console.warn('⚠️ Erro no teste, mas continuando...', testError);
+      }
+
+      // 6. Atualizar estado
       setSigner(signer);
       setContract(contract);
 
-      // Verificar se é owner
-      const owner = await contract.owner();
-      const isOwner = (await signer.getAddress()).toLowerCase() === owner.toLowerCase();
-      
-      if (!isOwner) {
-        alert('⚠️ Você não é o owner do contrato!');
-        return;
-      }
-
-      // Carregar dados
+      // 7. Carregar dados
+      console.log('📊 Carregando dados...');
       const roundId = await contract.rodadaAtualId();
       const round = await contract.rodadas(roundId);
       
       setCurrentRound(Number(roundId));
       setRoundData(round);
+
+      console.log('🎉 Dashboard admin carregado!');
+
+    } catch (error: any) {
+      console.error('💥 ERRO CRÍTICO:', error);
       
-    } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro ao conectar');
+      // Erros específicos do MetaMask
+      if (error.code === 4001) {
+        alert('❌ Conexão rejeitada pelo usuário');
+      } else if (error.code === -32002) {
+        alert('⏳ Solicitação pendente no MetaMask');
+      } else {
+        alert(`❌ Erro: ${error.message || 'Desconhecido'}`);
+      }
     }
   };
 
