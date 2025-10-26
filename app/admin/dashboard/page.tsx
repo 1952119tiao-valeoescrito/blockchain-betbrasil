@@ -1,324 +1,439 @@
+// app/admin/dashboard/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { ethers } from 'ethers';
 
-interface UserStats {
-  total: number;
-  novos: number;
-  ativos: number;
-}
+// ✅ ABI COMPLETA do Blockchain Bet Brasil (a mesma que você já usa)
+const BLOCKCHAIN_BET_ABI = [
+  {
+    "inputs": [
+      {"internalType": "address","name": "_stablecoin","type": "address"},
+      {"internalType": "address","name": "_vrfCoordinator","type": "address"},
+      {"internalType": "uint64","name": "_subscriptionId","type": "uint64"},
+      {"internalType": "bytes32","name": "_keyHash","type": "bytes32"}
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {"inputs": [],"name": "ReentrancyGuardReentrantCall","type": "error"},
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
+      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
+    ],
+    "name": "BonusConcedido",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "address","name": "jogador","type": "address"}
+    ],
+    "name": "FreeAplicacaoConcedida",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
+      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
+      {"indexed": false,"internalType": "uint256[5]","name": "prognosticos","type": "uint256[5]"}
+    ],
+    "name": "NovaAplicacaoFeita",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
+      {"indexed": false,"internalType": "uint256","name": "timestamp","type": "uint256"}
+    ],
+    "name": "NovaRodadaIniciada",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
+      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
+    ],
+    "name": "PremioRecebido",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
+      {"indexed": true,"internalType": "address","name": "jogador","type": "address"},
+      {"indexed": false,"internalType": "uint256","name": "valor","type": "uint256"}
+    ],
+    "name": "PremioReivindicado",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {"indexed": true,"internalType": "uint256","name": "rodadaId","type": "uint256"},
+      {"indexed": false,"internalType": "uint256[5]","name": "resultados","type": "uint256[5]"}
+    ],
+    "name": "ResultadosProcessados",
+    "type": "event"
+  },
+  {"inputs": [],"name": "BONUS_ZERO_PONTOS","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "MAX_APLICACOES_POR_RODADA","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "PRECO_APLICACAO","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "TAXA_PLATAFORMA_PERCENTUAL","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "abrirRodada","outputs": [],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [],"name": "aplicacoesParaFreeAplicacao","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "aplicacoesZeroPontos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "uint256[5]","name": "_prognosticos","type": "uint256[5]"}],"name": "aplicar","outputs": [],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "bonusAcumulados","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "bonusZeroPontos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "freeAplicacoesConcedidas","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "jogador","type": "address"}],"name": "getStatusJogador","outputs": [
+      {"internalType": "uint256","name": "bonusAcumulado","type": "uint256"},
+      {"internalType": "uint256","name": "freeAplicacoesDisponiveis","type": "uint256"},
+      {"internalType": "uint256","name": "totalAplicacoesZeroPontos","type": "uint256"},
+      {"internalType": "uint256","name": "premiosRecebidos","type": "uint256"}
+    ],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "owner","outputs": [{"internalType": "address","name": "","type": "address"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "pause","outputs": [],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [],"name": "paused","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "percentuaisPremio","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "uint256","name": "_rodadaId","type": "uint256"}],"name": "reivindicarPremio","outputs": [],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [],"name": "rodadaAtualId","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "uint256","name": "","type": "uint256"}],"name": "rodadas","outputs": [
+      {"internalType": "uint256","name": "id","type": "uint256"},
+      {"internalType": "enum BlockchainBetBrasilV3.StatusRodada","name": "status","type": "uint8"},
+      {"internalType": "uint256","name": "totalArrecadado","type": "uint256"},
+      {"internalType": "uint256","name": "premioTotal","type": "uint256"},
+      {"internalType": "bool","name": "resultadosForamInseridos","type": "bool"},
+      {"internalType": "uint256","name": "timestampAbertura","type": "uint256"},
+      {"internalType": "uint256","name": "timestampFechamentoAplicacoes","type": "uint256"},
+      {"internalType": "uint256","name": "timestampResultadosProcessados","type": "uint256"},
+      {"internalType": "uint256","name": "s_requestId","type": "uint256"},
+      {"internalType": "uint256","name": "poteAcumulado","type": "uint256"}
+    ],"stateMutability": "view","type": "function"},
+  {"inputs": [
+      {"internalType": "uint256","name": "_novoBonus","type": "uint256"},
+      {"internalType": "uint256","name": "_novoLimiteFreeAplicacao","type": "uint256"}
+    ],"name": "setConfiguracoesBonus","outputs": [],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [],"name": "stablecoin","outputs": [{"internalType": "contract IERC20","name": "","type": "address"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "","type": "address"}],"name": "totalPremiosRecebidos","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "unpause","outputs": [],"stateMutability": "nonpayable","type": "function"}
+] as const;
 
-interface BetStats {
-  total: number;
-  emAndamento: number;
-  finalizados: number;
-}
+// ✅ ABI da Stablecoin (resumida para as funções essenciais)
+const STABLECOIN_ABI = [
+  {"inputs": [{"internalType": "address","name": "owner","type": "address"},{"internalType": "address","name": "spender","type": "address"}],"name": "allowance","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "spender","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "approve","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [{"internalType": "address","name": "account","type": "address"}],"name": "balanceOf","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "decimals","outputs": [{"internalType": "uint8","name": "","type": "uint8"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "name","outputs": [{"internalType": "string","name": "","type": "string"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "symbol","outputs": [{"internalType": "string","name": "","type": "string"}],"stateMutability": "view","type": "function"},
+  {"inputs": [],"name": "totalSupply","outputs": [{"internalType": "uint256","name": "","type": "uint256"}],"stateMutability": "view","type": "function"},
+  {"inputs": [{"internalType": "address","name": "to","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "transfer","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"},
+  {"inputs": [{"internalType": "address","name": "from","type": "address"},{"internalType": "address","name": "to","type": "address"},{"internalType": "uint256","name": "amount","type": "uint256"}],"name": "transferFrom","outputs": [{"internalType": "bool","name": "","type": "bool"}],"stateMutability": "nonpayable","type": "function"}
+] as const;
 
-interface RevenueStats {
-  total: number;
-  hoje: number;
-  mes: number;
-}
+// ✅ Endereços dos contratos (use os mesmos do seu dashboard)
+const CONTRACT_ADDRESSES = {
+  blockchainBet: process.env.NEXT_PUBLIC_BET_CONTRACT || "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+  stablecoin: process.env.NEXT_PUBLIC_STABLECOIN_CONTRACT || "0xd3a5Ec24959F38E9aF48423D7d3E8e2618870229"
+} as const;
 
-export default function AdminDashboard() {
-  const router = useRouter();
-  const [user, setUser] = useState('');
-  const [userRole, setUserRole] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
-
-  const [stats, setStats] = useState({
-    usuarios: { total: 1542, novos: 23, ativos: 1245 },
-    apostas: { total: 8921, emAndamento: 156, finalizados: 8765 },
-    receita: { total: 152430.50, hoje: 3250.75, mes: 45210.25 },
-    transacoes: { total: 2845, pendentes: 12 },
-    convites: { enviados: 15, ativos: 8, pendentes: 3 }
+export default function AdminDashboardPage() {
+  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [contract, setContract] = useState<ethers.Contract | null>(null);
+  const [currentRound, setCurrentRound] = useState<number>(0);
+  const [roundData, setRoundData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [adminActions, setAdminActions] = useState({
+    novoBonus: '',
+    novoLimite: ''
   });
 
-  useEffect(() => {
-    const checkAuth = () => {
-      const token = localStorage.getItem('adminToken');
-      const adminUser = localStorage.getItem('adminUser');
-      const adminRole = localStorage.getItem('adminRole');
-      
-      if (!token || !adminUser) {
-        router.push('/admin');
+  const connectWallet = async () => {
+    try {
+      if (typeof window.ethereum === 'undefined') {
+        alert('MetaMask não instalado!');
         return;
       }
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      await provider.send("eth_requestAccounts", []);
+      const signer = await provider.getSigner();
+      const contract = new ethers.Contract(
+        CONTRACT_ADDRESSES.blockchainBet, 
+        BLOCKCHAIN_BET_ABI, 
+        signer
+      );
+
+      setSigner(signer);
+      setContract(contract);
+
+      // Verificar se é owner
+      const owner = await contract.owner();
+      const isOwner = (await signer.getAddress()).toLowerCase() === owner.toLowerCase();
       
-      setUser(adminUser);
-      setUserRole(adminRole || 'user');
-      setLoading(false);
-    };
+      if (!isOwner) {
+        alert('⚠️ Você não é o owner do contrato!');
+        return;
+      }
 
-    checkAuth();
-  }, [router]);
-
-  const handleLogout = () => {
-    localStorage.removeItem('adminToken');
-    localStorage.removeItem('adminUser');
-    localStorage.removeItem('adminRole');
-    router.push('/admin');
-  };
-
-  const handleRefreshData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setStats(prev => ({
-        usuarios: {
-          ...prev.usuarios,
-          novos: Math.floor(Math.random() * 50) + 10
-        },
-        apostas: {
-          ...prev.apostas,
-          emAndamento: Math.floor(Math.random() * 200) + 100
-        },
-        receita: {
-          ...prev.receita,
-          hoje: Math.random() * 5000 + 2000
-        },
-        convites: {
-          ...prev.convites,
-          enviados: prev.convites.enviados + 1,
-          pendentes: Math.floor(Math.random() * 5)
-        }
-      }));
-      setLoading(false);
-    }, 800);
-  };
-
-  const handleGerenciarConvites = () => {
-    if (userRole !== 'super-admin') {
-      alert('Acesso restrito para super administradores');
-      return;
+      // Carregar dados
+      const roundId = await contract.rodadaAtualId();
+      const round = await contract.rodadas(roundId);
+      
+      setCurrentRound(Number(roundId));
+      setRoundData(round);
+      
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro ao conectar');
     }
-    router.push('/admin/convites');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-500 mx-auto"></div>
-          <p className="text-slate-300 mt-4">Carregando dashboard...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleAbrirRodada = async () => {
+    if (!contract) return;
+    
+    try {
+      setIsLoading(true);
+      const tx = await contract.abrirRodada();
+      await tx.wait();
+      alert('✅ Nova rodada aberta com sucesso!');
+      
+      // Atualizar dados
+      const roundId = await contract.rodadaAtualId();
+      const round = await contract.rodadas(roundId);
+      setCurrentRound(Number(roundId));
+      setRoundData(round);
+      
+    } catch (error: any) {
+      alert(error?.reason || 'Erro ao abrir rodada');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePauseContract = async () => {
+    if (!contract) return;
+    
+    try {
+      setIsLoading(true);
+      const tx = await contract.pause();
+      await tx.wait();
+      alert('✅ Contrato pausado com sucesso!');
+    } catch (error: any) {
+      alert(error?.reason || 'Erro ao pausar contrato');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUnpauseContract = async () => {
+    if (!contract) return;
+    
+    try {
+      setIsLoading(true);
+      const tx = await contract.unpause();
+      await tx.wait();
+      alert('✅ Contrato despausado com sucesso!');
+    } catch (error: any) {
+      alert(error?.reason || 'Erro ao despausar contrato');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSetConfiguracoesBonus = async () => {
+    if (!contract || !adminActions.novoBonus || !adminActions.novoLimite) return;
+    
+    try {
+      setIsLoading(true);
+      const tx = await contract.setConfiguracoesBonus(
+        ethers.parseUnits(adminActions.novoBonus, 18),
+        adminActions.novoLimite
+      );
+      await tx.wait();
+      alert('✅ Configurações de bônus atualizadas!');
+      setAdminActions({ novoBonus: '', novoLimite: '' });
+    } catch (error: any) {
+      alert(error?.reason || 'Erro ao atualizar configurações');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-slate-100">
-      <header className="bg-slate-800/50 border-b border-slate-700">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => router.push('/')}
-                className="bg-emerald-500 hover:bg-emerald-400 text-white px-4 py-2 rounded-lg transition-colors"
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 to-blue-800 py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* Header Admin */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+            ⚙️ Admin Dashboard
+          </h1>
+          <p className="text-xl text-purple-100">
+            Painel de Controle - Blockchain Bet Brasil
+          </p>
+        </div>
+
+        {/* Status da Conexão */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
+          {!signer ? (
+            <div className="text-center">
+              <button
+                onClick={connectWallet}
+                className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-green-600 hover:to-blue-600 transition-all"
               >
-                ← Home
+                🔗 Conectar como Admin
               </button>
-              <h1 className="text-2xl font-bold text-white">Painel Administrativo</h1>
+              <p className="text-white/70 mt-3">Apenas o owner do contrato pode acessar</p>
             </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-slate-300">
-                Bem-vindo, <strong>{user}</strong> 
-                <span className="text-emerald-400 ml-2">({userRole})</span>
-              </span>
-              <button 
-                onClick={handleRefreshData}
-                className="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors flex items-center"
+          ) : (
+            <div className="flex justify-between items-center text-white">
+              <div>
+                <p className="text-green-300 font-bold">✅ Admin Conectado</p>
+                <p className="text-sm opacity-90">
+                  {signer.address?.slice(0, 8)}...{signer.address?.slice(-6)}
+                </p>
+              </div>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
               >
                 🔄 Atualizar
               </button>
-              <button 
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded-lg transition-colors"
-              >
-                Sair
-              </button>
             </div>
-          </div>
-        </div>
-      </header>
-
-      <nav className="bg-slate-800/30 border-b border-slate-700">
-        <div className="container mx-auto px-4">
-          <div className="flex space-x-8">
-            {[
-              { id: 'overview', label: '📊 Visão Geral' },
-              { id: 'users', label: '👥 Usuários' },
-              { id: 'bets', label: '🎯 Apostas' },
-              { id: 'transactions', label: '💰 Transações' },
-              { id: 'reports', label: '📈 Relatórios' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-2 border-b-2 transition-colors ${
-                  activeTab === tab.id
-                    ? 'border-emerald-500 text-emerald-400'
-                    : 'border-transparent text-slate-400 hover:text-slate-300'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </nav>
-
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">👥 Usuários</h3>
-              <span className="bg-emerald-500/20 text-emerald-400 text-sm px-2 py-1 rounded">
-                +{stats.usuarios.novos}
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-white">{stats.usuarios.total.toLocaleString()}</p>
-            <p className="text-slate-400 text-sm mt-2">{stats.usuarios.ativos.toLocaleString()} ativos</p>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">🎯 Apostas</h3>
-              <span className="bg-blue-500/20 text-blue-400 text-sm px-2 py-1 rounded">
-                {stats.apostas.emAndamento}
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-white">{stats.apostas.total.toLocaleString()}</p>
-            <p className="text-slate-400 text-sm mt-2">{stats.apostas.emAndamento} em andamento</p>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">💰 Receita</h3>
-              <span className="bg-green-500/20 text-green-400 text-sm px-2 py-1 rounded">
-                +R$ {stats.receita.hoje.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-white">
-              R$ {stats.receita.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-            <p className="text-slate-400 text-sm mt-2">
-              R$ {stats.receita.mes.toLocaleString('pt-BR', { minimumFractionDigits: 2 })} este mês
-            </p>
-          </div>
-
-          <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-slate-300">🎫 Convites</h3>
-              <span className="bg-purple-500/20 text-purple-400 text-sm px-2 py-1 rounded">
-                {stats.convites.pendentes} pendentes
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-white">{stats.convites.enviados}</p>
-            <p className="text-slate-400 text-sm mt-2">{stats.convites.ativos} ativos • {stats.convites.pendentes} pendentes</p>
-            <button 
-              onClick={handleGerenciarConvites}
-              className={`w-full mt-4 text-white py-2 px-4 rounded-lg transition-colors text-sm ${
-                userRole === 'super-admin' 
-                  ? 'bg-purple-500 hover:bg-purple-400' 
-                  : 'bg-gray-500 cursor-not-allowed'
-              }`}
-              disabled={userRole !== 'super-admin'}
-            >
-              {userRole === 'super-admin' ? 'Gerenciar Convites' : 'Acesso Restrito'}
-            </button>
-            {userRole !== 'super-admin' && (
-              <p className="text-xs text-slate-500 mt-2 text-center">
-                Apenas para super administradores
-              </p>
-            )}
-          </div>
+          )}
         </div>
 
-        <div className="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
-          {activeTab === 'overview' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">📊 Visão Geral do Sistema</h2>
-              
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-slate-900/50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-slate-300 mb-4">Atividade Recente</h3>
-                  <div className="space-y-3">
-                    {[
-                      { action: 'Novo usuário registrado', time: '2 min atrás', user: 'joao123' },
-                      { action: 'Aposta realizada', time: '5 min atrás', value: 'R$ 50,00' },
-                      { action: 'Convite administrativo enviado', time: '8 min atrás', user: 'novo@admin.com' },
-                      { action: 'Saque processado', time: '10 min atrás', value: 'R$ 100,00' },
-                      { action: 'Depósito confirmado', time: '15 min atrás', value: 'R$ 200,00' }
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-slate-800/30 rounded-lg">
-                        <div>
-                          <p className="text-white text-sm">{item.action}</p>
-                          <p className="text-slate-400 text-xs">{item.user || item.value}</p>
-                        </div>
-                        <span className="text-slate-500 text-sm">{item.time}</span>
-                      </div>
-                    ))}
-                  </div>
+        {/* Grid Principal */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          
+          {/* Estatísticas da Rodada */}
+          <div className="bg-white rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Estatísticas da Rodada</h2>
+            {roundData ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-blue-50 p-4 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-blue-600">{currentRound}</div>
+                  <div className="text-sm text-gray-600">Rodada Atual</div>
                 </div>
-
-                <div className="bg-slate-900/50 rounded-xl p-6">
-                  <h3 className="text-lg font-semibold text-slate-300 mb-4">Alertas do Sistema</h3>
-                  <div className="space-y-3">
-                    <div className="p-3 bg-yellow-500/20 border border-yellow-500 rounded-lg">
-                      <p className="text-yellow-400 text-sm">⚠️ {stats.transacoes.pendentes} transações pendentes de verificação</p>
-                    </div>
-                    <div className="p-3 bg-purple-500/20 border border-purple-500 rounded-lg">
-                      <p className="text-purple-400 text-sm">🎫 {stats.convites.pendentes} convites pendentes de ativação</p>
-                    </div>
-                    <div className="p-3 bg-green-500/20 border border-green-500 rounded-lg">
-                      <p className="text-green-400 text-sm">✅ Sistema operando normalmente</p>
-                    </div>
-                    <div className="p-3 bg-blue-500/20 border border-blue-500 rounded-lg">
-                      <p className="text-blue-400 text-sm">ℹ️ Backup agendado para hoje às 02:00</p>
-                    </div>
+                <div className="bg-green-50 p-4 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-green-600">
+                    {ethers.formatUnits(roundData.totalArrecadado || 0, 18)}
                   </div>
+                  <div className="text-sm text-gray-600">Total Arrecadado</div>
+                </div>
+                <div className="bg-purple-50 p-4 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-purple-600">
+                    {ethers.formatUnits(roundData.premioTotal || 0, 18)}
+                  </div>
+                  <div className="text-sm text-gray-600">Prêmio Total</div>
+                </div>
+                <div className="bg-orange-50 p-4 rounded-xl text-center">
+                  <div className="text-2xl font-bold text-orange-600">
+                    {roundData.status === 0 ? 'Aberta' : 
+                     roundData.status === 1 ? 'Fechada' : 
+                     roundData.status === 2 ? 'Processando' : 'Finalizada'}
+                  </div>
+                  <div className="text-sm text-gray-600">Status</div>
                 </div>
               </div>
-            </div>
-          )}
+            ) : (
+              <p className="text-gray-500 text-center py-4">Conecte como admin para ver os dados</p>
+            )}
+          </div>
 
-          {activeTab === 'users' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">👥 Gerenciamento de Usuários</h2>
-              <p className="text-slate-400">Funcionalidade em desenvolvimento...</p>
+          {/* Ações Admin */}
+          <div className="bg-white rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">🎯 Ações Administrativas</h2>
+            
+            <div className="space-y-4">
+              <button
+                onClick={handleAbrirRodada}
+                disabled={isLoading || !signer}
+                className="w-full bg-green-600 text-white py-3 rounded-lg font-bold hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {isLoading ? 'Abrindo...' : '🔄 Abrir Nova Rodada'}
+              </button>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={handlePauseContract}
+                  disabled={isLoading || !signer}
+                  className="flex-1 bg-yellow-600 text-white py-3 rounded-lg font-bold hover:bg-yellow-700 transition-colors disabled:opacity-50"
+                >
+                  ⏸️ Pausar
+                </button>
+                <button
+                  onClick={handleUnpauseContract}
+                  disabled={isLoading || !signer}
+                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
+                >
+                  ▶️ Despausar
+                </button>
+              </div>
             </div>
-          )}
 
-          {activeTab === 'bets' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">🎯 Gerenciamento de Apostas</h2>
-              <p className="text-slate-400">Funcionalidade em desenvolvimento...</p>
+            {/* Configurações de Bônus */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">🎁 Configurar Bônus</h3>
+              <div className="space-y-3">
+                <input
+                  type="number"
+                  placeholder="Novo Bônus (ex: 10)"
+                  value={adminActions.novoBonus}
+                  onChange={(e) => setAdminActions({...adminActions, novoBonus: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg p-3"
+                />
+                <input
+                  type="number"
+                  placeholder="Novo Limite Free Aplicação"
+                  value={adminActions.novoLimite}
+                  onChange={(e) => setAdminActions({...adminActions, novoLimite: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg p-3"
+                />
+                <button
+                  onClick={handleSetConfiguracoesBonus}
+                  disabled={isLoading || !adminActions.novoBonus || !adminActions.novoLimite}
+                  className="w-full bg-purple-600 text-white py-3 rounded-lg font-bold hover:bg-purple-700 transition-colors disabled:opacity-50"
+                >
+                  {isLoading ? 'Configurando...' : '⚙️ Atualizar Configurações'}
+                </button>
+              </div>
             </div>
-          )}
-
-          {activeTab === 'transactions' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">💰 Gerenciamento de Transações</h2>
-              <p className="text-slate-400">Funcionalidade em desenvolvimento...</p>
-            </div>
-          )}
-
-          {activeTab === 'reports' && (
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">📈 Relatórios e Analytics</h2>
-              <p className="text-slate-400">Funcionalidade em desenvolvimento...</p>
-            </div>
-          )}
+          </div>
         </div>
 
-        <div className="mt-6 text-center text-slate-500 text-sm">
-          <p>Blockchain Bet Brasil • Sistema Administrativo • {new Date().getFullYear()}</p>
-          <p className="mt-1">Usuário: {user} • Nível: {userRole} • Última atualização: {new Date().toLocaleString('pt-BR')}</p>
+        {/* Informações do Contrato */}
+        <div className="bg-white rounded-2xl p-6 shadow-2xl">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">ℹ️ Informações do Contrato</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="font-semibold text-gray-700">Contrato Principal</div>
+              <div className="text-sm text-gray-600 font-mono mt-1 break-all">
+                {CONTRACT_ADDRESSES.blockchainBet}
+              </div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="font-semibold text-gray-700">Stablecoin</div>
+              <div className="text-sm text-gray-600 font-mono mt-1 break-all">
+                {CONTRACT_ADDRESSES.stablecoin}
+              </div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <div className="font-semibold text-gray-700">Network</div>
+              <div className="text-sm text-gray-600 mt-1">Ethereum Sepolia</div>
+            </div>
+          </div>
         </div>
-      </main>
+
+      </div>
     </div>
   );
 }
