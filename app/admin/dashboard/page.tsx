@@ -48,8 +48,8 @@ const STABLECOIN_ABI = [
 
 // ✅ Endereços dos contratos
 const CONTRACT_ADDRESSES = {
-  blockchainBet: process.env.NEXT_PUBLIC_BET_CONTRACT || "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  stablecoin: process.env.NEXT_PUBLIC_STABLECOIN_CONTRACT || "0xd3a5Ec24959F38E9aF48423D7d3E8e2618870229"
+  blockchainBet: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9", // ← SEU CONTRATO NOVO!
+  stablecoin: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"    // ← SUA STABLECOIN NOVA!
 } as const;
 
 export default function AdminDashboardPage() {
