@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 interface IBlockchainBetBrasil {
+    // Estruturas básicas
     struct Aposta {
         address jogador;
         uint256[5] prognosticos;
@@ -9,6 +10,7 @@ interface IBlockchainBetBrasil {
         uint256 pontosFeitos;
     }
 
+    // Funções que o InvestBet precisa acessar
     function getRodadaResultados(uint256 _rodadaId) 
         external 
         view 
@@ -35,9 +37,11 @@ interface IBlockchainBetBrasil {
     
     function rodadaAtualId() external view returns (uint256);
     
+    // Eventos para o InvestBet escutar
     event ResultadosProcessados(uint256 indexed rodadaId, uint256[5] resultados);
     event NovaApostaFeita(uint256 indexed rodadaId, address indexed jogador, uint256[5] prognosticos);
     
+    // Funções auxiliares que podem ser úteis
     function reivindicarPremio(uint256 _rodadaId) external;
     function getStatusJogador(address jogador) 
         external 

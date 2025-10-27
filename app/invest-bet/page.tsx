@@ -12,8 +12,7 @@ export default function InvestBetPage() {
     try {
       console.log('Conectando carteira...');
       await new Promise(resolve => setTimeout(resolve, 1000));
-     const mockAddress = '0xdc64a140aa3e981100a9beca4e685f962f0cf6c9';
-
+      const mockAddress = '0x742...d35E1';
       setWalletAddress(mockAddress);
       setIsConnected(true);
     } catch (error) {
@@ -46,14 +45,14 @@ export default function InvestBetPage() {
 
             {/* Menu Desktop */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/como-jogar" className="text-slate-300 hover:text-white transition-colors">
-               Como Funciona
+              <Link href="/" className="text-slate-300 hover:text-white transition-colors">
+                Aplicações
               </Link>
-              <Link href="/apostas" className="text-emerald-400 font-semibold">
-                Investir
-              </Link>
-              <Link href="/invest-bet" className="text-slate-300 hover:text-white transition-colors">
+              <Link href="/invest-bet" className="text-emerald-400 font-semibold">
                 Invest-Bet
+              </Link>
+              <Link href="/como-jogar" className="text-slate-300 hover:text-white transition-colors">
+                Como Proceder
               </Link>
               <Link href="/premiacao" className="text-slate-300 hover:text-white transition-colors">
                 Premiação
@@ -285,7 +284,7 @@ export default function InvestBetPage() {
       {/* Rodapé */}
       <footer className="w-full bg-slate-800 mt-16 border-t border-slate-700">
         <div className="container mx-auto text-center p-6 text-slate-400 text-sm">
-          <p>© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
+          <p>© 2024 Blockchain Bet Brasil. Todos os direitos reservados.</p>
           <p className="mt-2">Source: 601700 | Auditoria de Segurança Ativa</p>
         </div>
       </footer>
