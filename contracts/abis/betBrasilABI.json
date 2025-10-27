@@ -1,0 +1,17 @@
+// src/contracts/abis/betBrasilABI.json
+
+[
+  "function aplicar(uint256[5] prognosticos) external",
+  "function rodadaAtualId() external view returns (uint256)",
+  "function rodadas(uint256) external view returns (uint256 status, uint256 totalArrecadado, uint256 premioTotal, bool resultadosForamInseridos, uint256 timestampAbertura, uint256 timestampFechamentoAplicacoes, uint256 timestampResultadosProcessados, uint256 poteAcumulado)",
+  "function getStatusJogador(address) external view returns (uint256 bonusAcumulado, uint256 freeAplicacoesDisponiveis, uint256 totalAplicacoesZeroPontos, uint256 premiosRecebidos)",
+  "function PRECO_APLICACAO() external view returns (uint256)",
+  "function owner() external view returns (address)",
+  "function paused() external view returns (bool)",
+  "function abrirRodada() external",
+  "function setConfiguracoesBonus(uint256, uint256) external",
+  "function reivindicarPremio(uint256) external",
+  "event NovaAplicacaoFeita(uint256 indexed rodadaId, address indexed jogador, uint256[5] prognosticos)",
+  "event ResultadosProcessados(uint256 indexed rodadaId, uint256[5] resultados)",
+  "event PremioReivindicado(uint256 indexed rodadaId, address indexed jogador, uint256 valor)"
+]
