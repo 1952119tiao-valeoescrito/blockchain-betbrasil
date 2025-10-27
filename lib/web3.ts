@@ -1,4 +1,4 @@
-// lib/web3.ts - VERSÃO PRODUÇÃO FINAL
+// lib/web3.ts - CONFIGURAÇÃO MAINNET (para uso externo)
 import { ethers } from 'ethers';
 
 declare global {
@@ -7,24 +7,16 @@ declare global {
   }
 }
 
-// 🔥 CONFIGURAÇÃO ETHEREUM MAINNET
 export const NETWORK_CONFIG = {
-  chainId: '0x1', // 1 - ETHEREUM MAINNET
+  chainId: '0x1',
   chainName: 'Ethereum Mainnet',
   rpcUrls: ['https://eth-mainnet.g.alchemy.com/v2/_QsTs9Aqs2O157OI3lgir'],
-  blockExplorerUrls: ['https://etherscan.io/0xF00aA01e9d1f8E81fd070FBE52A917bE07710469'],
+  blockExplorerUrls: ['https://etherscan.io'],
   nativeCurrency: {
     name: 'Ethereum',
     symbol: 'ETH',
     decimals: 18
   }
-};
-
-// 🔥 ENDEREÇOS MAINNET - SUBSTITUA COM SEUS CONTRATOS
-export const CONTRACT_ADDRESSES = {
-  stablecoin: process.env.NEXT_PUBLIC_STABLECOIN_ADDRESS || "0xd3a5Ec24959F38E9aF48423D7d3E8e2618870229",
-  betBrasil: process.env.NEXT_PUBLIC_BETBRASIL_ADDRESS || "0xE491A5fDd61B8896a6C072480Da0D7e127D673BB",
-  deployer: process.env.NEXT_PUBLIC_DEPLOYER_ADDRESS || "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469"
 };
 
 export const connectWallet = async (): Promise<string> => {
