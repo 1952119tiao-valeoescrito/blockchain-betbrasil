@@ -231,7 +231,7 @@ const HomePage: React.FC = () => {
                 <div className="text-amber-900">
                   <p className="font-extrabold text-xl md:text-2xl">🚀 BLOCKCHAIN BET BRASIL - O BBB DA WEB3 ESTÁ NO AR!</p>
                   <p className="font-semibold text-lg md:text-xl">
-                    📍 INTERAÇÃO E ESTRATÉGIA 🌎<br />
+                    📍 PLATAFORMA DE INTERAÇÃO E ESTRATÉGIA GAMIFICADA 🌎<br />
                     É com grande alegria que anunciamos o lançamento oficial da Blockchain Bet Brasil - a plataforma que vai redefinir o futuro das estratégias com interação gamificada na Web3!
                   </p>
                 </div>
@@ -281,7 +281,7 @@ const HomePage: React.FC = () => {
                       className="rounded-full border-4 border-emerald-400 p-2 bg-slate-900"
                     />
                   </div>
-                  <h4 className="text-3xl font-bold text-amber-300 mb-4">INVESTIMENTO</h4>
+                  <h4 className="text-3xl font-bold text-amber-300 mb-4">INTERAÇÃO</h4>
                   <p className="text-lg text-slate-200 leading-relaxed mb-4">
                     Mais do que investimento, um ecossistema de valor. Seus R$5,00 ou R$1.000,00 por aplicação se tornam parte de um retorno robusto, com taxas
                     transparentes e a chance de ver seu capital crescer. A cada rodada, você não apenas participa, mas investe na possibilidade de um
