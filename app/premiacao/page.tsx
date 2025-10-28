@@ -43,9 +43,11 @@ export default function PremiacaoPage() {
             </Link>
 
             <div className="hidden md:flex items-center space-x-8">
-              <Link href="/apostas" className="text-slate-300 hover:text-white transition-colors">Apostas</Link>
-              <Link href="/invest-bet" className="text-slate-300 hover:text-white transition-colors">Invest-Bet</Link>
-              <Link href="/como-jogar" className="text-slate-300 hover:text-white transition-colors">Como Proceder</Link>
+<Link href="/como-jogar" className="text-slate-300 hover:text-white transition-colors">Como Proceder</Link>
+
+              <Link href="/apostas" className="text-slate-300 hover:text-white transition-colors">Game</Link>
+              <Link href="/invest-bet" className="text-slate-300 hover:text-white transition-colors">Inter-Bet</Link>
+              
               <Link href="/premiacao" className="text-emerald-400 font-semibold">Premiação</Link>
               <Link href="/admin" className="text-slate-300 hover:text-white transition-colors">Painel Admin</Link>
             </div>
@@ -95,9 +97,9 @@ export default function PremiacaoPage() {
           {isMenuOpen && (
             <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 shadow-xl">
               <div className="flex flex-col space-y-0 p-4">
-                <Link href="/apostas" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Apostas</Link>
-                <Link href="/invest-bet" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Invest-Bet</Link>
-                <Link href="/como-jogar" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Como Jogar</Link>
+                <Link href="/apostas" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Game</Link>
+                <Link href="/inter-bet" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Inter-Bet</Link>
+                <Link href="/como-jogar" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Como Proceder</Link>
                 <Link href="/premiacao" className="text-emerald-400 font-semibold py-3 px-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20" onClick={() => setIsMenuOpen(false)}>Premiação</Link>
                 <Link href="/admin" className="text-slate-300 hover:text-white py-3 px-4 rounded-lg hover:bg-slate-800/50 transition-colors" onClick={() => setIsMenuOpen(false)}>Painel Admin</Link>
                 
@@ -126,7 +128,7 @@ export default function PremiacaoPage() {
 
             {/* Aposta Básica */}
             <div className="bg-slate-800 rounded-lg p-6 mb-8">
-              <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">🎯 Aposta Básica - R$ 5,00</h2>
+              <h2 className="text-2xl font-bold text-emerald-400 mb-6 text-center">🎯 Interação Básica - R$ 5,00</h2>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -170,7 +172,7 @@ export default function PremiacaoPage() {
 
             {/* Invest-Bet */}
             <div className="bg-slate-800 rounded-lg p-6">
-              <h2 className="text-2xl font-bold text-purple-400 mb-6 text-center">💎 Invest-Bet - R$ 1.000,00</h2>
+              <h2 className="text-2xl font-bold text-purple-400 mb-6 text-center">💎 Inter-Bet - R$ 1.000,00</h2>
               
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -225,7 +227,7 @@ export default function PremiacaoPage() {
                       <span className="font-bold text-amber-300">R$ 0,625</span>
                     </div>
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-amber-100">Invest-Bet:</span>
+                      <span className="text-amber-100">Intert-Bet:</span>
                       <span className="font-bold text-amber-300">R$ 125,00</span>
                     </div>
                   </div>
@@ -239,7 +241,7 @@ export default function PremiacaoPage() {
                       <span className="font-bold text-amber-300">R$ 5,00</span>
                     </div>
                     <div className="flex justify-between items-center py-2">
-                      <span className="text-amber-100">Invest-Bet:</span>
+                      <span className="text-amber-100">Inter-Bet:</span>
                       <span className="font-bold text-amber-300">R$ 1.000,00</span>
                     </div>
                   </div>

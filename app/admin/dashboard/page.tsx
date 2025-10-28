@@ -1,437 +1,361 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { ethers } from 'ethers';
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
 
-const BLOCKCHAIN_BET_CORPORATION_ABI = [
-  "function rodadaAtualId() view returns (uint256)",
-  "function rodadas(uint256) view returns ((uint256 id, uint8 status, uint256 totalArrecadado, uint256 premioTotal, bool resultadosForamInseridos, uint256 timestampAbertura, uint256 timestampFechamentoAplicacoes, uint256 timestampResultadosProcessados, uint256 s_requestId, uint256 poteAcumulado))",
-  "function getStatusJogador(address) view returns (uint256 bonusAcumulado, uint256 freeAplicacoesDisponiveis, uint256 totalAplicacoesZeroPontos, uint256 premiosRecebidos)",
-  "function aplicar(uint256[5] _prognosticos)",
-  "function reivindicarPremio(uint256 _rodadaId)",
-  "function abrirRodada()",
-  "function pause()",
-  "function unpause()",
-  "function setConfiguracoesBonus(uint256 _novoBonus, uint256 _novoLimiteFreeAplicacao)",
-  "function owner() view returns (address)",
-  "function paused() view returns (bool)",
-  "function PRECO_APLICACAO() view returns (uint256)",
-  "function BONUS_ZERO_PONTOS() view returns (uint256)",
-  "function aplicacoesParaFreeAplicacao() view returns (uint256)",
-  "function treasury() view returns (address)",
-  "function getContractBalance() view returns (uint256)",
-  "function withdrawToTreasury(uint256 _amount) external onlyOwner",
-  "function withdrawAllToTreasury() external onlyOwner",
-  "event NovaRodadaIniciada(uint256 indexed rodadaId, uint256 timestamp)",
-  "event NovaAplicacaoFeita(uint256 indexed rodadaId, address indexed jogador, uint256[5] prognosticos)",
-  "event ResultadosProcessados(uint256 indexed rodadaId, uint256[5] resultados)",
-  "event PremioReivindicado(uint256 indexed rodadaId, address indexed jogador, uint256 valor)",
-  "event BonusConcedido(address indexed jogador, uint256 valor)",
-  "event FreeAplicacaoConcedida(address indexed jogador)",
-  "event TreasuryUpdated(address indexed newTreasury)",
-  "event FundsWithdrawnToTreasury(uint256 amount)"
-] as const;
+const DashboardCorporativo = () => {
+  const [activeTab, setActiveTab] = useState('overview');
+  const [isLoading, setIsLoading] = useState(true);
 
-const CORPORATE_TOKEN_ABI = [
-  "function balanceOf(address) view returns (uint256)",
-  "function approve(address, uint256) returns (bool)",
-  "function decimals() view returns (uint8)",
-  "function name() view returns (string)",
-  "function symbol() view returns (string)",
-  "function totalSupply() view returns (uint256)",
-  "function transfer(address to, uint256 amount) returns (bool)",
-  "function transferFrom(address from, address to, uint256 amount) returns (bool)",
-  "event Transfer(address indexed from, address indexed to, uint256 value)",
-  "event Approval(address indexed owner, address indexed spender, uint256 value)"
-] as const;
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-const BLOCKCHAIN_BET_CORPORATION_ADDRESSES = {
-  mainContract: "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-  corporateToken: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
-  treasury: "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469"
-} as const;
-
-export default function AdminDashboardCorporationPage() {
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [currentRound, setCurrentRound] = useState<number>(0);
-  const [roundData, setRoundData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [adminActions, setAdminActions] = useState({
-    novoBonus: '',
-    novoLimite: ''
-  });
-  const [userAddress, setUserAddress] = useState('');
-  const [corporationData, setCorporationData] = useState({
-    contractBalance: '0',
-    treasuryAddress: '',
-    isPaused: false
-  });
-
-  const connectWallet = async () => {
-    console.log('🏢 Iniciando conexão corporativa...');
-    
-    try {
-      if (typeof window.ethereum === 'undefined') {
-        alert('❌ MetaMask não instalado!');
-        return;
+  // Dados simulados do dashboard
+  const corporateData = {
+    overview: {
+      totalUsers: '1.247',
+      totalVolume: 'R$ 89.500,00',
+      activeBets: '156',
+      contractBalance: '0.85 ETH',
+      weeklyGrowth: '+12.5%'
+    },
+    departments: [
+      {
+        icon: '👑',
+        title: 'CEO & OWNER',
+        address: '0xF00aA01e9d1f8E81fd070FBE52A917bE07710469',
+        status: 'active'
+      },
+      {
+        icon: '💰',
+        title: 'TESOURARIA',
+        address: 'Recebe fundos das apostas',
+        status: 'active',
+        balance: '12.5 ETH'
+      },
+      {
+        icon: '🔧',
+        title: 'DEPLOYER',
+        address: 'Carteira dedicada para gas fees',
+        status: 'active',
+        balance: '0.1 ETH'
+      },
+      {
+        icon: '🎲',
+        title: 'VRF COORDINATOR',
+        address: 'Chainlink VRF v2',
+        status: 'connected'
       }
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const accounts = await provider.send("eth_requestAccounts", []);
-
-      if (!accounts || accounts.length === 0) {
-        alert('❌ Nenhuma conta conectada!');
-        return;
-      }
-
-      const signer = await provider.getSigner();
-      const userAddress = await signer.getAddress();
-      setUserAddress(userAddress);
-
-      const contract = new ethers.Contract(
-        BLOCKCHAIN_BET_CORPORATION_ADDRESSES.mainContract, 
-        BLOCKCHAIN_BET_CORPORATION_ABI, 
-        signer
-      );
-
-      try {
-        const owner = await contract.owner();
-        const isOwner = userAddress.toLowerCase() === owner.toLowerCase();
-        
-        if (!isOwner) {
-          alert('⚠️ Acesso restrito ao CEO da corporação!');
-        }
-
-        const treasury = await contract.treasury();
-        const contractBalance = await contract.getContractBalance();
-        const isPaused = await contract.paused();
-
-        setCorporationData({
-          contractBalance: ethers.formatUnits(contractBalance, 18),
-          treasuryAddress: treasury,
-          isPaused
-        });
-
-      } catch (testError) {
-        console.warn('⚠️ Erro no teste corporativo:', testError);
-      }
-
-      setSigner(signer);
-      setContract(contract);
-
-      const roundId = await contract.rodadaAtualId();
-      const round = await contract.rodadas(roundId);
-      
-      setCurrentRound(Number(roundId));
-      setRoundData(round);
-
-      console.log('🎉 Dashboard corporativo carregado!');
-
-    } catch (error: any) {
-      console.error('💥 ERRO CORPORATIVO:', error);
-      
-      if (error.code === 4001) {
-        alert('❌ Conexão rejeitada pelo CEO');
-      } else if (error.code === -32002) {
-        alert('⏳ Solicitação pendente no MetaMask');
-      } else {
-        alert(`❌ Erro corporativo: ${error.message || 'Desconhecido'}`);
-      }
-    }
+    ],
+    recentTransactions: [
+      { id: 1, type: 'Bet', amount: 'R$ 5,00', user: '0x1234...5678', time: '2 min ago', status: 'success' },
+      { id: 2, type: 'Bet', amount: 'R$ 1.000,00', user: '0x8765...4321', time: '5 min ago', status: 'success' },
+      { id: 3, type: 'Withdrawal', amount: 'R$ 2.500,00', user: '0x1111...2222', time: '1 hour ago', status: 'success' },
+      { id: 4, type: 'Bet', amount: 'R$ 5,00', user: '0x3333...4444', time: '2 hours ago', status: 'success' }
+    ],
+    systemStatus: [
+      { component: 'Blockchain Network', status: 'operational', value: 'Ethereum Mainnet' },
+      { component: 'Contrato Principal', status: 'operational', value: 'Deployed' },
+      { component: 'VRF Coordinator', status: 'operational', value: 'Connected' },
+      { component: 'Frontend', status: 'operational', value: 'Online' },
+      { component: 'Database', status: 'operational', value: 'Sincronizado' }
+    ]
   };
 
-  const handleAbrirRodada = async () => {
-    if (!contract) return;
-    
-    try {
-      setIsLoading(true);
-      const tx = await contract.abrirRodada();
-      await tx.wait();
-      alert('✅ Nova rodada corporativa aberta!');
-      
-      const roundId = await contract.rodadaAtualId();
-      const round = await contract.rodadas(roundId);
-      setCurrentRound(Number(roundId));
-      setRoundData(round);
-      
-    } catch (error: any) {
-      alert(error?.reason || 'Erro ao abrir rodada corporativa');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handlePauseContract = async () => {
-    if (!contract) return;
-    
-    try {
-      setIsLoading(true);
-      const tx = await contract.pause();
-      await tx.wait();
-      alert('✅ Contrato corporativo pausado!');
-      setCorporationData(prev => ({...prev, isPaused: true}));
-    } catch (error: any) {
-      alert(error?.reason || 'Erro ao pausar contrato corporativo');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleUnpauseContract = async () => {
-    if (!contract) return;
-    
-    try {
-      setIsLoading(true);
-      const tx = await contract.unpause();
-      await tx.wait();
-      alert('✅ Contrato corporativo ativado!');
-      setCorporationData(prev => ({...prev, isPaused: false}));
-    } catch (error: any) {
-      alert(error?.reason || 'Erro ao ativar contrato corporativo');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSetConfiguracoesBonus = async () => {
-    if (!contract || !adminActions.novoBonus || !adminActions.novoLimite) return;
-    
-    try {
-      setIsLoading(true);
-      const tx = await contract.setConfiguracoesBonus(
-        ethers.parseUnits(adminActions.novoBonus, 18),
-        adminActions.novoLimite
-      );
-      await tx.wait();
-      alert('✅ Configurações corporativas atualizadas!');
-      setAdminActions({ novoBonus: '', novoLimite: '' });
-    } catch (error: any) {
-      alert(error?.reason || 'Erro ao atualizar configurações corporativas');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleWithdrawToTreasury = async () => {
-    if (!contract) return;
-    
-    try {
-      setIsLoading(true);
-      const tx = await contract.withdrawAllToTreasury();
-      await tx.wait();
-      alert('✅ Fundos transferidos para tesouraria corporativa!');
-      
-      const contractBalance = await contract.getContractBalance();
-      setCorporationData(prev => ({
-        ...prev,
-        contractBalance: ethers.formatUnits(contractBalance, 18)
-      }));
-    } catch (error: any) {
-      alert(error?.reason || 'Erro na transferência corporativa');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-slate-300 text-lg">Carregando Dashboard Corporativo...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-blue-900 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
-            🏢 CEO Dashboard
-          </h1>
-          <p className="text-xl text-purple-200">
-            Painel de Controle Corporativo - Blockchain Bet Brasil Corporation
-          </p>
-          <div className="mt-2 bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-4 py-2 rounded-full inline-block">
-            💼 STATUS CORPORATION
-          </div>
-        </div>
+    <>
+      <Head>
+        <title>Dashboard Corporativo - Blockchain Bet Brasil</title>
+        <meta name="description" content="Painel administrativo corporativo da Blockchain Bet Brasil" />
+      </Head>
 
-        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 mb-6 border border-white/20">
-          {!signer ? (
-            <div className="text-center">
-              <button
-                onClick={connectWallet}
-                className="bg-gradient-to-r from-emerald-600 to-blue-600 text-white px-8 py-4 rounded-xl font-bold text-lg hover:from-emerald-700 hover:to-blue-700 transition-all shadow-2xl"
-              >
-                🏢 Conectar como CEO
-              </button>
-              <p className="text-white/70 mt-3">Acesso restrito ao CEO da corporação</p>
-            </div>
-          ) : (
-            <div className="flex justify-between items-center text-white">
-              <div>
-                <p className="text-emerald-300 font-bold text-lg">✅ CEO Conectado</p>
-                <p className="text-sm opacity-90 font-mono">
-                  {userAddress?.slice(0, 8)}...{userAddress?.slice(-6)}
-                </p>
-              </div>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-white/20 text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors"
-              >
-                🔄 Atualizar Corporação
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          
-          <div className="bg-white rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">📊 Estatísticas Corporativas</h2>
-            {roundData ? (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-blue-50 p-4 rounded-xl text-center border-2 border-blue-200">
-                  <div className="text-2xl font-bold text-blue-600">{currentRound}</div>
-                  <div className="text-sm text-gray-600">Rodada Corporativa</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
+        {/* Navigation */}
+        <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 z-50">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <a className="flex items-center space-x-2" href="/">
+                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">B³</span>
                 </div>
-                <div className="bg-green-50 p-4 rounded-xl text-center border-2 border-green-200">
-                  <div className="text-2xl font-bold text-green-600">
-                    {ethers.formatUnits(roundData.totalArrecadado || 0, 18)}
-                  </div>
-                  <div className="text-sm text-gray-600">Arrecadação Corporativa</div>
-                </div>
-                <div className="bg-purple-50 p-4 rounded-xl text-center border-2 border-purple-200">
-                  <div className="text-2xl font-bold text-purple-600">
-                    {ethers.formatUnits(roundData.premioTotal || 0, 18)}
-                  </div>
-                  <div className="text-sm text-gray-600">Prêmio Corporativo</div>
-                </div>
-                <div className={`p-4 rounded-xl text-center border-2 ${
-                  corporationData.isPaused ? 'bg-red-50 border-red-200' : 'bg-emerald-50 border-emerald-200'
-                }`}>
-                  <div className={`text-2xl font-bold ${
-                    corporationData.isPaused ? 'text-red-600' : 'text-emerald-600'
-                  }`}>
-                    {corporationData.isPaused ? '⏸️ Pausado' : '▶️ Ativo'}
-                  </div>
-                  <div className="text-sm text-gray-600">Status Corporativo</div>
-                </div>
-              </div>
-            ) : (
-              <p className="text-gray-500 text-center py-4">Conecte como CEO para ver dados corporativos</p>
-            )}
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">🎯 Gestão Corporativa</h2>
-            
-            <div className="space-y-4">
-              <button
-                onClick={handleAbrirRodada}
-                disabled={isLoading || !signer}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition-colors disabled:opacity-50"
-              >
-                {isLoading ? '🔄 Abrindo...' : '🏢 Abrir Nova Rodada'}
-              </button>
+                <span className="text-white font-bold text-xl">Blockchain Bet Brasil</span>
+              </a>
               
-              <div className="flex gap-2">
-                <button
-                  onClick={handlePauseContract}
-                  disabled={isLoading || !signer}
-                  className="flex-1 bg-yellow-600 text-white py-3 rounded-lg font-bold hover:bg-yellow-700 transition-colors disabled:opacity-50"
-                >
-                  ⏸️ Pausar
-                </button>
-                <button
-                  onClick={handleUnpauseContract}
-                  disabled={isLoading || !signer}
-                  className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50"
-                >
-                  ▶️ Ativar
-                </button>
+              {/* MENU ATUALIZADO */}
+              <div className="hidden md:flex items-center space-x-8">
+                <a className="text-slate-300 hover:text-white transition-colors" href="/">Início</a>
+                <a className="text-slate-300 hover:text-white transition-colors" href="/apostas">Aplicações</a>
+                <a className="text-slate-300 hover:text-white transition-colors" href="/como-proceder">Como Proceder</a>
+                <a className="text-slate-300 hover:text-white transition-colors" href="/adesao">Adesão Inter-Bet</a>
+                <a className="text-slate-300 hover:text-white transition-colors" href="/premiacao">Premiação</a>
+                <a className="text-emerald-400 font-semibold" href="/dashboard">Dashboard</a>
+                <a className="text-slate-300 hover:text-white transition-colors" href="/admin">Painel Admin</a>
               </div>
-
-              <button
-                onClick={handleWithdrawToTreasury}
-                disabled={isLoading || !signer}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-bold hover:from-purple-700 hover:to-pink-700 transition-colors disabled:opacity-50"
-              >
-                {isLoading ? '💰 Transferindo...' : '💼 Transferir para Tesouraria'}
-              </button>
-            </div>
-
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">🎁 Configurações Corporativas</h3>
-              <div className="space-y-3">
-                <input
-                  type="number"
-                  placeholder="Novo Bônus Corporativo"
-                  value={adminActions.novoBonus}
-                  onChange={(e) => setAdminActions({...adminActions, novoBonus: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg p-3"
-                />
-                <input
-                  type="number"
-                  placeholder="Novo Limite Free Aplicação"
-                  value={adminActions.novoLimite}
-                  onChange={(e) => setAdminActions({...adminActions, novoLimite: e.target.value})}
-                  className="w-full border border-gray-300 rounded-lg p-3"
-                />
-                <button
-                  onClick={handleSetConfiguracoesBonus}
-                  disabled={isLoading || !adminActions.novoBonus || !adminActions.novoLimite}
-                  className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 rounded-lg font-bold hover:from-orange-700 hover:to-red-700 transition-colors disabled:opacity-50"
-                >
-                  {isLoading ? '⚙️ Configurando...' : '🏢 Atualizar Configurações'}
+              
+              <div className="flex items-center space-x-4">
+                <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                  🌐 Mainnet
+                </div>
+                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                  👑 Admin
                 </button>
               </div>
             </div>
           </div>
-        </div>
+        </nav>
 
-        <div className="bg-white rounded-2xl p-6 shadow-2xl">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">💼 Informações Corporativas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl border-2 border-blue-200">
-              <div className="font-semibold text-blue-700">Contrato Corporativo</div>
-              <div className="text-sm text-blue-600 font-mono mt-1 break-all">
-                {BLOCKCHAIN_BET_CORPORATION_ADDRESSES.mainContract}
+        <div className="pt-20 pb-8">
+          <div className="container mx-auto px-4">
+            {/* Header Corporativo */}
+            <div className="text-center mb-8 bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl p-8 shadow-2xl">
+              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                BLOCKCHAIN BET BRASIL CORPORATION
+              </h1>
+              <p className="text-emerald-100 text-xl mb-4">Dashboard Corporativo - Implementação Web3 Enterprise</p>
+              <div className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold inline-block">
+                ENTERPRISE GRADE
               </div>
             </div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-xl border-2 border-green-200">
-              <div className="font-semibold text-green-700">Token Corporativo</div>
-              <div className="text-sm text-green-600 font-mono mt-1 break-all">
-                {BLOCKCHAIN_BET_CORPORATION_ADDRESSES.corporateToken}
+
+            {/* Quote */}
+            <div className="text-center italic text-slate-300 bg-slate-800/50 p-6 rounded-xl border-l-4 border-emerald-500 mb-8">
+              "Quem anda pra trás é caranguejo... O céu é o limite! 🚀" - CEO
+            </div>
+
+            {/* Tabs de Navegação */}
+            <div className="flex flex-wrap gap-2 mb-8 bg-slate-800/50 rounded-xl p-2">
+              {[
+                { id: 'overview', label: '📊 Visão Geral', icon: '📊' },
+                { id: 'corporate', label: '🏢 Estrutura Corporativa', icon: '🏢' },
+                { id: 'transactions', label: '💸 Transações', icon: '💸' },
+                { id: 'contracts', label: '📝 Contratos', icon: '📝' },
+                { id: 'analytics', label: '📈 Analytics', icon: '📈' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
+                    activeTab === tab.id
+                      ? 'bg-emerald-500 text-white shadow-lg'
+                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
+                  }`}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Conteúdo do Dashboard */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+              {/* Cards de Métricas */}
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xl">👥</span>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-sm">Total de Usuários</p>
+                    <p className="text-2xl font-bold text-white">{corporateData.overview.totalUsers}</p>
+                    <p className="text-green-400 text-sm">{corporateData.overview.weeklyGrowth}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xl">💰</span>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-sm">Volume Total</p>
+                    <p className="text-2xl font-bold text-white">{corporateData.overview.totalVolume}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                    <span className="text-white text-xl">🎯</span>
+                  </div>
+                  <div>
+                    <p className="text-slate-400 text-sm">Apostas Ativas</p>
+                    <p className="text-2xl font-bold text-white">{corporateData.overview.activeBets}</p>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl border-2 border-purple-200">
-              <div className="font-semibold text-purple-700">Tesouraria</div>
-              <div className="text-sm text-purple-600 font-mono mt-1 break-all">
-                {corporationData.treasuryAddress || BLOCKCHAIN_BET_CORPORATION_ADDRESSES.treasury}
+
+            {/* Conteúdo Principal Baseado na Tab Ativa */}
+            {activeTab === 'overview' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Estrutura Corporativa */}
+                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🏢 Estrutura Corporativa</h3>
+                  <div className="space-y-4">
+                    {corporateData.departments.map((dept, index) => (
+                      <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="text-2xl">{dept.icon}</span>
+                          <div>
+                            <h4 className="font-bold text-white">{dept.title}</h4>
+                            <p className="text-slate-400 text-sm">{dept.address}</p>
+                          </div>
+                          <div className="ml-auto bg-green-500 text-white px-2 py-1 rounded text-xs">
+                            {dept.status}
+                          </div>
+                        </div>
+                        {dept.balance && (
+                          <p className="text-emerald-400 text-sm font-semibold">Saldo: {dept.balance}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Status do Sistema */}
+                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-4">⚡ Status do Sistema</h3>
+                  <div className="space-y-3">
+                    {corporateData.systemStatus.map((item, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-slate-300">{item.component}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400 text-sm">{item.value}</span>
+                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
+                            {item.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                    <h4 className="font-bold text-amber-400 mb-2">📊 Saldo do Contrato</h4>
+                    <p className="text-2xl font-bold text-white">{corporateData.overview.contractBalance}</p>
+                    <p className="text-slate-400 text-sm mt-1">Disponível para saques corporativos</p>
+                  </div>
+                </div>
               </div>
+            )}
+
+            {activeTab === 'transactions' && (
+              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                <h3 className="text-xl font-bold text-emerald-400 mb-4">💸 Transações Recentes</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-slate-700">
+                        <th className="text-left py-3 text-slate-400">Tipo</th>
+                        <th className="text-left py-3 text-slate-400">Valor</th>
+                        <th className="text-left py-3 text-slate-400">Usuário</th>
+                        <th className="text-left py-3 text-slate-400">Tempo</th>
+                        <th className="text-left py-3 text-slate-400">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {corporateData.recentTransactions.map(tx => (
+                        <tr key={tx.id} className="border-b border-slate-700/50">
+                          <td className="py-3 text-white">{tx.type}</td>
+                          <td className="py-3 text-emerald-400 font-semibold">{tx.amount}</td>
+                          <td className="py-3 text-slate-300">{tx.user}</td>
+                          <td className="py-3 text-slate-400">{tx.time}</td>
+                          <td className="py-3">
+                            <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
+                              {tx.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'corporate' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Fases de Implementação */}
+                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🚀 Fases de Implementação</h3>
+                  <div className="space-y-4">
+                    {[
+                      { phase: 'FASE 1', title: 'Diagnóstico do Erro', status: '✅ CONCLUÍDO' },
+                      { phase: 'FASE 2', title: 'Configuração Web3', status: '✅ IMPLEMENTADO' },
+                      { phase: 'FASE 3', title: 'Estrutura Corporativa', status: '✅ IMPLEMENTADO' },
+                      { phase: 'FASE 4', title: 'Infraestrutura Enterprise', status: '🔄 EM ANDAMENTO' },
+                      { phase: 'FASE 5', title: 'Deploy Mainnet', status: '⏳ AGUARDANDO' }
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center gap-4 p-3 bg-slate-700/30 rounded-lg">
+                        <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-semibold text-white">{item.phase}</div>
+                          <div className="text-slate-400 text-sm">{item.title}</div>
+                        </div>
+                        <div className={`px-2 py-1 rounded text-xs font-semibold ${
+                          item.status.includes('✅') ? 'bg-green-500' : 
+                          item.status.includes('🔄') ? 'bg-blue-500' : 'bg-amber-500'
+                        } text-white`}>
+                          {item.status}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Próximos Passos */}
+                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
+                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🎯 Próximos Passos</h3>
+                  <div className="space-y-3">
+                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
+                      <h4 className="font-bold text-white mb-2">💰 Capitalização</h4>
+                      <p className="text-slate-300 text-sm">Aguardando 0.1 ETH para deploy final</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
+                      <h4 className="font-bold text-white mb-2">🚀 Deploy Mainnet</h4>
+                      <p className="text-slate-300 text-sm">Implementação oficial na Ethereum Mainnet</p>
+                    </div>
+                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
+                      <h4 className="font-bold text-white mb-2">📈 Marketing</h4>
+                      <p className="text-slate-300 text-sm">Campanha de lançamento corporativo</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Footer Corporativo */}
+            <div className="text-center mt-12 pt-6 border-t border-slate-700">
+              <p className="text-slate-500 text-sm">
+                Blockchain Bet Brasil Corporation © 2025 - Dashboard Corporativo Enterprise
+              </p>
+              <p className="text-slate-600 text-xs mt-2">
+                "Do erro técnico à corporação Web3 em tempo recorde!"
+              </p>
             </div>
           </div>
-          
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-xl border-2 border-emerald-200">
-              <div className="font-semibold text-emerald-700">Saldo Corporativo</div>
-              <div className="text-2xl font-bold text-emerald-600 mt-1">
-                {corporationData.contractBalance} ETH
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl border-2 border-amber-200">
-              <div className="font-semibold text-amber-700">Status Corporativo</div>
-              <div className={`text-2xl font-bold mt-1 ${
-                corporationData.isPaused ? 'text-red-600' : 'text-emerald-600'
-              }`}>
-                {corporationData.isPaused ? '⏸️ CORPORATION PAUSED' : '🏢 CORPORATION ACTIVE'}
-              </div>
-            </div>
-          </div>
         </div>
-
-        <div className="text-center mt-8">
-          <div className="bg-gradient-to-r from-emerald-500 to-blue-500 text-white px-6 py-3 rounded-full inline-block">
-            🚀 BLOCKCHAIN BET BRASIL CORPORATION - TODOS OS DIREITOS RESERVADOS
-          </div>
-        </div>
-
       </div>
-    </div>
+    </>
   );
-}
+};
+
+export default DashboardCorporativo;

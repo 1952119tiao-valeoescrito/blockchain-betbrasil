@@ -54,8 +54,8 @@ export default function PoliticaPrivacidade() {
                 Para dúvidas sobre privacidade ou tratamento de dados:
               </p>
               <p className="text-emerald-400 mt-2">
-                <strong>E-mail:</strong> {supportEmail}<br/>
-                <strong>Telefone:</strong> {phoneNumber}
+                <strong>E-mail:</strong> sfchagasfilho@yahoo.com.br<br/>
+                <strong>Telefone:</strong> +55 (21) 99352-7957
               </p>
             </div>
           </div>
