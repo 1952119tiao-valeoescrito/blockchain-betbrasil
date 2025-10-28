@@ -15,9 +15,9 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { trackWalletConnection, trackNavigation } = useAnalytics();
 
-  const formatWalletAddress = (addr: string) => {
-    return `${addr?.slice(0, 6)}...${addr?.slice(-4)}`;
-  };
+ const formatWalletAddress = (addr: string | undefined) => {
+  return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : 'Conectando...';
+};
 
   const handleConnect = async () => {
     try {

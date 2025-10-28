@@ -2,16 +2,30 @@
   "name": "blockchain-betbrasil-frontend",
   "version": "1.0.0",
   "scripts": {
-    "compile": "hardhat compile",
-    "test": "hardhat test",
-    "deploy": "hardhat run scripts/deploy.js --network localhost"
-  },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.26.3"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
-    "@chainlink/contracts": "^0.8.0",
-    "@openzeppelin/contracts": "^4.9.6"
+    "@tailwindcss/postcss": "^4.1.16",
+    "ethers": "^6.0.0",
+    "next": "14.0.0",
+    "next-intl": "^4.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "viem": "^2.38.4",
+    "wagmi": "^2.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "14.0.0",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.16",
+    "typescript": "^5.0.0"
   }
 }

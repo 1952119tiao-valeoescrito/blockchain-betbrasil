@@ -1,13 +1,27 @@
+'use client';
+
 import React, { useState } from 'react';
 
+// ✅ INTERFACES PARA AS PROPS
+interface BetsPageContentProps {
+  isConnected: boolean;
+  connectWallet: () => void;
+  handleNavClick: (path: string) => void;
+}
+
+interface HomePageContentProps {
+  connectWallet: () => void;
+  handleNavClick: (path: string, sectionId?: string | null) => void;
+}
+
 // --- Componente de Conteúdo da Página de Apostas ---
-const BetsPageContent = ({ isConnected, connectWallet, handleNavClick }) => {
+const BetsPageContent = ({ isConnected, connectWallet, handleNavClick }: BetsPageContentProps) => {
   const [betType, setBetType] = useState('regular'); // 'regular' or 'premium'
-  const [prognostics, setPrognostics] = useState([null, null, null, null, null]);
+  const [prognostics, setPrognostics] = useState<(string | null)[]>([null, null, null, null, null]);
 
   const prognosticsOptions = ['X', 'Y']; // Opções simplificadas
 
-  const handlePrognosticChange = (index, value) => {
+  const handlePrognosticChange = (index: number, value: string) => {
     setPrognostics(prev => {
       const newProgs = [...prev];
       // Alterna o valor (se for o mesmo, limpa; se for diferente ou nulo, define)
@@ -189,8 +203,7 @@ const BetsPageContent = ({ isConnected, connectWallet, handleNavClick }) => {
 // --- Fim do Componente de Conteúdo da Página de Apostas ---
 
 // --- Componente de Conteúdo da Página Inicial ---
-// Componente de Conteúdo da Página Inicial (Refatorado para clareza)
-const HomePageContent = ({ connectWallet, handleNavClick }) => (
+const HomePageContent = ({ connectWallet, handleNavClick }: HomePageContentProps) => (
   <div className="container mx-auto p-4 md:p-6 mt-8 mb-8 flex justify-center">
     <div className="w-full flex flex-col items-center justify-center gap-12">
       
@@ -408,13 +421,13 @@ const App = () => {
     setIsConnected(false);
   };
 
-  const formatWalletAddress = (address) => {
+  const formatWalletAddress = (address: string) => {
     if (!address) return '';
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
   // Função centralizada para navegação (page switch e scroll de seção)
-  const handleNavClick = (page, sectionId = null) => {
+  const handleNavClick = (page: string, sectionId: string | null = null) => {
     setIsMenuOpen(false); // Fecha o menu mobile
     setCurrentPage(page); // Muda o estado da página
 
