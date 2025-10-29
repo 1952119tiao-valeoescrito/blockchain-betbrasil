@@ -1,33 +1,24 @@
-import type { Metadata } from "next";
-import { Inter, Roboto_Mono } from "next/font/google";
-import "./globals.css";
+'use client';
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
+import './globals.css';
+import { Inter } from 'next/font/google';
 
-const robotoMono = Roboto_Mono({
-  variable: "--font-roboto-mono", 
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Blockchain Bet Brasil - Plataforma de Entretenimento",
-  description: "Sistema de entretenimento gamificado com recompensas e elementos educativos",
-  keywords: "blockchain, entretenimento, gamificação, recompensas, sistema educativo",
-};
+const inter = Inter({ subsets: ['latin'] });
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${inter.variable} ${robotoMono.variable} antialiased`}
-      >
+      <head>
+        <title>Blockchain Bet Brasil - Plataforma de Entretenimento</title>
+        <meta name="description" content="Sistema de entretenimento gamificado com recompensas e elementos educativos" />
+        <meta name="keywords" content="blockchain, entretenimento, gamificação, recompensas, sistema educativo" />
+        <link rel="icon" href="/favicon.ico" />
+      </head>
+      <body className={`${inter.className} bg-gradient-to-br from-slate-900 to-slate-800`}>
         {children}
       </body>
     </html>
