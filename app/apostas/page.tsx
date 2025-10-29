@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Navigation from '../components/Navigation';
-import WalletConnect from '../components/WalletConnect';
 import BetForm from '../components/BetForm';
 import Notification from '../components/Notification';
 
@@ -31,6 +30,11 @@ export default function ApostasPage() {
     showNotification('info', '🔌 Carteira desconectada');
   };
 
+  const formatWalletAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   const showNotification = (type: 'success' | 'error' | 'info' | 'warning', message: string) => {
     setNotification({ type, message });
     setTimeout(() => setNotification(null), 5000);
@@ -43,9 +47,9 @@ export default function ApostasPage() {
         walletAddress={walletAddress}
         connectWallet={connectWallet}
         disconnectWallet={disconnectWallet}
+        formatWalletAddress={formatWalletAddress}
       />
 
-      {/* Sistema de Notificação */}
       {notification && (
         <Notification
           type={notification.type}

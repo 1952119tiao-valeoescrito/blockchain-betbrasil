@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Navigation from './components/Navigation';
-import WalletConnect from './components/WalletConnect';
 import HomeSections from './components/HomeSections';
 
 export default function HomePage() {
@@ -26,6 +25,11 @@ export default function HomePage() {
     setIsConnected(false);
   };
 
+  const formatWalletAddress = (address: string) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
   return (
     <div className="min-h-screen">
       <Navigation 
@@ -33,9 +37,10 @@ export default function HomePage() {
         walletAddress={walletAddress}
         connectWallet={connectWallet}
         disconnectWallet={disconnectWallet}
+        formatWalletAddress={formatWalletAddress}
       />
       
-      <HomeSections connectWallet={connectWallet} />
+      <HomeSections />
       
       <footer className="bg-slate-900/80 border-t border-slate-700 py-8 mt-16">
         <div className="container mx-auto px-4 text-center">

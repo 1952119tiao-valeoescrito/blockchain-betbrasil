@@ -1,25 +1,61 @@
 'use client';
 
-import WalletConnect from './WalletConnect';
+interface WalletConnectProps {
+  isConnected: boolean;
+  walletAddress: string;
+  connectWallet: () => void;
+  disconnectWallet: () => void;
+  formatWalletAddress: (address: string) => string;
+}
+
+function WalletConnect({ 
+  isConnected, 
+  walletAddress, 
+  connectWallet, 
+  disconnectWallet,
+  formatWalletAddress 
+}: WalletConnectProps) {
+  return (
+    <div className="flex items-center space-x-4">
+      {isConnected ? (
+        <div className="flex items-center space-x-3">
+          <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-medium border border-green-500/30">
+            {formatWalletAddress(walletAddress)}
+          </span>
+          <button
+            onClick={disconnectWallet}
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300 text-sm font-semibold"
+          >
+            Desconectar
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={connectWallet}
+          className="bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white px-6 py-2 rounded-lg transition duration-300 font-semibold shadow-lg"
+        >
+          Conectar Carteira
+        </button>
+      )}
+    </div>
+  );
+}
 
 interface NavigationProps {
   isConnected: boolean;
   walletAddress: string;
   connectWallet: () => void;
   disconnectWallet: () => void;
+  formatWalletAddress: (address: string) => string;
 }
 
 export default function Navigation({ 
   isConnected, 
   walletAddress, 
   connectWallet, 
-  disconnectWallet 
+  disconnectWallet,
+  formatWalletAddress 
 }: NavigationProps) {
-  const formatWalletAddress = (address: string) => {
-    if (!address) return '';
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
   return (
     <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 z-50">
       <div className="container mx-auto px-4">

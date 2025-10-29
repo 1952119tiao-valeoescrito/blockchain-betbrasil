@@ -3,16 +3,37 @@
 
 import { useState } from 'react';
 
-export default function BetForm() {
+interface BetFormProps {
+  isConnected: boolean;
+  connectWallet: () => Promise<void>;
+  showNotification: (type: "error" | "success" | "info" | "warning", message: string) => void;
+}
+
+export default function BetForm({ isConnected, connectWallet, showNotification }: BetFormProps) {
   const [betAmount, setBetAmount] = useState('');
   const [selectedTeam, setSelectedTeam] = useState('');
   const [odds, setOdds] = useState('2.5');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Lógica de aposta aqui
-    console.log({ betAmount, selectedTeam, odds });
-    alert('Aposta realizada com sucesso!');
+    
+    if (!isConnected) {
+      await connectWallet();
+      return;
+    }
+
+    if (!betAmount || !selectedTeam) {
+      showNotification('error', 'Preencha todos os campos da aposta');
+      return;
+    }
+
+    try {
+      showNotification('info', 'Processando aposta na blockchain...');
+      console.log({ betAmount, selectedTeam, odds });
+      showNotification('success', 'Aposta realizada com sucesso!');
+    } catch (error) {
+      showNotification('error', 'Erro ao processar aposta');
+    }
   };
 
   return (
@@ -28,8 +49,15 @@ export default function BetForm() {
         </div>
 
         <div className="bg-gray-800 rounded-xl p-8 border border-yellow-500/30">
+          {!isConnected && (
+            <div className="mb-6 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg">
+              <p className="text-yellow-400 text-center">
+                Conecte sua carteira para fazer apostas
+              </p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Seleção de Time */}
             <div className="form-group">
               <label className="block text-yellow-400 font-semibold mb-3 text-lg">
                 🏆 Selecione o Time:
@@ -39,6 +67,7 @@ export default function BetForm() {
                 onChange={(e) => setSelectedTeam(e.target.value)}
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-yellow-500 focus:outline-none"
                 required
+                disabled={!isConnected}
               >
                 <option value="">Escolha uma opção</option>
                 <option value="timeA">Flamengo - Odds: 2.1</option>
@@ -47,7 +76,6 @@ export default function BetForm() {
               </select>
             </div>
 
-            {/* Valor da Aposta */}
             <div className="form-group">
               <label className="block text-yellow-400 font-semibold mb-3 text-lg">
                 💰 Valor da Aposta (ETH):
@@ -61,13 +89,13 @@ export default function BetForm() {
                 min="0.001"
                 className="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 text-white focus:border-yellow-500 focus:outline-none"
                 required
+                disabled={!isConnected}
               />
               <p className="text-gray-400 text-sm mt-2">
                 Valor mínimo: 0.001 ETH
               </p>
             </div>
 
-            {/* Resumo da Aposta */}
             {betAmount && selectedTeam && (
               <div className="bg-gray-900 rounded-lg p-4 border border-yellow-500/50">
                 <h3 className="text-yellow-400 font-semibold mb-2">Resumo da Aposta:</h3>
@@ -79,17 +107,16 @@ export default function BetForm() {
               </div>
             )}
 
-            {/* Botão de Aposta */}
             <button 
               type="submit" 
-              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-4 px-6 rounded-lg transition duration-300 text-lg"
+              className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-bold py-4 px-6 rounded-lg transition duration-300 text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={!isConnected}
             >
-              🎯 Confirmar Aposta
+              {isConnected ? '🎯 Confirmar Aposta' : '🔗 Conectar Carteira'}
             </button>
           </form>
         </div>
 
-        {/* Footer */}
         <footer className="text-center mt-12 pt-8 border-t border-gray-700">
           <p className="text-gray-400">
             © 2024 Blockchain Bet Brasil - Plataforma gamificada
