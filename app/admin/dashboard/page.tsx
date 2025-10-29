@@ -1,361 +1,605 @@
-"use client";
+// app/dashboard/page.tsx
+'use client';
 
-import React, { useState, useEffect } from 'react';
-import Head from 'next/head';
+import { useState, useEffect } from 'react';
 
-const DashboardCorporativo = () => {
-  const [activeTab, setActiveTab] = useState('overview');
-  const [isLoading, setIsLoading] = useState(true);
+// Tipos para os dados do dashboard
+interface DashboardStats {
+  totalUsers: number;
+  totalBets: number;
+  totalVolume: string;
+  successRate: number;
+  contractBalance: string;
+  activeBets: number;
+}
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+interface Bet {
+  id: string;
+  user: string;
+  amount: string;
+  team: string;
+  odds: number;
+  status: 'active' | 'won' | 'lost';
+  timestamp: Date;
+}
 
-  // Dados simulados do dashboard
-  const corporateData = {
-    overview: {
-      totalUsers: '1.247',
-      totalVolume: 'R$ 89.500,00',
-      activeBets: '156',
-      contractBalance: '0.85 ETH',
-      weeklyGrowth: '+12.5%'
+interface Transaction {
+  hash: string;
+  type: 'bet' | 'withdrawal' | 'deposit';
+  amount: string;
+  from: string;
+  to: string;
+  timestamp: Date;
+  status: 'pending' | 'confirmed' | 'failed';
+}
+
+export default function CorporateDashboard() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalUsers: 1250,
+    totalBets: 5840,
+    totalVolume: '25.4',
+    successRate: 98,
+    contractBalance: '12.8',
+    activeBets: 42
+  });
+
+  const [recentBets, setRecentBets] = useState<Bet[]>([
+    {
+      id: '1',
+      user: '0x742d...1a3f',
+      amount: '0.1',
+      team: 'Flamengo',
+      odds: 2.1,
+      status: 'active',
+      timestamp: new Date()
     },
-    departments: [
-      {
-        icon: '👑',
-        title: 'CEO & OWNER',
-        address: '0xF00aA01e9d1f8E81fd070FBE52A917bE07710469',
-        status: 'active'
-      },
-      {
-        icon: '💰',
-        title: 'TESOURARIA',
-        address: 'Recebe fundos das apostas',
-        status: 'active',
-        balance: '12.5 ETH'
-      },
-      {
-        icon: '🔧',
-        title: 'DEPLOYER',
-        address: 'Carteira dedicada para gas fees',
-        status: 'active',
-        balance: '0.1 ETH'
-      },
-      {
-        icon: '🎲',
-        title: 'VRF COORDINATOR',
-        address: 'Chainlink VRF v2',
-        status: 'connected'
-      }
-    ],
-    recentTransactions: [
-      { id: 1, type: 'Bet', amount: 'R$ 5,00', user: '0x1234...5678', time: '2 min ago', status: 'success' },
-      { id: 2, type: 'Bet', amount: 'R$ 1.000,00', user: '0x8765...4321', time: '5 min ago', status: 'success' },
-      { id: 3, type: 'Withdrawal', amount: 'R$ 2.500,00', user: '0x1111...2222', time: '1 hour ago', status: 'success' },
-      { id: 4, type: 'Bet', amount: 'R$ 5,00', user: '0x3333...4444', time: '2 hours ago', status: 'success' }
-    ],
-    systemStatus: [
-      { component: 'Blockchain Network', status: 'operational', value: 'Ethereum Mainnet' },
-      { component: 'Contrato Principal', status: 'operational', value: 'Deployed' },
-      { component: 'VRF Coordinator', status: 'operational', value: 'Connected' },
-      { component: 'Frontend', status: 'operational', value: 'Online' },
-      { component: 'Database', status: 'operational', value: 'Sincronizado' }
-    ]
+    {
+      id: '2',
+      user: '0x8a9b...4c2d',
+      amount: '0.05',
+      team: 'Palmeiras',
+      odds: 3.2,
+      status: 'won',
+      timestamp: new Date(Date.now() - 1000 * 60 * 30)
+    },
+    {
+      id: '3',
+      user: '0x3c8f...7e1a',
+      amount: '0.2',
+      team: 'Empate',
+      odds: 2.8,
+      status: 'lost',
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2)
+    }
+  ]);
+
+  const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([
+    {
+      hash: '0x8a3b...c4d5',
+      type: 'bet',
+      amount: '0.1',
+      from: '0x742d...1a3f',
+      to: 'Contract',
+      timestamp: new Date(),
+      status: 'confirmed'
+    },
+    {
+      hash: '0x9b2c...d3e6',
+      type: 'withdrawal',
+      amount: '5.0',
+      from: 'Contract',
+      to: 'Treasury',
+      timestamp: new Date(Date.now() - 1000 * 60 * 15),
+      status: 'pending'
+    }
+  ]);
+
+  const [isConnected, setIsConnected] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Simulação de conexão com wallet
+  const connectWallet = () => {
+    setIsConnected(true);
+    // Aqui você integraria com Web3
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-300 text-lg">Carregando Dashboard Corporativo...</p>
-        </div>
-      </div>
-    );
-  }
+  // Funções executivas
+  const withdrawToTreasury = (amount: string) => {
+    console.log(`Withdrawing ${amount} ETH to treasury`);
+    // Integração com contrato
+    alert(`Saque de ${amount} ETH executado para a tesouraria!`);
+  };
+
+  const emergencyPause = () => {
+    console.log('Emergency pause activated');
+    // Integração com contrato
+    alert('Contrato pausado em modo de emergência!');
+  };
+
+  const generateReport = () => {
+    alert('Relatório corporativo gerado com sucesso!');
+  };
 
   return (
-    <>
-      <Head>
-        <title>Dashboard Corporativo - Blockchain Bet Brasil</title>
-        <meta name="description" content="Painel administrativo corporativo da Blockchain Bet Brasil" />
-      </Head>
-
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800">
-        {/* Navigation */}
-        <nav className="fixed top-0 left-0 right-0 bg-slate-900/95 backdrop-blur-md border-b border-slate-700 z-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between h-16">
-              <a className="flex items-center space-x-2" href="/">
-                <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-green-500 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">B³</span>
-                </div>
-                <span className="text-white font-bold text-xl">Blockchain Bet Brasil</span>
-              </a>
-              
-              {/* MENU ATUALIZADO */}
-              <div className="hidden md:flex items-center space-x-8">
-                <a className="text-slate-300 hover:text-white transition-colors" href="/">Início</a>
-                <a className="text-slate-300 hover:text-white transition-colors" href="/apostas">Aplicações</a>
-                <a className="text-slate-300 hover:text-white transition-colors" href="/como-proceder">Como Proceder</a>
-                <a className="text-slate-300 hover:text-white transition-colors" href="/adesao">Adesão Inter-Bet</a>
-                <a className="text-slate-300 hover:text-white transition-colors" href="/premiacao">Premiação</a>
-                <a className="text-emerald-400 font-semibold" href="/dashboard">Dashboard</a>
-                <a className="text-slate-300 hover:text-white transition-colors" href="/admin">Painel Admin</a>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
+      {/* Header Corporativo */}
+      <header className="border-b border-gray-700 bg-gray-900/90 backdrop-blur-lg sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-black font-bold text-xl">B³</span>
               </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
-                  🌐 Mainnet
-                </div>
-                <button className="bg-gradient-to-r from-emerald-500 to-green-500 text-white px-4 py-2 rounded-lg text-sm font-semibold">
-                  👑 Admin
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                  Blockchain Bet Brasil Corp
+                </h1>
+                <p className="text-gray-400 text-sm">Executive Dashboard</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {!isConnected ? (
+                <button
+                  onClick={connectWallet}
+                  className="bg-gradient-to-r from-green-500 to-yellow-500 hover:from-green-600 hover:to-yellow-600 text-black font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25"
+                >
+                  🔗 Connect CEO Wallet
                 </button>
-              </div>
+              ) : (
+                <div className="flex items-center space-x-3 bg-gray-800/80 rounded-xl px-4 py-2 border border-green-500/30">
+                  <div className="text-right">
+                    <p className="text-green-400 font-semibold">👑 CEO Connected</p>
+                    <p className="text-gray-400 text-xs">0xF00aA01e9d1f8E81fd070FBE52A917bE07710469</p>
+                  </div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg shadow-green-500/50"></div>
+                </div>
+              )}
             </div>
           </div>
-        </nav>
+        </div>
+      </header>
 
-        <div className="pt-20 pb-8">
-          <div className="container mx-auto px-4">
-            {/* Header Corporativo */}
-            <div className="text-center mb-8 bg-gradient-to-r from-emerald-600 to-green-500 rounded-2xl p-8 shadow-2xl">
-              <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                BLOCKCHAIN BET BRASIL CORPORATION
-              </h1>
-              <p className="text-emerald-100 text-xl mb-4">Dashboard Corporativo - Implementação Web3 Enterprise</p>
-              <div className="bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold inline-block">
-                ENTERPRISE GRADE
-              </div>
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Navigation Tabs */}
+        <div className="border-b border-gray-700 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            {['overview', 'bets', 'transactions', 'contract', 'treasury'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`py-4 px-1 border-b-2 font-medium text-sm capitalize transition-all duration-300 ${
+                  activeTab === tab
+                    ? 'border-green-500 text-green-400 font-bold'
+                    : 'border-transparent text-gray-500 hover:text-gray-300 hover:border-gray-600'
+                }`}
+              >
+                {tab === 'overview' ? '📊 Overview' :
+                 tab === 'bets' ? '🎯 Bets' :
+                 tab === 'transactions' ? '💸 Transactions' :
+                 tab === 'contract' ? '📝 Contract' :
+                 '💰 Treasury'}
+              </button>
+            ))}
+          </nav>
+        </div>
 
-            {/* Quote */}
-            <div className="text-center italic text-slate-300 bg-slate-800/50 p-6 rounded-xl border-l-4 border-emerald-500 mb-8">
-              "Quem anda pra trás é caranguejo... O céu é o limite! 🚀" - CEO
-            </div>
-
-            {/* Tabs de Navegação */}
-            <div className="flex flex-wrap gap-2 mb-8 bg-slate-800/50 rounded-xl p-2">
+        {/* Overview Tab */}
+        {activeTab === 'overview' && (
+          <div className="space-y-8">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[
-                { id: 'overview', label: '📊 Visão Geral', icon: '📊' },
-                { id: 'corporate', label: '🏢 Estrutura Corporativa', icon: '🏢' },
-                { id: 'transactions', label: '💸 Transações', icon: '💸' },
-                { id: 'contracts', label: '📝 Contratos', icon: '📝' },
-                { id: 'analytics', label: '📈 Analytics', icon: '📈' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-lg font-semibold transition-all ${
-                    activeTab === tab.id
-                      ? 'bg-emerald-500 text-white shadow-lg'
-                      : 'bg-slate-700 text-slate-300 hover:bg-slate-600'
-                  }`}
+                { label: 'Total Users', value: stats.totalUsers.toLocaleString(), icon: '👥', change: '+12%', color: 'blue' },
+                { label: 'Total Bets', value: stats.totalBets.toLocaleString(), icon: '🎲', change: '+8%', color: 'purple' },
+                { label: 'Volume Total', value: `${stats.totalVolume} ETH`, icon: '💰', change: '+15%', color: 'green' },
+                { label: 'Taxa de Sucesso', value: `${stats.successRate}%`, icon: '📈', change: '+2%', color: 'yellow' },
+                { label: 'Saldo do Contrato', value: `${stats.contractBalance} ETH`, icon: '🏦', change: '+5%', color: 'indigo' },
+                { label: 'Apostas Ativas', value: stats.activeBets.toString(), icon: '⚡', change: '+3%', color: 'red' }
+              ].map((stat, index) => (
+                <div 
+                  key={index} 
+                  className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 hover:border-green-500/50 transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-green-500/10"
                 >
-                  <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </button>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-gray-400 text-sm font-medium">{stat.label}</p>
+                      <p className="text-3xl font-bold mt-2 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+                        {stat.value}
+                      </p>
+                      <p className="text-green-400 text-sm mt-1 font-semibold">
+                        📈 {stat.change} from last week
+                      </p>
+                    </div>
+                    <div className="text-4xl opacity-80">{stat.icon}</div>
+                  </div>
+                </div>
               ))}
             </div>
 
-            {/* Conteúdo do Dashboard */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              {/* Cards de Métricas */}
-              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xl">👥</span>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Total de Usuários</p>
-                    <p className="text-2xl font-bold text-white">{corporateData.overview.totalUsers}</p>
-                    <p className="text-green-400 text-sm">{corporateData.overview.weeklyGrowth}</p>
-                  </div>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Recent Bets */}
+              <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                    🎯 Apostas Recentes
+                  </h3>
+                  <span className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm font-semibold">
+                    {recentBets.length} ativas
+                  </span>
+                </div>
+                <div className="space-y-4">
+                  {recentBets.map((bet) => (
+                    <div 
+                      key={bet.id} 
+                      className="flex items-center justify-between p-4 bg-gray-900/50 rounded-xl border border-gray-700 hover:border-green-500/30 transition-all duration-300"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-4 h-4 rounded-full ${
+                          bet.status === 'active' ? 'bg-yellow-500 animate-pulse' :
+                          bet.status === 'won' ? 'bg-green-500' : 'bg-red-500'
+                        }`}></div>
+                        <div>
+                          <p className="font-semibold text-white">{bet.user}</p>
+                          <p className="text-gray-400 text-sm">
+                            {bet.team} • Odds: <span className="text-yellow-400">{bet.odds}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg text-white">{bet.amount} ETH</p>
+                        <p className={`text-sm font-semibold capitalize ${
+                          bet.status === 'active' ? 'text-yellow-400' :
+                          bet.status === 'won' ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          {bet.status}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xl">💰</span>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Volume Total</p>
-                    <p className="text-2xl font-bold text-white">{corporateData.overview.totalVolume}</p>
-                  </div>
+              {/* Recent Transactions */}
+              <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                    💸 Transações Recentes
+                  </h3>
+                  <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-semibold">
+                    Live
+                  </span>
                 </div>
-              </div>
-
-              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-xl">🎯</span>
-                  </div>
-                  <div>
-                    <p className="text-slate-400 text-sm">Apostas Ativas</p>
-                    <p className="text-2xl font-bold text-white">{corporateData.overview.activeBets}</p>
-                  </div>
+                <div className="space-y-4">
+                  {recentTransactions.map((tx, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center justify-between p-4 bg-gray-900/50 rounded-xl border border-gray-700 hover:border-blue-500/30 transition-all duration-300"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                          tx.type === 'bet' ? 'bg-blue-500/20 border border-blue-500/30' :
+                          tx.type === 'withdrawal' ? 'bg-red-500/20 border border-red-500/30' : 
+                          'bg-green-500/20 border border-green-500/30'
+                        }`}>
+                          {tx.type === 'bet' ? '🎲' : tx.type === 'withdrawal' ? '📤' : '📥'}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-white text-sm">
+                            {tx.hash.slice(0, 10)}...{tx.hash.slice(-8)}
+                          </p>
+                          <p className="text-gray-400 text-sm capitalize">
+                            {tx.type} • {tx.timestamp.toLocaleTimeString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-lg text-white">{tx.amount} ETH</p>
+                        <p className={`text-sm font-semibold ${
+                          tx.status === 'confirmed' ? 'text-green-400' :
+                          tx.status === 'pending' ? 'text-yellow-400 animate-pulse' : 'text-red-400'
+                        }`}>
+                          {tx.status}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
 
-            {/* Conteúdo Principal Baseado na Tab Ativa */}
-            {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Estrutura Corporativa */}
-                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🏢 Estrutura Corporativa</h3>
-                  <div className="space-y-4">
-                    {corporateData.departments.map((dept, index) => (
-                      <div key={index} className="bg-slate-700/30 rounded-lg p-4 border border-slate-600">
-                        <div className="flex items-center gap-3 mb-2">
-                          <span className="text-2xl">{dept.icon}</span>
-                          <div>
-                            <h4 className="font-bold text-white">{dept.title}</h4>
-                            <p className="text-slate-400 text-sm">{dept.address}</p>
-                          </div>
-                          <div className="ml-auto bg-green-500 text-white px-2 py-1 rounded text-xs">
-                            {dept.status}
-                          </div>
+            {/* Executive Actions */}
+            <div className="bg-gradient-to-r from-green-500/10 via-yellow-500/10 to-green-500/10 backdrop-blur-lg rounded-2xl p-8 border border-green-500/30 shadow-2xl">
+              <h3 className="text-2xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                ⚡ Ações Executivas
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <button
+                  onClick={() => withdrawToTreasury('5.0')}
+                  className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 flex items-center justify-center space-x-2"
+                >
+                  <span>💰</span>
+                  <span>Withdraw to Treasury</span>
+                </button>
+                <button
+                  onClick={emergencyPause}
+                  className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-yellow-500/25 flex items-center justify-center space-x-2"
+                >
+                  <span>🚨</span>
+                  <span>Emergency Pause</span>
+                </button>
+                <button 
+                  onClick={generateReport}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25 flex items-center justify-center space-x-2"
+                >
+                  <span>📊</span>
+                  <span>Generate Report</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bets Tab */}
+        {activeTab === 'bets' && (
+          <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                🎯 Gerenciamento de Apostas
+              </h2>
+              <div className="flex space-x-3">
+                <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition duration-300">
+                  🔄 Atualizar
+                </button>
+                <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300">
+                  📥 Exportar
+                </button>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto rounded-xl border border-gray-700">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-900/80 border-b border-gray-700">
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">ID</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Usuário</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Time</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Valor</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Odds</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Status</th>
+                    <th className="py-4 px-6 text-left text-gray-300 font-semibold">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentBets.map((bet) => (
+                    <tr 
+                      key={bet.id} 
+                      className="border-b border-gray-800 hover:bg-gray-700/50 transition duration-300"
+                    >
+                      <td className="py-4 px-6 font-mono text-sm text-gray-300">#{bet.id}</td>
+                      <td className="py-4 px-6">
+                        <div>
+                          <p className="font-semibold text-white">{bet.user}</p>
+                          <p className="text-gray-400 text-sm">
+                            {bet.timestamp.toLocaleDateString('pt-BR')}
+                          </p>
                         </div>
-                        {dept.balance && (
-                          <p className="text-emerald-400 text-sm font-semibold">Saldo: {dept.balance}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-semibold text-white">{bet.team}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-bold text-lg text-yellow-400">{bet.amount} ETH</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className="font-semibold text-green-400">{bet.odds}</span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          bet.status === 'active' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' :
+                          bet.status === 'won' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                          'bg-red-500/20 text-red-400 border border-red-500/30'
+                        }`}>
+                          {bet.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="flex space-x-2">
+                          <button className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm transition duration-300">
+                            👁️ Detalhes
+                          </button>
+                          <button className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm transition duration-300">
+                            ⚡ Ações
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Treasury Tab */}
+        {activeTab === 'treasury' && (
+          <div className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Treasury Overview */}
+              <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+                <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                  💰 Visão Geral do Tesouro
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Saldo do Contrato', value: `${stats.contractBalance} ETH`, color: 'green' },
+                    { label: 'Total Arrecadado', value: `${stats.totalVolume} ETH`, color: 'yellow' },
+                    { label: 'Taxa da Plataforma', value: '2.5%', color: 'blue' },
+                    { label: 'Lucro Líquido', value: '18.2 ETH', color: 'green' },
+                    { label: 'Saque Pendente', value: '5.0 ETH', color: 'red' }
+                  ].map((item, index) => (
+                    <div 
+                      key={index}
+                      className="flex justify-between items-center p-4 bg-gray-900/50 rounded-xl border border-gray-700 hover:border-green-500/30 transition duration-300"
+                    >
+                      <span className="text-gray-300 font-medium">{item.label}</span>
+                      <span className={`font-bold text-lg ${
+                        item.color === 'green' ? 'text-green-400' :
+                        item.color === 'yellow' ? 'text-yellow-400' :
+                        item.color === 'blue' ? 'text-blue-400' : 'text-red-400'
+                      }`}>
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+              </div>
 
-                {/* Status do Sistema */}
-                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                  <h3 className="text-xl font-bold text-emerald-400 mb-4">⚡ Status do Sistema</h3>
-                  <div className="space-y-3">
-                    {corporateData.systemStatus.map((item, index) => (
-                      <div key={index} className="flex justify-between items-center">
-                        <span className="text-slate-300">{item.component}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-slate-400 text-sm">{item.value}</span>
-                          <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
-                            {item.status}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
+              {/* Withdrawal Panel */}
+              <div className="bg-gradient-to-r from-green-500/10 to-yellow-500/10 backdrop-blur-lg rounded-2xl p-6 border border-green-500/30 shadow-xl">
+                <h3 className="text-xl font-bold mb-6 text-center bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                  📤 Saque para Tesouraria
+                </h3>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-300 mb-3">
+                      💎 Valor para Saque (ETH)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="0.0"
+                      step="0.1"
+                      min="0.1"
+                      max={stats.contractBalance}
+                      className="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-4 text-white text-lg font-semibold focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-500/20 transition duration-300"
+                    />
                   </div>
-
-                  <div className="mt-6 p-4 bg-amber-500/10 border border-amber-500/30 rounded-lg">
-                    <h4 className="font-bold text-amber-400 mb-2">📊 Saldo do Contrato</h4>
-                    <p className="text-2xl font-bold text-white">{corporateData.overview.contractBalance}</p>
-                    <p className="text-slate-400 text-sm mt-1">Disponível para saques corporativos</p>
+                  <button
+                    onClick={() => withdrawToTreasury('5.0')}
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-green-500/25 text-lg"
+                  >
+                    💰 Executar Saque para Tesouraria
+                  </button>
+                  <div className="text-center p-4 bg-gray-900/50 rounded-xl border border-gray-700">
+                    <p className="text-gray-400 text-sm">
+                      Saldo disponível para saque:
+                    </p>
+                    <p className="text-2xl font-bold text-green-400 mt-1">
+                      {stats.contractBalance} ETH
+                    </p>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
+          </div>
+        )}
 
-            {activeTab === 'transactions' && (
-              <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                <h3 className="text-xl font-bold text-emerald-400 mb-4">💸 Transações Recentes</h3>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-slate-700">
-                        <th className="text-left py-3 text-slate-400">Tipo</th>
-                        <th className="text-left py-3 text-slate-400">Valor</th>
-                        <th className="text-left py-3 text-slate-400">Usuário</th>
-                        <th className="text-left py-3 text-slate-400">Tempo</th>
-                        <th className="text-left py-3 text-slate-400">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {corporateData.recentTransactions.map(tx => (
-                        <tr key={tx.id} className="border-b border-slate-700/50">
-                          <td className="py-3 text-white">{tx.type}</td>
-                          <td className="py-3 text-emerald-400 font-semibold">{tx.amount}</td>
-                          <td className="py-3 text-slate-300">{tx.user}</td>
-                          <td className="py-3 text-slate-400">{tx.time}</td>
-                          <td className="py-3">
-                            <span className="bg-green-500 text-white px-2 py-1 rounded text-xs">
-                              {tx.status}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+        {/* Contract Tab */}
+        {activeTab === 'contract' && (
+          <div className="bg-gray-800/60 backdrop-blur-lg rounded-2xl p-6 border border-gray-700 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold bg-gradient-to-r from-green-400 to-yellow-400 bg-clip-text text-transparent">
+                📝 Gerenciamento do Contrato
+              </h2>
+              <div className="flex items-center space-x-2 bg-green-500/20 px-4 py-2 rounded-full border border-green-500/30">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span className="text-green-400 font-semibold text-sm">CONTRATO ATIVO</span>
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-yellow-400 flex items-center space-x-2">
+                  <span>🔧</span>
+                  <span>Funções do Owner</span>
+                </h3>
+                <div className="space-y-3">
+                  {[
+                    'updateTreasury(address _newTreasury)',
+                    'withdrawToTreasury(uint256 _amount)',
+                    'emergencyPause()',
+                    'updateCEO(address _newCEO)',
+                    'setPlatformFee(uint256 _fee)',
+                    'withdrawAllToTreasury()'
+                  ].map((func, index) => (
+                    <div 
+                      key={index} 
+                      className="p-4 bg-gray-900/50 rounded-xl border border-gray-700 hover:border-yellow-500/30 transition duration-300 font-mono text-sm"
+                    >
+                      <span className="text-yellow-400">function</span>{" "}
+                      <span className="text-green-400">{func}</span>{" "}
+                      <span className="text-purple-400">external</span>{" "}
+                      <span className="text-blue-400">onlyOwner</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            )}
-
-            {activeTab === 'corporate' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Fases de Implementação */}
-                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🚀 Fases de Implementação</h3>
-                  <div className="space-y-4">
-                    {[
-                      { phase: 'FASE 1', title: 'Diagnóstico do Erro', status: '✅ CONCLUÍDO' },
-                      { phase: 'FASE 2', title: 'Configuração Web3', status: '✅ IMPLEMENTADO' },
-                      { phase: 'FASE 3', title: 'Estrutura Corporativa', status: '✅ IMPLEMENTADO' },
-                      { phase: 'FASE 4', title: 'Infraestrutura Enterprise', status: '🔄 EM ANDAMENTO' },
-                      { phase: 'FASE 5', title: 'Deploy Mainnet', status: '⏳ AGUARDANDO' }
-                    ].map((item, index) => (
-                      <div key={index} className="flex items-center gap-4 p-3 bg-slate-700/30 rounded-lg">
-                        <div className="w-8 h-8 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                          {index + 1}
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-semibold text-white">{item.phase}</div>
-                          <div className="text-slate-400 text-sm">{item.title}</div>
-                        </div>
-                        <div className={`px-2 py-1 rounded text-xs font-semibold ${
-                          item.status.includes('✅') ? 'bg-green-500' : 
-                          item.status.includes('🔄') ? 'bg-blue-500' : 'bg-amber-500'
-                        } text-white`}>
-                          {item.status}
-                        </div>
+              
+              <div className="space-y-6">
+                <h3 className="text-lg font-semibold text-blue-400 flex items-center space-x-2">
+                  <span>📊</span>
+                  <span>Informações do Contrato</span>
+                </h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Endereço do Contrato', value: '0x742d35Cc...1a3f8E9b', icon: '🏢' },
+                    { label: 'Rede', value: 'Ethereum Mainnet', icon: '🌐' },
+                    { label: 'Versão', value: 'V3.1.0', icon: '🏷️' },
+                    { label: 'Owner Atual', value: '0xF00aA01e...7704669', icon: '👑' },
+                    { label: 'Tesouraria', value: '0x8a9b4c2d...3e6f7a1b', icon: '💰' },
+                    { label: 'Última Atualização', value: '2 horas atrás', icon: '⏰' }
+                  ].map((info, index) => (
+                    <div 
+                      key={index}
+                      className="flex justify-between items-center p-4 bg-gray-900/50 rounded-xl border border-gray-700 hover:border-blue-500/30 transition duration-300"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <span className="text-lg">{info.icon}</span>
+                        <span className="text-gray-300 font-medium">{info.label}</span>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Próximos Passos */}
-                <div className="bg-slate-800/50 rounded-xl p-6 border border-slate-700">
-                  <h3 className="text-xl font-bold text-emerald-400 mb-4">🎯 Próximos Passos</h3>
-                  <div className="space-y-3">
-                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
-                      <h4 className="font-bold text-white mb-2">💰 Capitalização</h4>
-                      <p className="text-slate-300 text-sm">Aguardando 0.1 ETH para deploy final</p>
+                      <span className="text-white font-semibold text-sm">{info.value}</span>
                     </div>
-                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
-                      <h4 className="font-bold text-white mb-2">🚀 Deploy Mainnet</h4>
-                      <p className="text-slate-300 text-sm">Implementação oficial na Ethereum Mainnet</p>
-                    </div>
-                    <div className="p-4 bg-slate-700/30 rounded-lg border border-slate-600">
-                      <h4 className="font-bold text-white mb-2">📈 Marketing</h4>
-                      <p className="text-slate-300 text-sm">Campanha de lançamento corporativo</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
-            )}
+            </div>
+          </div>
+        )}
+      </div>
 
-            {/* Footer Corporativo */}
-            <div className="text-center mt-12 pt-6 border-t border-slate-700">
-              <p className="text-slate-500 text-sm">
-                Blockchain Bet Brasil Corporation © 2025 - Dashboard Corporativo Enterprise
+      {/* Footer Corporativo */}
+      <footer className="border-t border-gray-700 bg-gray-900/90 backdrop-blur-lg mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-yellow-500 rounded-lg flex items-center justify-center">
+                  <span className="text-black font-bold">B</span>
+                </div>
+                <h3 className="text-lg font-bold text-white">Blockchain Bet Brasil Corp</h3>
+              </div>
+              <p className="text-gray-400 mb-2">
+                © 2024 Blockchain Bet Brasil Corporation. Todos os direitos reservados.
               </p>
-              <p className="text-slate-600 text-xs mt-2">
-                "Do erro técnico à corporação Web3 em tempo recorde!"
+              <p className="text-green-400 text-sm font-semibold">
+                🚀 Enterprise Web3 Dashboard v1.0.0
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-gray-400 mb-2">
+                Desenvolvido com 💚 para revolucionar as apostas Web3
+              </p>
+              <p className="text-yellow-400 font-semibold text-lg">
+                "O céu é o limite! 🚀"
+              </p>
+              <p className="text-gray-500 text-sm mt-2">
+                - CEO & Founder
               </p>
             </div>
           </div>
         </div>
-      </div>
-    </>
+      </footer>
+    </div>
   );
-};
-
-export default DashboardCorporativo;
+}
