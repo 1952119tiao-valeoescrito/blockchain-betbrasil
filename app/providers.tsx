@@ -4,7 +4,7 @@ import './globals.css';
 import { Inter } from 'next/font/google';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { wagmiConfig } from '@/lib/wagmi';
+import { wagmiConfig } from '@/app/config/wagmi';
 
 const inter = Inter({ subsets: ['latin'] });
 
