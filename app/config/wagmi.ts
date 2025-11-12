@@ -19,7 +19,8 @@ export const wagmiConfig = createConfig({
 
 // Tipos para interagir com o contrato
 import { Abi } from 'viem';
-import AplicacaoSorteioAbi from './abis/AplicacaoSorteio.json'; // Simulação de ABIs gerados pelo TypeChain/Hardhat
+// import AplicacaoSorteioAbi from './abis/AplicacaoSorteio.json'; // COMENTADO - arquivo não existe
+const AplicacaoSorteioAbi = []; // ABI vazio temporário
 
 // Endereços de Exemplo (Substituir pelos Endereços Reais de Deploy)
 export const APLICACAO_SORTEIO_ADDRESS = '0x123...'; // Endereço do AplicacaoSorteio
