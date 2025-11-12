@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import Navigation from '../components/Navigation';
-import BetForm from '../components/BetForm';
-import Notification from '../components/Notification';
+import Navigation from '../../components/Navigation.tsx';
+import BetForm from '../../components/BetForm.tsx';
+import Notification from '../../components/Notification.tsx';
 
 export default function ApostasPage() {
   const [isConnected, setIsConnected] = useState(false);

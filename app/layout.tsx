@@ -1,9 +1,5 @@
-'use client';
-
-import './globals.css';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
+import '@/globals.css';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 export default function RootLayout({
   children,
@@ -11,15 +7,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt">
       <head>
-        <title>Blockchain Bet Brasil - Plataforma de Entretenimento</title>
-        <meta name="description" content="Sistema de entretenimento gamificado com recompensas e elementos educativos" />
-        <meta name="keywords" content="blockchain, entretenimento, gamificação, recompensas, sistema educativo" />
-        <link rel="icon" href="/favicon.ico" />
+        {/* Meta tags importantes para analytics */}
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
-      <body className={`${inter.className} bg-gradient-to-br from-slate-900 to-slate-800`}>
+      <body>
         {children}
+        <GoogleAnalytics />
       </body>
     </html>
   );

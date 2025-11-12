@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Seus outros estilos globais (se houver) */
+html, body {
+  scroll-behavior: smooth; /* Exemplo que adicionei no código */
+  /* Certifique-se de que não há nada aqui que sobrescreva o Tailwind de forma indesejada */
+}
