@@ -19,8 +19,9 @@ export const wagmiConfig = createConfig({
 
 // Tipos para interagir com o contrato
 import { Abi } from 'viem';
-// import AplicacaoSorteioAbi from './abis/AplicacaoSorteio.json'; // COMENTADO - arquivo não existe
-const AplicacaoSorteioAbi = []; // ABI vazio temporário
+
+// ABI vazio temporário - tipado corretamente
+const AplicacaoSorteioAbi: Abi = [];
 
 // Endereços de Exemplo (Substituir pelos Endereços Reais de Deploy)
 export const APLICACAO_SORTEIO_ADDRESS = '0x123...'; // Endereço do AplicacaoSorteio
@@ -29,11 +30,11 @@ export const INVESTIMENTO_GAMIFICADO_ADDRESS = '0x456...'; // Endereço do Inves
 // Configuração do Contrato AplicacaoSorteio
 export const aplicacaoSorteioConfig = {
   address: APLICACAO_SORTEIO_ADDRESS as `0x${string}`,
-  abi: AplicacaoSorteioAbi as Abi,
+  abi: AplicacaoSorteioAbi,
 };
 
 // Configuração do Contrato InvestimentoGamificado (Assumindo a mesma ABI simplificada por agora)
 export const investimentoGamificadoConfig = {
   address: INVESTIMENTO_GAMIFICADO_ADDRESS as `0x${string}`,
-  abi: AplicacaoSorteioAbi as Abi, // Usar a ABI correta após geração
+  abi: AplicacaoSorteioAbi, // Usar a ABI correta após geração
 };
