@@ -69,7 +69,7 @@ export const useAnalytics = () => {
       contract_address: contractAddress,
       function_name: functionName,
       success,
-      gas_used: gasUsed
+      gas_used: gasUsed || ''
     });
   }, [trackEvent]);
 
