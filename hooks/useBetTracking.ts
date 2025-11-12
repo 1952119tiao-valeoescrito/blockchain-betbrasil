@@ -10,7 +10,7 @@ export const useBetTracking = () => {
       // Sua lógica de aposta aqui
       
       // Track do evento
-      trackBet(amount, currency, game);
+     trackBet(amount, currency, game, 'standard', 'pending');
       
       // Evento adicional de sucesso
       trackEvent('bet_success', {
