@@ -1,5 +1,5 @@
 'use client';
-import '@/globals.css';s
+import '@/globals.css';
 
 import BlockchainBetBrasil from '../components/BlockchainBetBrasil'; // Ajuste o caminho conforme necessário
 
