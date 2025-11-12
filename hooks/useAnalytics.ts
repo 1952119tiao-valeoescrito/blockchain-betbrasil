@@ -38,7 +38,7 @@ export const useAnalytics = () => {
       currency,
       transaction_hash: txHash,
       success,
-      network: 'ethereum' // ou a network que tá usando
+      network: 'ethereum'
     });
   }, [trackEvent]);
 
@@ -89,3 +89,10 @@ export const useAnalytics = () => {
     trackNetworkSwitch
   };
 };
+
+// TIPAGEM DO GTAG - ADICIONA ISSO NO FINAL
+declare global {
+  interface Window {
+    gtag: (...args: any[]) => void;
+  }
+}
