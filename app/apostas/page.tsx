@@ -1,9 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Navigation from '../../components/Navigation.tsx';
-import BetForm from '../../components/BetForm.tsx';
-import Notification from '../../components/Notification.tsx';
 
 export default function ApostasPage() {
   const [isConnected, setIsConnected] = useState(false);
@@ -42,28 +39,32 @@ export default function ApostasPage() {
 
   return (
     <div className="min-h-screen">
-      <Navigation 
-        isConnected={isConnected}
-        walletAddress={walletAddress}
-        connectWallet={connectWallet}
-        disconnectWallet={disconnectWallet}
-        formatWalletAddress={formatWalletAddress}
-      />
-
+      {/* Navigation removido */}
+      
       {notification && (
-        <Notification
-          type={notification.type}
-          message={notification.message}
-          onClose={() => setNotification(null)}
-        />
+        <div className={`fixed top-4 right-4 p-4 rounded-lg ${
+          notification.type === 'success' ? 'bg-green-500' :
+          notification.type === 'error' ? 'bg-red-500' :
+          notification.type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500'
+        } text-white`}>
+          {notification.message}
+        </div>
       )}
 
       <main className="pt-16">
-        <BetForm 
-          isConnected={isConnected}
-          connectWallet={connectWallet}
-          showNotification={showNotification}
-        />
+        <div className="container mx-auto px-4">
+          <h1 className="text-3xl font-bold text-center mb-8">Página de Apostas</h1>
+          <p className="text-center text-gray-600">Funcionalidade em desenvolvimento...</p>
+          
+          <div className="mt-8 text-center">
+            <button 
+              onClick={connectWallet}
+              className="bg-blue-500 text-white px-6 py-2 rounded-lg"
+            >
+              Conectar Carteira
+            </button>
+          </div>
+        </div>
       </main>
 
       <footer className="bg-slate-900/80 border-t border-slate-700 py-8 mt-16">
