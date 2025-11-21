@@ -8,8 +8,7 @@
 }
 
 body {
-  color: white;
+  color: rgb(var(--foreground-rgb));
   background: #000000;
   min-height: 100vh;
-  overflow-x: hidden;
 }
