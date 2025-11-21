@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
-import '@rainbow-me/rainbowkit/styles.css'; // CSS do RainbowKit
+// Importação direta e absoluta
+import "./globals.css"; 
+import '@rainbow-me/rainbowkit/styles.css';
 import GoogleAnalytics from "@/components/GoogleAnalytics";
-import { Web3Provider } from "@/Web3Provider"; // Importando nosso provedor
+import { Web3Provider } from "@/Web3Provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Blockchain Bet Brasil | Web3",
-  description: "Plataforma de Investimento Gamificado na Blockchain",
+  title: "Blockchain Bet Brasil",
+  description: "Plataforma Web3 Gamificada",
 };
 
 export default function RootLayout({
