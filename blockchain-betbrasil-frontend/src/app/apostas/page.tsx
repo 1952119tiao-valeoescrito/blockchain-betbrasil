@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -15,7 +15,8 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagm
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../constants/contract';
 
-export default function ApostasPage() {
+// --- COMPONENTE DE CONTEÚDO (Lógica Real) ---
+function ApostasContent() {
   const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
   
@@ -24,7 +25,6 @@ export default function ApostasPage() {
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
-  const [userBalance, setUserBalance] = useState(0);
   const [zeroPointsCount, setZeroPointsCount] = useState(6);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
@@ -64,7 +64,6 @@ export default function ApostasPage() {
     if (!isFormValid || !address) return;
 
     try {
-        // Monta o array plano de 10 números
         const coordenadas = [
             parseInt(palpites[1].x), parseInt(palpites[1].y),
             parseInt(palpites[2].x), parseInt(palpites[2].y),
@@ -79,7 +78,6 @@ export default function ApostasPage() {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
-            // AQUI ESTÁ A CORREÇÃO: 'as any' para passar pela verificação chata do TS
             args: [coordenadas as any, tierCode],
         });
 
@@ -103,9 +101,9 @@ export default function ApostasPage() {
                         <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
                         <div className="flex items-center justify-between">
                             <p className="text-emerald-400 font-mono text-xs truncate mr-2">{hash}</p>
-                            <Link href={`https://sepolia.etherscan.io/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+                            <a href={`https://sepolia.etherscan.io/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                                 <ExternalLink size={14} />
-                            </Link>
+                            </a>
                         </div>
                     </div>
                     <button onClick={() => setShowSuccessModal(false)} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all">Nova Aplicação</button>
@@ -120,7 +118,7 @@ export default function ApostasPage() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500"></div>
                 <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><Lock size={40} className="text-[#D4A373]" /></div>
                 <h2 className="text-2xl font-bold text-white mb-2">Acesso Restrito</h2>
-                <p className="text-gray-400 mb-8 text-sm leading-relaxed">Conecte sua carteira Web3 para operar no Smart Contract.</p>
+                <p className="text-gray-400 mb-8 text-sm leading-relaxed">O Painel de Apostas conecta diretamente com a Blockchain. Conecte sua carteira para operar.</p>
                 <div className="flex justify-center"><ConnectButton /></div>
                 <Link href="/"><button className="mt-6 text-gray-500 text-xs hover:text-white flex items-center justify-center gap-1 mx-auto"><Home size={12} /> Voltar para a Home</button></Link>
             </div>
@@ -183,9 +181,9 @@ export default function ApostasPage() {
                         </div>
 
                         <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-5 relative mb-8">
-                            <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
-                            <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
-                            <div className="mt-4 pt-4 border-t border-white/5 text-center"><p className="text-xs text-gray-400 flex items-center justify-center gap-2"><Trophy size={14} className="text-[#D4A373]" /><span>A cada <strong>8 aplicações com zero retorno</strong>, o Smart Contract libera <strong>1 Free Bet</strong> automaticamente.</span></p></div>
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
+                                <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
+                                <div className="mt-4 pt-4 border-t border-white/5 text-center"><p className="text-xs text-gray-400 flex items-center justify-center gap-2"><Trophy size={14} className="text-[#D4A373]" /><span>A cada <strong>8 aplicações com zero retorno</strong>, o Smart Contract libera <strong>1 Free Bet</strong> automaticamente.</span></p></div>
                         </div>
 
                         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -207,5 +205,18 @@ export default function ApostasPage() {
           </div>
       </div>
     </main>
+  );
+}
+
+// --- PÁGINA PRINCIPAL COM SUSPENSE ---
+export default function ApostasPageWrapper() {
+  return (
+    <Suspense fallback={
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center">
+            <Loader2 className="animate-spin text-[#D4A373]" size={40} />
+        </div>
+    }>
+        <ApostasContent />
+    </Suspense>
   );
 }
