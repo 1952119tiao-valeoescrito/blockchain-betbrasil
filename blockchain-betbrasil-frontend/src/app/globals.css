@@ -4,12 +4,12 @@
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 5, 5, 5;
+  --background-start-rgb: 0, 0, 0;
   --background-end-rgb: 0, 0, 0;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: #050505;
-  font-family: 'Inter', sans-serif;
+  background: #000000;
+  min-height: 100vh;
 }
