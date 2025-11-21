@@ -1,21 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        pathname: '**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'source.unsplash.com',
-        pathname: '**',
-      },
-    ],
-  },
-  // Garante que o React não renderize duas vezes em dev (opcional, mas bom)
   reactStrictMode: true,
+  webpack: (config) => {
+    // Ignora módulos que causam warnings no build com Wagmi/RainbowKit
+    config.resolve.fallback = { fs: false, net: false, tls: false };
+    
+    config.externals.push('pino-pretty', 'lokijs', 'encoding');
+    
+    return config;
+  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
