@@ -10,8 +10,8 @@ export default function Navbar() {
   // Lista de Links do seu site (Baseado nos logs que você mandou)
   const links = [
     { name: "Início", href: "/" },
-    { name: "Apostas", href: "/apostas" },
-    { name: "Como Jogar", href: "/como-jogar" },
+    { name: "Como Funciona", href: "/como-jogar" },
+    { name: "Adesão", href: "/apostas" },
     { name: "Premiação", href: "/premiacao" },
     { name: "Inter-Bet", href: "/invest-bet" },
     { name: "Admin", href: "/admin" },
