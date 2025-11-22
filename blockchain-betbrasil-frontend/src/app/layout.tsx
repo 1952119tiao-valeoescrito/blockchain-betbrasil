@@ -4,6 +4,7 @@ import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { Web3Provider } from "@/Web3Provider";
+import Navbar from "@/components/Navbar"; // <--- IMPORTE AQUI
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,22 +20,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className + " min-h-screen flex flex-col"}>
+      {/* min-h-screen garante que o rodapé vá lá pra baixo */}
+      <body className={inter.className + " min-h-screen flex flex-col bg-black text-white"}>
         <Web3Provider>
             <GoogleAnalytics />
             
-            {/* AQUI ERA ONDE ESTAVA A FAIXA - JÁ REMOVI ELA DAQUI */}
+            {/* 1. O NAV BAR NOVO VEM AQUI (Já inclui o botão de conectar) */}
+            <Navbar />
 
-            {/* Conteúdo Principal (O site todo carrega aqui) */}
-            <div className="flex-grow">
+            {/* 2. Conteúdo do Site */}
+            <main className="flex-grow">
                 {children}
-            </div>
+            </main>
 
-            {/* --- NOVA FAIXA NO FINAL DA PÁGINA (RODAPÉ) --- */}
-            <footer className="w-full bg-amber-500 text-black text-[10px] md:text-xs font-black py-3 px-4 text-center uppercase tracking-widest border-t-4 border-amber-700">
+            {/* 3. Rodapé com Aviso */}
+            <footer className="w-full bg-amber-500 text-black text-[10px] md:text-xs font-black py-4 px-4 text-center uppercase tracking-widest border-t-4 border-amber-700">
                ⚠️ Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
             </footer>
-            {/* ------------------------------------------------ */}
             
         </Web3Provider>
       </body>
