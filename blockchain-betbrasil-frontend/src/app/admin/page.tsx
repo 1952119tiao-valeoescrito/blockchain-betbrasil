@@ -1,16 +1,22 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowLeft, Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, ShieldAlert, Pause, RefreshCw, Wallet, Loader2 } from 'lucide-react'
+import { Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, ShieldAlert, Pause, RefreshCw, Wallet, Loader2 } from 'lucide-react'
 
 // --- WEB3 IMPORTS ---
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi'
-import { formatEther, parseEther } from 'viem'
+import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
+import { formatEther } from 'viem'
 
-// --- ABI PARCIAL (Exemplo - Substitua pela ABI completa do seu contrato) ---
+// --- IMPORTAR A ABI QUE VOCÊ CRIOU NO OUTRO ARQUIVO ---
+// Se você não criou o arquivo separado, descomente a linha abaixo e cole a ABI ali (mas cuidado com a sintaxe!)
+// import { CONTRACT_ABI } from '@/constants/abi'
+
+// SE FOR PREGUIÇA DE CRIAR O ARQUIVO, PODE USAR ESSE ABAIXO (MAS TEM QUE TER A SUA ABI REAL)
 const CONTRACT_ABI = [
+    {
+      "inputs": [
         {
           "internalType": "address",
           "name": "_token",
@@ -556,36 +562,38 @@ const CONTRACT_ABI = [
       "stateMutability": "view",
       "type": "function"
     }
-  ] as const;
+  ] as const; 
 
 // --- ENDEREÇO DO CONTRATO ---
-const CONTRACT_ADDRESS = "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469"; // <--- CONFIGURAR AQUI
+const CONTRACT_ADDRESS = "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469"; // <--- RECOLOQUE SEU ENDEREÇO AQUI
 
 export default function PainelAdmin() {
   // --- WEB3 HOOKS ---
   const { address, isConnected } = useAccount();
   const { writeContract, data: hash, isPending: isTxPending } = useWriteContract();
   
-  // Exemplo de leitura de dados do contrato
+  // Leitura do Owner
   const { data: contractOwner } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'owner',
   });
 
-  const { data: isPausedData, refetch: refetchPaused } = useReadContract({
+  // Status Pausado
+  const { data: isPausedData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'paused',
   });
 
+  // ID da Rodada
   const { data: roundIdData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'currentRoundId',
   });
 
-  // Ler saldo do contrato
+  // Saldo
   const { data: balanceData } = useBalance({
     address: CONTRACT_ADDRESS,
   });
@@ -595,33 +603,20 @@ export default function PainelAdmin() {
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // --- VERIFICAÇÃO DE SEGURANÇA ---
-  // Verifica se a carteira conectada é a dona do contrato
+  // Verifica Owner
   const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Nível 1: Senha fixa (Safety Switch)
     if (accessKey !== 'ADMIN-B3-MASTER') {
         setErrorMsg('Chave de acesso incorreta.');
         setAccessKey('');
         return;
     }
-
-    // Nível 2: Verificação Web3 (Opcional: Descomente se quiser forçar que a carteira seja Owner)
-    /* 
-    if (!isWalletOwner) {
-       setErrorMsg('Carteira conectada não é a Owner do contrato.');
-       return;
-    }
-    */
-
     setIsAuthenticated(true);
   }
 
-  // --- FUNÇÕES DE AÇÃO (ESCREVER NO BLOCKCHAIN) ---
-  
+  // --- AÇÕES ---
   const handleTogglePause = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -650,11 +645,6 @@ export default function PainelAdmin() {
     }
   };
 
-  // Formatador de Moeda
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
-  }
-
   // --- TELA DE BLOQUEIO ---
   if (!isAuthenticated) {
     return (
@@ -669,7 +659,6 @@ export default function PainelAdmin() {
                 <h1 className="text-2xl font-bold text-white mb-1">Área Restrita</h1>
                 <p className="text-gray-500 text-sm mb-4">Acesso exclusivo ao Owner do Smart Contract.</p>
                 
-                {/* Status da Carteira na Login Screen */}
                 <div className="mb-6 flex justify-center">
                     {isConnected ? (
                         <span className={`text-xs px-2 py-1 rounded border ${isWalletOwner ? 'bg-green-900/20 text-green-400 border-green-900' : 'bg-yellow-900/20 text-yellow-400 border-yellow-900'}`}>
@@ -695,11 +684,9 @@ export default function PainelAdmin() {
     )
   }
 
-  // --- DASHBOARD REAL ---
+  // --- DASHBOARD ---
   return (
     <div className="min-h-screen bg-[#050505] text-slate-200 font-sans">
-      
-      {/* Feedback de Transação */}
       {isTxPending && (
           <div className="fixed top-4 right-4 bg-blue-900/90 text-white px-4 py-3 rounded-lg z-[60] flex items-center gap-3 shadow-xl border border-blue-500/50 backdrop-blur">
               <Loader2 className="animate-spin" size={20} />
@@ -710,7 +697,6 @@ export default function PainelAdmin() {
           </div>
       )}
 
-      {/* HEADER */}
       <header className="w-full bg-[#0a0a0a] border-b border-white/10 sticky top-0 z-50">
         <div className="container mx-auto flex justify-between items-center p-4">
           <div className="flex items-center gap-3">
@@ -737,73 +723,57 @@ export default function PainelAdmin() {
       </header>
 
       <main className="container mx-auto p-4 md:p-8">
-        
-        {/* METRICAS GLOBAIS (DADOS VINDOS DA BLOCKCHAIN) */}
+        {/* METRICAS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-[#111] p-4 rounded-xl border border-emerald-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Saldo do Contrato</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">Saldo</p>
                     <DollarSign size={16} className="text-emerald-500" />
                 </div>
-                {/* DADO REAL */}
                 <p className="text-2xl font-bold text-white">
                     {balanceData ? parseFloat(formatEther(balanceData.value)).toFixed(4) : '0.00'} <span className="text-sm">{balanceData?.symbol}</span>
                 </p>
-                <p className="text-[10px] text-gray-600">Liquidez On-Chain</p>
             </div>
             
             <div className="bg-[#111] p-4 rounded-xl border border-blue-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Status do Contrato</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">Status</p>
                     <Activity size={16} className={isPausedData ? "text-red-500" : "text-green-500"} />
                 </div>
                 <p className={`text-2xl font-bold ${isPausedData ? 'text-red-400' : 'text-green-400'}`}>
                     {isPausedData ? "PAUSADO" : "ATIVO"}
                 </p>
-                <p className="text-[10px] text-gray-600">Estado atual de execução</p>
             </div>
 
-            {/* Placeholder para dados off-chain ou eventos passados (substitua por indexador Graph se tiver) */}
             <div className="bg-[#111] p-4 rounded-xl border border-amber-500/20 shadow-lg opacity-80">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Taxas Acumuladas</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">Taxas</p>
                     <Gift size={16} className="text-amber-500" />
                 </div>
                 <p className="text-2xl font-bold text-amber-400">---</p>
-                <p className="text-[10px] text-gray-600">Requer Indexador</p>
             </div>
 
              <div className="bg-[#111] p-4 rounded-xl border border-purple-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Rodada Atual</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">Rodada</p>
                     <Users size={16} className="text-purple-500" />
                 </div>
                 <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : '0'}</p>
-                <p className="text-[10px] text-gray-600">ID Global</p>
             </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-            
-            {/* CONTROLES E RODADAS */}
+            {/* CONTROLES */}
             <div className="lg:col-span-2 space-y-8">
-                
-                {/* Painel de Controle */}
                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
                     <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                         <div>
                             <h2 className="text-xl font-bold text-white flex items-center gap-2">
                                 <Activity className="text-emerald-500" size={20} />
-                                Gerenciamento de Rodada
+                                Gerenciamento
                             </h2>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Status: <span className={isPausedData ? "text-red-400 font-bold" : "text-green-400 font-bold"}>
-                                    {isPausedData ? "SISTEMA TRAVADO" : "OPERACIONAL"}
-                                </span>
-                            </p>
                         </div>
                         <div className="flex gap-2">
-                            {/* BOTÃO REAL DE PAUSE */}
                             <button 
                                 onClick={handleTogglePause}
                                 disabled={isTxPending}
@@ -813,116 +783,39 @@ export default function PainelAdmin() {
                                     : 'bg-slate-800 hover:bg-slate-700 text-white'
                                 }`}
                             >
-                                <Pause size={12} /> {isPausedData ? "Retomar Contrato" : "Pausar Contrato"}
+                                <Pause size={12} /> {isPausedData ? "Retomar" : "Pausar"}
                             </button>
                             
-                            {/* BOTÃO REAL DE SORTEIO */}
                             <button 
                                 onClick={handleProcessRound}
                                 disabled={isTxPending || isPausedData}
-                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20"
+                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg"
                             >
-                                <RefreshCw size={12} className={isTxPending ? "animate-spin" : ""} /> Processar Sorteio
+                                <RefreshCw size={12} className={isTxPending ? "animate-spin" : ""} /> Processar
                             </button>
                         </div>
                     </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                         <div className="bg-[#0a0a0a] p-4 rounded-xl border border-white/5">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-sm font-bold text-white">BÁSICO (R$ 5,00)</span>
-                                <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-2 py-1 rounded">Ativo</span>
-                            </div>
-                            <div className="space-y-2 text-xs text-gray-400">
-                                <div className="p-4 text-center border border-dashed border-gray-800 rounded">
-                                    <span className="italic text-gray-600">Dados em tempo real requerem ABI específica do jogo</span>
-                                </div>
-                            </div>
-                         </div>
-
-                         <div className="bg-[#0a0a0a] p-4 rounded-xl border border-white/5">
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-sm font-bold text-purple-400">INTER-BET (R$ 1K)</span>
-                                <span className="text-[10px] bg-purple-500/10 text-purple-500 px-2 py-1 rounded">Ativo</span>
-                            </div>
-                            <div className="space-y-2 text-xs text-gray-400">
-                                <div className="p-4 text-center border border-dashed border-gray-800 rounded">
-                                     <span className="italic text-gray-600">Dados em tempo real requerem ABI específica do jogo</span>
-                                </div>
-                            </div>
-                         </div>
-                    </div>
                 </div>
-
-                {/* Histórico Simulado (Para real precisa de TheGraph) */}
-                <div className="bg-[#111] rounded-2xl p-6 border border-white/5 opacity-70">
-                    <h3 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Últimas Rodadas (Simulado)</h3>
-                    <p className="text-xs text-gray-500 italic mb-2">Para ver histórico real, integre com TheGraph ou Logs de Eventos.</p>
-                    <div className="space-y-2">
-                        <div className="flex items-center justify-between p-3 bg-black/40 rounded-lg border border-white/5 text-sm">
-                            <div className="flex items-center gap-3">
-                                <span className="text-gray-500 font-mono">#{Number(roundIdData || 0) - 1}</span>
-                                <span className="text-red-400 bg-red-500/10 px-2 py-0.5 rounded text-[10px] font-bold">ENCERRADA</span>
-                            </div>
-                            <div className="text-gray-400">Status: <span className="text-white font-bold">Finalizada</span></div>
-                        </div>
-                    </div>
-                </div>
-
             </div>
 
-            {/* COLUNA 2: CONFIGURAÇÕES */}
+            {/* CONFIGURAÇÕES */}
             <div className="space-y-8">
-                
                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
                     <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <Settings size={18} className="text-gray-400" /> Parâmetros
+                        <Settings size={18} className="text-gray-400" /> Ações
                     </h2>
                     <div className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-black/40 rounded-lg">
-                            <span className="text-gray-400 text-xs">Owner</span>
-                            <span className="text-white font-mono text-[10px] truncate w-24">{contractOwner as string || "..."}</span>
-                        </div>
-                        
-                        <div className="pt-4 border-t border-white/5">
-                            {/* BOTÃO REAL DE SAQUE */}
-                            <button 
-                                onClick={handleWithdraw}
-                                disabled={isTxPending}
-                                className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors group disabled:opacity-50"
-                            >
-                                <span>Sacar Taxas (Treasury)</span>
-                                <Wallet size={14} className="text-gray-500 group-hover:text-white" />
-                            </button>
-                        </div>
-                         <div className="pt-2">
-                            {/* BOTÃO DE EMERGÊNCIA REAL (PAUSE) */}
-                            <button 
-                                onClick={handleTogglePause}
-                                disabled={isTxPending}
-                                className="w-full bg-red-900/20 hover:bg-red-900/30 text-red-400 border border-red-900/30 py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors disabled:opacity-50"
-                            >
-                                <span>{isPausedData ? "RETOMAR SISTEMA" : "PAUSE DE EMERGÊNCIA"}</span>
-                                <ShieldAlert size={14} />
-                            </button>
-                        </div>
+                        <button 
+                            onClick={handleWithdraw}
+                            disabled={isTxPending}
+                            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors group disabled:opacity-50"
+                        >
+                            <span>Sacar Taxas</span>
+                            <Wallet size={14} className="text-gray-500 group-hover:text-white" />
+                        </button>
                     </div>
                 </div>
-
-                <div className="bg-black rounded-2xl p-6 border border-white/10 shadow-xl flex-1">
-                    <h2 className="text-sm font-bold text-gray-400 mb-4 font-mono uppercase">Live Events</h2>
-                    <div className="h-[300px] overflow-y-auto font-mono text-[10px] space-y-2 custom-scrollbar opacity-80">
-                       <p className="text-gray-600 italic">Conecte um Listener de eventos (wagmi watchContractEvent) para ver logs em tempo real aqui.</p>
-                       {hash && (
-                           <div className="text-green-500 mt-2">
-                               [Transação Enviada]: {hash.slice(0, 20)}...
-                           </div>
-                       )}
-                    </div>
-                </div>
-
             </div>
-
         </div>
       </main>
     </div>
