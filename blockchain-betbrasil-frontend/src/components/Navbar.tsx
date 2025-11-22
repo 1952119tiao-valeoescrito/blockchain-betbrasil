@@ -11,28 +11,22 @@ export default function Navbar() {
   const links = [
     { name: "Início", href: "/" },
     { name: "Apostas", href: "/apostas" },
-    { name: "Como Funciona", href: "/como-jogar" },
+    { name: "Como Jogar", href: "/como-jogar" },
     { name: "Premiação", href: "/premiacao" },
     { name: "Inter-Bet", href: "/invest-bet" },
     { name: "Admin", href: "/admin" },
   ];
 
   return (
-     <nav className="bg-black/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 w-full">
+    <nav className="bg-black/90 backdrop-blur-md border-b border-white/10 sticky top-0 z-50 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           
           {/* --- LOGO --- */}
           <div className="flex-shrink-0">
             <Link href="/" className="text-white font-bold text-xl tracking-tighter hover:text-brand-gold transition">
-            <Image 
-  src="/images/logo.png" 
-  alt="Blockchain Bet Brasil" 
-  width={32}
-  height={32}
-  className="rounded-lg"
-/>
-          </Link>
+              BET<span className="text-brand-gold">BRASIL</span>
+            </Link>
           </div>
 
           {/* --- MENU DESKTOP (Escondido no Mobile) --- */}
