@@ -19,17 +19,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={inter.className}>
+      <body className={inter.className + " min-h-screen flex flex-col"}>
         <Web3Provider>
             <GoogleAnalytics />
             
-            {/* --- FAIXA DE AVISO TESTNET (FIXA NO TOPO) --- */}
-            <div className="bg-amber-500 text-black text-[10px] md:text-xs font-black py-2 px-4 text-center uppercase tracking-widest border-b-2 border-amber-600 sticky top-0 z-[9999] shadow-md">
-               ⚠️ Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
-            </div>
-            {/* ---------------------------------------------- */}
+            {/* AQUI ERA ONDE ESTAVA A FAIXA - JÁ REMOVI ELA DAQUI */}
 
-            {children}
+            {/* Conteúdo Principal (O site todo carrega aqui) */}
+            <div className="flex-grow">
+                {children}
+            </div>
+
+            {/* --- NOVA FAIXA NO FINAL DA PÁGINA (RODAPÉ) --- */}
+            <footer className="w-full bg-amber-500 text-black text-[10px] md:text-xs font-black py-3 px-4 text-center uppercase tracking-widest border-t-4 border-amber-700">
+               ⚠️ Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
+            </footer>
+            {/* ------------------------------------------------ */}
+            
         </Web3Provider>
       </body>
     </html>
