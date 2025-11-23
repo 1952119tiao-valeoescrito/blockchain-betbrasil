@@ -4,7 +4,8 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, Trophy, AlertCircle, Zap, Wallet, Home, 
-  Activity, Lock, Keyboard, Clock, ChevronRight, Loader2, CheckCircle2, X, ExternalLink 
+  Activity, Lock, Keyboard, Clock, ChevronRight, Loader2, 
+  CheckCircle2, X, ExternalLink, Calculator // <--- ADICIONEI O ICONE CALCULATOR
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -14,6 +15,9 @@ import CountdownTimer from '../../components/CountdownTimer';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
+
+// IMPORT DO SEU NOVO COMPONENTE
+import ResultSimulator from '../../components/ResultSimulator'; // Ajuste o caminho se necessário
 
 // --- COMPONENTE DE CONTEÚDO (Lógica Real) ---
 function ApostasContent() {
@@ -27,6 +31,9 @@ function ApostasContent() {
   const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
   const [zeroPointsCount, setZeroPointsCount] = useState(6);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  
+  // NOVO ESTADO PARA O SIMULADOR
+  const [showSimulator, setShowSimulator] = useState(false);
 
   const [palpites, setPalpites] = useState<{ [key: number]: { x: string, y: string } }>({
     1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' },
@@ -90,6 +97,7 @@ function ApostasContent() {
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
       
       <AnimatePresence>
+        {/* MODAL DE SUCESSO */}
         {showSuccessModal && (
             <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#111] border border-emerald-500/50 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative">
@@ -107,6 +115,32 @@ function ApostasContent() {
                         </div>
                     </div>
                     <button onClick={() => setShowSuccessModal(false)} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all">Nova Aplicação</button>
+                </motion.div>
+            </div>
+        )}
+
+        {/* MODAL DO SIMULADOR (NOVO) */}
+        {showSimulator && (
+            <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+                <motion.div 
+                  initial={{ scale: 0.95, opacity: 0 }} 
+                  animate={{ scale: 1, opacity: 1 }} 
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto"
+                >
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2">
+                           <Calculator size={20} /> Simulador de Resultados
+                        </h3>
+                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors">
+                            <X size={24} />
+                        </button>
+                    </div>
+                    
+                    <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                         {/* Renderiza o componente que você criou */}
+                         <ResultSimulator />
+                    </div>
                 </motion.div>
             </div>
         )}
@@ -145,6 +179,14 @@ function ApostasContent() {
                     <div className="hidden md:block"><h1 className="text-xl font-bold tracking-tighter leading-none text-white">BBB <span className="text-[#D4A373]">APP</span></h1><p className="text-[10px] text-gray-500 tracking-widest uppercase">Módulo Web3</p></div>
                 </div>
                 <div className="flex items-center gap-3 md:gap-4">
+                    {/* BOTÃO DO SIMULADOR AQUI (Estratégico: Navbar) */}
+                    <button 
+                        onClick={() => setShowSimulator(true)}
+                        className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20"
+                    >
+                        <Calculator size={16} /> <span className="hidden sm:inline">Simulador</span>
+                    </button>
+
                     <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition px-3 py-2 rounded-lg hover:bg-white/5"><Home size={16} /><span className="hidden sm:inline">Início</span></Link>
                     <ConnectButton showBalance={false} />
                 </div>
