@@ -1,6 +1,5 @@
-// ENDEREÇO OFICIAL (REDE SEPOLIA - TESTNET)
-export const CONTRACT_ADDRESS = "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469";
-
+// ENDEREÇO OFICIAL (REDE BASE - MAINNET)
+export const CONTRACT_ADDRESS = "0xf00aa01e9d1f8e81fd070fbe52a917be07710469"; 
 // ABI HÍBRIDA (Funções do Jogo + Funções Administrativas)
 export const CONTRACT_ABI = [
   // --- 1. FUNÇÃO DE APOSTA ---
