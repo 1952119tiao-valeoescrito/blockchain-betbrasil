@@ -9,7 +9,7 @@ import { Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, Shiel
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
-// --- IMPORTAÇÃO CORRETA (Do arquivo abi.ts) ---
+// --- IMPORTAÇÃO CORRETA ---
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 export default function PainelAdmin() {
@@ -45,7 +45,7 @@ export default function PainelAdmin() {
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Verifica Owner (Opcional, visual)
+  // Verifica Owner
   const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -180,10 +180,10 @@ export default function PainelAdmin() {
             <div className="bg-[#111] p-4 rounded-xl border border-blue-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
                     <p className="text-xs text-gray-500 uppercase font-bold">Status</p>
-                    <Activity size={16} className={isPausedData ? "text-red-500" : "text-green-500"} />
+                    <Activity size={16} className={Boolean(isPausedData) ? "text-red-500" : "text-green-500"} />
                 </div>
-                <p className={`text-2xl font-bold ${isPausedData ? 'text-red-400' : 'text-green-400'}`}>
-                    {isPausedData ? "PAUSADO" : "ATIVO"}
+                <p className={`text-2xl font-bold ${Boolean(isPausedData) ? 'text-red-400' : 'text-green-400'}`}>
+                    {Boolean(isPausedData) ? "PAUSADO" : "ATIVO"}
                 </p>
             </div>
 
@@ -220,17 +220,17 @@ export default function PainelAdmin() {
                                 onClick={handleTogglePause}
                                 disabled={isTxPending}
                                 className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 border border-white/10 transition-colors ${
-                                    isPausedData 
+                                    Boolean(isPausedData) 
                                     ? 'bg-green-900 hover:bg-green-800 text-green-100' 
                                     : 'bg-slate-800 hover:bg-slate-700 text-white'
                                 }`}
                             >
-                                <Pause size={12} /> {isPausedData ? "Retomar" : "Pausar"}
+                                <Pause size={12} /> {Boolean(isPausedData) ? "Retomar" : "Pausar"}
                             </button>
                             
                             <button 
                                 onClick={handleProcessRound}
-                                disabled={isTxPending || isPausedData}
+                                disabled={isTxPending || Boolean(isPausedData)}
                                 className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg"
                             >
                                 <RefreshCw size={12} className={isTxPending ? "animate-spin" : ""} /> Processar
