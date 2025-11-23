@@ -13,7 +13,7 @@ import CountdownTimer from '../../components/CountdownTimer';
 // WEB3
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../../constants/contract';
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 // --- COMPONENTE DE CONTEÚDO (Lógica Real) ---
 function ApostasContent() {

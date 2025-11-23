@@ -9,6 +9,11 @@ import { Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, Shiel
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
+// --- IMPORTANTE: ADICIONE ESSA LINHA AQUI EMBAIXO ---
+import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
+
+export default function PainelAdmin() {
+
 // --- IMPORTAR A ABI QUE VOCÊ CRIOU NO OUTRO ARQUIVO ---
 // Se você não criou o arquivo separado, descomente a linha abaixo e cole a ABI ali (mas cuidado com a sintaxe!)
 // import { CONTRACT_ABI } from '@/constants/abi'
