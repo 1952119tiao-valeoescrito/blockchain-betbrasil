@@ -9,606 +9,43 @@ import { Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, Shiel
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
-// --- IMPORTANTE: ADICIONE ESSA LINHA AQUI EMBAIXO ---
+// --- IMPORTAÇÃO CORRETA (Do arquivo abi.ts) ---
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
-
-export default function PainelAdmin() {
-
-// --- IMPORTAR A ABI QUE VOCÊ CRIOU NO OUTRO ARQUIVO ---
-// Se você não criou o arquivo separado, descomente a linha abaixo e cole a ABI ali (mas cuidado com a sintaxe!)
-// import { CONTRACT_ABI } from '@/constants/abi'
-
-// SE FOR PREGUIÇA DE CRIAR O ARQUIVO, PODE USAR ESSE ABAIXO (MAS TEM QUE TER A SUA ABI REAL)
-const CONTRACT_ABI = [
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_token",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_treasury",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "valor",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "contagemAtual",
-          "type": "uint256"
-        }
-      ],
-      "name": "BonusZeroConcedido",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "tier",
-          "type": "uint8"
-        }
-      ],
-      "name": "FreeBetGanho",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "user",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "tier",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "internalType": "bool",
-          "name": "usouFreeBet",
-          "type": "bool"
-        }
-      ],
-      "name": "NovaAposta",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "Paused",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "faixa",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "valorTotal",
-          "type": "uint256"
-        }
-      ],
-      "name": "PremioDistribuido",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8[10]",
-          "name": "resultado",
-          "type": "uint8[10]"
-        }
-      ],
-      "name": "ResultadoDefinido",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "totalArrecadado",
-          "type": "uint256"
-        }
-      ],
-      "name": "RodadaFechada",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "Unpaused",
-      "type": "event"
-    },
-    {
-      "inputs": [],
-      "name": "BONUS_ZERO_BASIC",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "BONUS_ZERO_INVEST",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "META_FREE_BET",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "PRECO_BASIC",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "PRECO_INVEST",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "apostasDaRodada",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "apostador",
-          "type": "address"
-        },
-        {
-          "internalType": "uint8",
-          "name": "tier",
-          "type": "uint8"
-        },
-        {
-          "internalType": "bool",
-          "name": "processada",
-          "type": "bool"
-        },
-        {
-          "internalType": "uint8",
-          "name": "pontos",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8[10]",
-          "name": "_resultado",
-          "type": "uint8[10]"
-        }
-      ],
-      "name": "definirResultado",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "fecharRodada",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "iniciarNovaRodada",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "paused",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_inicio",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "_fim",
-          "type": "uint256"
-        }
-      ],
-      "name": "processarResultadosBatch",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8[10]",
-          "name": "_coords",
-          "type": "uint8[10]"
-        },
-        {
-          "internalType": "uint8",
-          "name": "_tier",
-          "type": "uint8"
-        }
-      ],
-      "name": "realizarAplicacao",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "rodadaAtualId",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "name": "rodadas",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "id",
-          "type": "uint256"
-        },
-        {
-          "internalType": "bool",
-          "name": "aberta",
-          "type": "bool"
-        },
-        {
-          "internalType": "bool",
-          "name": "finalizada",
-          "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "totalArrecadadoBasic",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "totalArrecadadoInvest",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "timestampInicio",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "sacarFundos",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "stats",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "contadorZeroBasic",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "contadorZeroInvest",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "freeBetsBasic",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "freeBetsInvest",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "saldoBonus",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "tokenAplicacao",
-      "outputs": [
-        {
-          "internalType": "contract IERC20",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "treasury",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ] as const; 
-
-// --- ENDEREÇO DO CONTRATO ---
-const CONTRACT_ADDRESS = "0xF00aA01e9d1f8E81fd070FBE52A917bE07710469"; // <--- RECOLOQUE SEU ENDEREÇO AQUI
 
 export default function PainelAdmin() {
   // --- WEB3 HOOKS ---
   const { address, isConnected } = useAccount();
-  const { writeContract, data: hash, isPending: isTxPending } = useWriteContract();
+  const { writeContract, isPending: isTxPending } = useWriteContract();
   
-  // Leitura do Owner
+  // Leitura de Dados
   const { data: contractOwner } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'owner',
   });
 
-  // Status Pausado
   const { data: isPausedData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'paused',
   });
 
-  // ID da Rodada
   const { data: roundIdData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'currentRoundId',
   });
 
-  // Saldo
   const { data: balanceData } = useBalance({
     address: CONTRACT_ADDRESS,
   });
 
-  // --- ESTADOS LOCAIS ---
+  // --- ESTADOS ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Verifica Owner
+  // Verifica Owner (Opcional, visual)
   const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -621,7 +58,7 @@ export default function PainelAdmin() {
     setIsAuthenticated(true);
   }
 
-  // --- AÇÕES ---
+  // --- FUNÇÕES DE AÇÃO ---
   const handleTogglePause = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -631,7 +68,7 @@ export default function PainelAdmin() {
   };
 
   const handleWithdraw = () => {
-    if(confirm("Tem certeza que deseja sacar as taxas para a Treasury?")) {
+    if(confirm("Tem certeza que deseja sacar as taxas?")) {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
@@ -650,7 +87,7 @@ export default function PainelAdmin() {
     }
   };
 
-  // --- TELA DE BLOQUEIO ---
+  // --- TELA DE LOGIN ---
   if (!isAuthenticated) {
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
@@ -662,7 +99,7 @@ export default function PainelAdmin() {
                 </div>
 
                 <h1 className="text-2xl font-bold text-white mb-1">Área Restrita</h1>
-                <p className="text-gray-500 text-sm mb-4">Acesso exclusivo ao Owner do Smart Contract.</p>
+                <p className="text-gray-500 text-sm mb-4">Acesso exclusivo ao Owner.</p>
                 
                 <div className="mb-6 flex justify-center">
                     {isConnected ? (
@@ -697,7 +134,7 @@ export default function PainelAdmin() {
               <Loader2 className="animate-spin" size={20} />
               <div>
                   <p className="text-sm font-bold">Processando Transação...</p>
-                  <p className="text-xs opacity-80">Aguarde a confirmação na carteira.</p>
+                  <p className="text-xs opacity-80">Aguarde confirmação.</p>
               </div>
           </div>
       )}
@@ -717,7 +154,7 @@ export default function PainelAdmin() {
             <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-[#111] rounded border border-white/10">
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                 <span className="text-xs text-gray-400 font-mono">
-                    {isConnected ? `Conectado: ${address?.slice(0,6)}...${address?.slice(-4)}` : 'Desconectado'}
+                    {isConnected ? `Conectado: ${address?.slice(0,6)}...` : 'Desconectado'}
                 </span>
             </div>
             <button onClick={() => setIsAuthenticated(false)} className="flex items-center gap-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 px-4 py-2 rounded-lg text-sm transition-all border border-red-900/30">
@@ -728,7 +165,7 @@ export default function PainelAdmin() {
       </header>
 
       <main className="container mx-auto p-4 md:p-8">
-        {/* METRICAS */}
+        {/* INFO CARDS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-[#111] p-4 rounded-xl border border-emerald-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
@@ -750,25 +187,25 @@ export default function PainelAdmin() {
                 </p>
             </div>
 
-            <div className="bg-[#111] p-4 rounded-xl border border-amber-500/20 shadow-lg opacity-80">
+            <div className="bg-[#111] p-4 rounded-xl border border-amber-500/20 shadow-lg opacity-70">
                 <div className="flex justify-between items-start mb-2">
                     <p className="text-xs text-gray-500 uppercase font-bold">Taxas</p>
                     <Gift size={16} className="text-amber-500" />
                 </div>
-                <p className="text-2xl font-bold text-amber-400">---</p>
+                <p className="text-xl font-bold text-amber-400">Admin</p>
             </div>
 
              <div className="bg-[#111] p-4 rounded-xl border border-purple-500/20 shadow-lg">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Rodada</p>
+                    <p className="text-xs text-gray-500 uppercase font-bold">Rodada Atual</p>
                     <Users size={16} className="text-purple-500" />
                 </div>
-                <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : '0'}</p>
+                <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : 'Loading'}</p>
             </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-            {/* CONTROLES */}
+            {/* GERENCIAMENTO */}
             <div className="lg:col-span-2 space-y-8">
                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
                     <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
@@ -803,7 +240,7 @@ export default function PainelAdmin() {
                 </div>
             </div>
 
-            {/* CONFIGURAÇÕES */}
+            {/* AÇÕES EXTRAS */}
             <div className="space-y-8">
                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
                     <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
