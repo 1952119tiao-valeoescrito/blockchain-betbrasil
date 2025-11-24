@@ -35,7 +35,7 @@ export default function RootLayout({
 
             {/* 3. Rodapé com Aviso */}
             <footer className="w-full bg-amber-500 text-black text-[10px] md:text-xs font-black py-4 px-4 text-center uppercase tracking-widest border-t-4 border-amber-700">
-               ⚠️ Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
+               ⚠️  Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
             </footer>
             
         </Web3Provider>
