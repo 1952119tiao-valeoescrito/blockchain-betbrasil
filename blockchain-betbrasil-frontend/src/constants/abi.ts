@@ -1,5 +1,5 @@
 // ENDEREÇO OFICIAL (REDE BASE - MAINNET)
-export const CONTRACT_ADDRESS = "0xf00aa01e9d1f8e81fd070fbe52a917be07710469"; 
+export const CONTRACT_ADDRESS = "0x7a3FF967aA0de97F3bDD334a94bc52A2F0f916Cf";
 // ABI HÍBRIDA (Funções do Jogo + Funções Administrativas)
 export const CONTRACT_ABI = [
   // --- 1. FUNÇÃO DE APOSTA ---

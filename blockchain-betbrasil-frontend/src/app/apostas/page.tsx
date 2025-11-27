@@ -1,48 +1,42 @@
 "use client";
-import { useState, useEffect, Suspense } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ShieldCheck, Trophy, AlertCircle, Zap, Wallet, Home, 
-  Activity, Lock, Keyboard, Clock, ChevronRight, Loader2, 
-  CheckCircle2, X, ExternalLink, Calculator // <--- ADICIONEI O ICONE CALCULATOR
-} from 'lucide-react';
+import { ShieldCheck, Trophy, Zap, Activity, Lock, ChevronRight, Loader2, CheckCircle2, X, ExternalLink, Calculator } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import CountdownTimer from '../../components/CountdownTimer';
 
-// WEB3
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
+import { parseEther } from 'viem'; // IMPORTANTE: Para converter valor em ETH
 
-// IMPORT DO SEU NOVO COMPONENTE
-import ResultSimulator from '../../components/ResultSimulator'; // Ajuste o caminho se necessário
+import ResultSimulator from '../../components/ResultSimulator'; 
 
-// --- COMPONENTE DE CONTEÚDO (Lógica Real) ---
 function ApostasContent() {
   const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
   
-  // ESCREVENDO NA BLOCKCHAIN
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
-  const [zeroPointsCount, setZeroPointsCount] = useState(6);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  
-  // NOVO ESTADO PARA O SIMULADOR
   const [showSimulator, setShowSimulator] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [palpites, setPalpites] = useState<{ [key: number]: { x: string, y: string } }>({
     1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' },
   });
 
+  useEffect(() => { setMounted(true); }, []);
+
   useEffect(() => {
     const tierParam = searchParams.get('tier');
     if (tierParam === 'INVEST') setTier('INVEST');
-    else if (tierParam === 'BASIC') setTier('BASIC');
+    else setTier('BASIC');
   }, [searchParams]);
 
   useEffect(() => {
@@ -51,6 +45,10 @@ function ApostasContent() {
         setPalpites({ 1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' } });
     }
   }, [isConfirmed]);
+
+  const blockchainData = null;
+
+  if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
   const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
     const numero = valor.replace(/[^0-9]/g, '');
@@ -65,7 +63,10 @@ function ApostasContent() {
   };
 
   const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
-  const valorBonus = tier === 'BASIC' ? 'R$ 0,625' : 'R$ 125,00';
+  
+  // Valores visuais aproximados
+  const valorDisplay = tier === 'BASIC' ? '0.0003 ETH' : '0.05 ETH';
+  const valorBonus = tier === 'BASIC' ? '0.000037 ETH' : '0.0062 ETH';
 
   const handleConfirm = async () => {
     if (!isFormValid || !address) return;
@@ -80,12 +81,16 @@ function ApostasContent() {
         ];
 
         const tierCode = tier === 'BASIC' ? 1 : 2;
+        
+        // ⚠️ AQUI É A CHAVE: Enviando o valor em ETH Nativo
+        const valorEmWei = tier === 'BASIC' ? parseEther('0.0003') : parseEther('0.05');
 
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
             args: [coordenadas as any, tierCode],
+            value: valorEmWei, // Envia o ETH junto
         });
 
     } catch (error) {
@@ -97,19 +102,18 @@ function ApostasContent() {
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
       
       <AnimatePresence>
-        {/* MODAL DE SUCESSO */}
         {showSuccessModal && (
             <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#111] border border-emerald-500/50 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative">
                     <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X size={20} /></button>
                     <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={48} className="text-emerald-500" /></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Aposta Confirmada!</h2>
-                    <p className="text-gray-400 mb-6 text-sm">Seus prognósticos foram registrados na Blockchain.</p>
+                    <p className="text-gray-400 mb-6 text-sm">Seus prognósticos foram registrados na Blockchain com sucesso.</p>
                     <div className="bg-black/50 p-4 rounded-lg border border-white/10 mb-6 text-left">
                         <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
                         <div className="flex items-center justify-between">
                             <p className="text-emerald-400 font-mono text-xs truncate mr-2">{hash}</p>
-                            <a href={`https://sepolia.etherscan.io/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+                            <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                                 <ExternalLink size={14} />
                             </a>
                         </div>
@@ -119,27 +123,15 @@ function ApostasContent() {
             </div>
         )}
 
-        {/* MODAL DO SIMULADOR (NOVO) */}
         {showSimulator && (
             <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-                <motion.div 
-                  initial={{ scale: 0.95, opacity: 0 }} 
-                  animate={{ scale: 1, opacity: 1 }} 
-                  exit={{ scale: 0.95, opacity: 0 }}
-                  className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto"
-                >
+                <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto">
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
-                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2">
-                           <Calculator size={20} /> Simulador de Resultados
-                        </h3>
-                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors">
-                            <X size={24} />
-                        </button>
+                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2"><Calculator size={20} /> Simulador</h3>
+                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"><X size={24} /></button>
                     </div>
-                    
                     <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
-                         {/* Renderiza o componente que você criou */}
-                         <ResultSimulator />
+                         <ResultSimulator blockchainData={blockchainData} />
                     </div>
                 </motion.div>
             </div>
@@ -152,9 +144,9 @@ function ApostasContent() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500"></div>
                 <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><Lock size={40} className="text-[#D4A373]" /></div>
                 <h2 className="text-2xl font-bold text-white mb-2">Acesso Restrito</h2>
-                <p className="text-gray-400 mb-8 text-sm leading-relaxed">O Painel de Apostas conecta diretamente com a Blockchain. Conecte sua carteira para operar.</p>
+                <p className="text-gray-400 mb-8 text-sm leading-relaxed">O Painel de Apostas conecta diretamente com a Blockchain Base. Conecte sua carteira.</p>
                 <div className="flex justify-center"><ConnectButton /></div>
-                <Link href="/"><button className="mt-6 text-gray-500 text-xs hover:text-white flex items-center justify-center gap-1 mx-auto"><Home size={12} /> Voltar para a Home</button></Link>
+                <Link href="/"><button className="mt-6 text-gray-500 text-xs hover:text-white flex items-center justify-center gap-1 mx-auto"><Home size={12} /> Voltar</button></Link>
             </div>
         </div>
       )}
@@ -163,30 +155,19 @@ function ApostasContent() {
           <div className="bg-[#0a0a0a] border-b border-white/5 text-gray-500 text-[10px] md:text-xs font-mono py-2 overflow-hidden flex items-center justify-center">
             <div className="flex gap-4 md:gap-8 items-center opacity-80 whitespace-nowrap px-4">
                 <span className="flex items-center gap-1 text-emerald-500"><Activity size={10} /> MAINNET: ONLINE</span>
-                <span className="flex items-center gap-1 text-gray-400"><Lock size={10} /> CONTRATO: AUDITADO</span>
-                <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> GAS: 15 Gwei</span>
+                <span className="flex items-center gap-1 text-gray-400"><Lock size={10} /> CONTRATO: NATIVO ETH</span>
+                <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> GAS: ~0.05 USD</span>
             </div>
           </div>
 
           <nav className="border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                    <Link href="/" className="hover:scale-105 transition-transform">
-                        <div className="relative w-10 h-10 rounded-lg overflow-hidden shadow-lg border border-white/10">
-                            <Image src="/images/logo.png" alt="B3 Logo" width={40} height={40} className="object-cover" />
-                        </div>
-                    </Link>
+                    <Link href="/" className="hover:scale-105 transition-transform"><div className="relative w-10 h-10 rounded-lg overflow-hidden shadow-lg border border-white/10"><Image src="/images/logo.png" alt="B3 Logo" width={40} height={40} className="object-cover" /></div></Link>
                     <div className="hidden md:block"><h1 className="text-xl font-bold tracking-tighter leading-none text-white">BBB <span className="text-[#D4A373]">APP</span></h1><p className="text-[10px] text-gray-500 tracking-widest uppercase">Módulo Web3</p></div>
                 </div>
                 <div className="flex items-center gap-3 md:gap-4">
-                    {/* BOTÃO DO SIMULADOR AQUI (Estratégico: Navbar) */}
-                    <button 
-                        onClick={() => setShowSimulator(true)}
-                        className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20"
-                    >
-                        <Calculator size={16} /> <span className="hidden sm:inline">Simulador</span>
-                    </button>
-
+                    <button onClick={() => setShowSimulator(true)} className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20"><Calculator size={16} /> <span className="hidden sm:inline">Simulador</span></button>
                     <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition px-3 py-2 rounded-lg hover:bg-white/5"><Home size={16} /><span className="hidden sm:inline">Início</span></Link>
                     <ConnectButton showBalance={false} />
                 </div>
@@ -200,8 +181,8 @@ function ApostasContent() {
 
                     <div className="bg-[#0f0f0f] p-5 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-white/5">
-                            <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>BÁSICO</button>
-                            <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}>INTER-BET</button>
+                            <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>BÁSICO ({valorDisplay})</button>
+                            <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}>INTER-BET ({valorDisplay})</button>
                             </div>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 bg-green-900/10 px-3 py-1 rounded-full border border-green-900/20"><ShieldCheck size={12} /> Matriz Segura (1-25)</div>
                     </div>
@@ -225,7 +206,7 @@ function ApostasContent() {
                         <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-5 relative mb-8">
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
                                 <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
-                                <div className="mt-4 pt-4 border-t border-white/5 text-center"><p className="text-xs text-gray-400 flex items-center justify-center gap-2"><Trophy size={14} className="text-[#D4A373]" /><span>A cada <strong>8 aplicações com zero retorno</strong>, o Smart Contract libera <strong>1 Free Bet</strong> automaticamente.</span></p></div>
+                                <div className="mt-4 pt-4 border-t border-white/5 text-center"><p className="text-xs text-gray-400 flex items-center justify-center gap-2"><Trophy size={14} className="text-[#D4A373]" /><span>A cada <strong>8 aplicações com zero retorno</strong>, o sistema libera <strong>1 Free Bet</strong> automaticamente.</span></p></div>
                         </div>
 
                         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
@@ -250,14 +231,9 @@ function ApostasContent() {
   );
 }
 
-// --- PÁGINA PRINCIPAL COM SUSPENSE ---
 export default function ApostasPageWrapper() {
   return (
-    <Suspense fallback={
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-            <Loader2 className="animate-spin text-[#D4A373]" size={40} />
-        </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
         <ApostasContent />
     </Suspense>
   );

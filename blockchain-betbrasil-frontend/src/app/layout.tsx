@@ -2,9 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
-import GoogleAnalytics from "@/components/GoogleAnalytics";
+
+// Imports Oficiais e Otimizados
+import { GoogleAnalytics } from '@next/third-parties/google';
+import Script from 'next/script';
+
 import { Web3Provider } from "@/Web3Provider";
-import Navbar from "@/components/Navbar"; // <--- IMPORTE AQUI
+import Navbar from "@/components/Navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,25 +24,33 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      {/* min-h-screen garante que o rodapé vá lá pra baixo */}
       <body className={inter.className + " min-h-screen flex flex-col bg-black text-white"}>
         <Web3Provider>
-            <GoogleAnalytics />
             
-            {/* 1. O NAV BAR NOVO VEM AQUI (Já inclui o botão de conectar) */}
+            {/* 1. Navbar */}
             <Navbar />
 
-            {/* 2. Conteúdo do Site */}
+            {/* 2. Conteúdo Principal */}
             <main className="flex-grow">
                 {children}
             </main>
 
-            {/* 3. Rodapé com Aviso */}
-            <footer className="w-full bg-amber-500 text-black text-[10px] md:text-xs font-black py-4 px-4 text-center uppercase tracking-widest border-t-4 border-amber-700">
-               ⚠️  Ambiente de Testes (Beta) • Conectado na Rede Sepolia • Não use fundos reais ⚠️
+            {/* 3. Rodapé Atualizado para Produção (Base Mainnet) */}
+            <footer className="w-full bg-emerald-950/50 text-emerald-500 text-[10px] md:text-xs font-bold py-4 px-4 text-center uppercase tracking-widest border-t border-emerald-900">
+               🔒 Ambiente Seguro • Operando na Rede Base (Mainnet)
             </footer>
             
         </Web3Provider>
+
+        {/* 4. Google Analytics (Seu ID Oficial) */}
+        <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
+
+        {/* 5. JivoChat (Suporte ao Vivo) */}
+        <Script 
+          src="//code.jivosite.com/widget/uIZfU1ccP5" 
+          strategy="lazyOnload" 
+        />
+        
       </body>
     </html>
   );

@@ -2,29 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import React, { useState } from 'react';
+import React from 'react';
 
 const BlockchainBetBrasil = () => {
-  const [isWalletConnected, setIsWalletConnected] = useState(false);
-
-  const handleConnectWallet = async () => {
-    try {
-      console.log('Conectando à Ethereum Mainnet...');
-      setIsWalletConnected(true);
-      console.log('Conectado à Ethereum Mainnet - Modo Real');
-    } catch (error) {
-      console.error('Erro ao conectar carteira:', error);
-    }
-  };
-
-  const handleInteract = () => {
-    if (!isWalletConnected) {
-      handleConnectWallet();
-      return;
-    }
-    console.log('Interagindo...');
-  };
-
   return (
     <>
       <div className="min-h-screen bg-slate-950 font-sans text-slate-100 relative overflow-hidden">
@@ -36,6 +16,7 @@ const BlockchainBetBrasil = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent"></div>
         <div className="relative z-10"> {/* Conteúdo principal acima do fundo */}
 
+          {/* NAV BAR */}
           <nav className="fixed top-0 left-0 right-0 bg-slate-900/80 backdrop-blur-md border-b border-emerald-700 z-50 shadow-lg transition-all duration-300">
             <div className="container mx-auto px-4">
               <div className="flex items-center justify-between h-16">
@@ -65,53 +46,38 @@ const BlockchainBetBrasil = () => {
                   <Link href="/admin" className="text-slate-300 hover:text-emerald-300 transition-colors text-lg font-medium hover:underline decoration-emerald-500 decoration-2 underline-offset-4">Painel Admin</Link>
                 </div>
 
+                {/* BOTÃO CTA DESKTOP */}
                 <div className="hidden md:flex items-center space-x-4">
-                  <button
-                    onClick={handleConnectWallet}
-                    className={`flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-emerald-500/20 transform hover:-translate-y-1 ${
-                      isWalletConnected
-                        ? 'bg-emerald-600 text-white border border-emerald-500'
-                        : 'bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white'
-                    }`}
-                  >
-                    {isWalletConnected ? (
-                      <>
-                        <span>✅ Conectado</span>
-                        <span className="text-sm opacity-80">Mainnet</span>
-                      </>
-                    ) : (
-                      <>
+                  <Link href="/apostas">
+                    <button className="flex items-center gap-2 px-6 py-2 rounded-full transition-all duration-300 font-semibold text-lg shadow-xl hover:shadow-emerald-500/20 transform hover:-translate-y-1 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
                           <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
                           <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
                         </svg>
-                        Conectar Carteira
-                      </>
-                    )}
-                  </button>
+                        Acessar App
+                    </button>
+                  </Link>
                 </div>
 
+                {/* MENU MOBILE */}
                 <div className="flex md:hidden items-center space-x-2">
-                  <button
-                    onClick={handleConnectWallet}
-                    className={`px-3 py-1 rounded-full text-sm font-semibold mr-2 ${
-                      isWalletConnected
-                        ? 'bg-emerald-600 text-white'
-                        : 'bg-gradient-to-r from-emerald-500 to-green-500 text-white'
-                    }`}
-                  >
-                    {isWalletConnected ? '✅' : '🔗'}
-                  </button>
+                  <Link href="/apostas">
+                    <button className="px-3 py-1 rounded-full text-sm font-semibold mr-2 bg-gradient-to-r from-emerald-500 to-green-500 text-white">
+                      🚀 Entrar
+                    </button>
+                  </Link>
                 </div>
               </div>
             </div>
           </nav>
 
+          {/* CONTEÚDO PRINCIPAL */}
           <main className="pt-24 pb-16">
             <div className="container mx-auto p-4 md:p-6 flex justify-center">
               <div className="w-full flex flex-col items-center justify-center gap-12 max-w-7xl">
 
+                {/* BOX DE DESTAQUE (MODO REAL) */}
                 <div className="w-full max-w-5xl mx-auto bg-amber-400/90 border-b-4 border-amber-500 p-5 rounded-lg shadow-xl ring-4 ring-amber-500/50 animate-pulse-slow backdrop-blur-sm">
                   <div className="flex items-start gap-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-900 flex-shrink-0 mt-1" aria-hidden="true">
@@ -122,7 +88,7 @@ const BlockchainBetBrasil = () => {
                     <div className="text-amber-900">
                       <p className="font-extrabold text-xl md:text-2xl">PLATAFORMA DE INTERAÇÃO E ESTRATÉGIA GAMIFICADA.</p>
                       <p className="font-semibold text-lg md:text-xl mt-1 leading-snug">
-                        🚀 <strong>OPERANDO NA ETHEREUM MAINNET</strong> - MODO REAL ATIVO<br />
+                        🚀 <strong>OPERANDO NA REDE BASE (L2)</strong> - MODO REAL ATIVO<br />
                         Na Blockchain Bet Brasil, a grande diferença está no sistema de contemplação, que ACABA com a ideia de "perdedor absoluto".
                       </p>
                     </div>
@@ -168,6 +134,7 @@ const BlockchainBetBrasil = () => {
                   </h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    {/* CARD 1: INTERAÇÃO */}
                     <div className="flex flex-col items-center text-center p-6 bg-slate-700/70 rounded-2xl shadow-lg border border-emerald-500 hover:shadow-emerald-500/40 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in delay-100 backdrop-blur-sm group">
                       <div className="mb-6 w-32 h-32 flex items-center justify-center rounded-full bg-slate-900 border-4 border-emerald-400 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
@@ -188,6 +155,7 @@ const BlockchainBetBrasil = () => {
                       </div>
                     </div>
 
+                    {/* CARD 2: ENTRETENIMENTO */}
                     <div className="flex flex-col items-center text-center p-6 bg-slate-700/70 rounded-2xl shadow-lg border border-emerald-500 hover:shadow-emerald-500/40 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in delay-200 backdrop-blur-sm group">
                       <div className="mb-6 w-32 h-32 flex items-center justify-center rounded-full bg-slate-900 border-4 border-emerald-400 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
@@ -208,6 +176,7 @@ const BlockchainBetBrasil = () => {
                       </div>
                     </div>
 
+                    {/* CARD 3: ESTRATÉGIA */}
                     <div className="flex flex-col items-center text-center p-6 bg-slate-700/70 rounded-2xl shadow-lg border border-emerald-500 hover:shadow-emerald-500/40 transition-all duration-300 transform hover:-translate-y-2 animate-fade-in delay-300 backdrop-blur-sm group">
                       <div className="mb-6 w-32 h-32 flex items-center justify-center rounded-full bg-slate-900 border-4 border-emerald-400 group-hover:scale-110 transition-transform">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-20 w-20 text-emerald-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5">
@@ -231,35 +200,36 @@ const BlockchainBetBrasil = () => {
 
                   <div id="como-proceder" className="mt-16 text-center">
                     <h4 className="text-4xl font-bold text-white mb-6 animate-fade-in delay-400 drop-shadow-lg">
-                      {isWalletConnected ? '🎉 Carteira Conectada!' : 'Mude de vida Já!'}
+                      Mude de Vida Já!
                     </h4>
-                    <button
-                      onClick={handleInteract}
-                      className="inline-flex items-center justify-center px-12 py-5 border border-transparent text-xl font-extrabold rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)] text-slate-900 bg-emerald-400 hover:bg-emerald-300 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-70 transition-all duration-300 transform hover:scale-105 animate-bounce-slow"
-                    >
-                      {isWalletConnected ? '🚀 Interagir com a Plataforma!' : '🔗 Conectar para Interagir!'}
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-7 h-7 ml-3">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"></path>
-                      </svg>
-                    </button>
+                    
+                    {/* BOTÃO CTA INFERIOR */}
+                    <Link href="/apostas">
+                        <button
+                          className="inline-flex items-center justify-center px-12 py-5 border border-transparent text-xl font-extrabold rounded-full shadow-[0_0_20px_rgba(52,211,153,0.5)] text-slate-900 bg-emerald-400 hover:bg-emerald-300 focus:outline-none focus:ring-4 focus:ring-emerald-500 focus:ring-opacity-70 transition-all duration-300 transform hover:scale-105 animate-bounce-slow"
+                        >
+                          🔗 Conectar Para Interagir!
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-7 h-7 ml-3">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"></path>
+                          </svg>
+                        </button>
+                    </Link>
 
-                    {isWalletConnected && (
-                      <div className="mt-6 text-emerald-300 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/30 max-w-md mx-auto">
-                        ✅ Conectado à <strong>Ethereum Mainnet</strong> - Pronto para operações reais
-                      </div>
-                    )}
+                    <div className="mt-6 text-emerald-300 text-sm bg-emerald-500/10 p-4 rounded-xl border border-emerald-500/30 max-w-md mx-auto">
+                        ✅ Conectado à <strong>BASE NETWORK</strong> - Pronto para operações reais
+                    </div>
                   </div>
                 </section>
 
-                <p className="mt-8 text-sm text-slate-500">🌐 Ethereum Mainnet - Modo Real Ativo</p>
+                <p className="mt-8 text-sm text-slate-500">🌐 Base Mainnet - Modo Real Ativo</p>
               </div>
             </div>
           </main>
 
+          {/* RODAPÉ */}
           <footer className="bg-slate-900/80 border-t border-emerald-700 py-10 mt-16 shadow-inner relative z-10 backdrop-blur-md">
             <div className="container mx-auto px-4 text-center">
               
-              {/* LOGO RODAPÉ ATUALIZADA */}
               <div className="flex justify-center items-center gap-3 mb-6">
                  <div className="relative w-12 h-12 rounded-xl overflow-hidden border border-emerald-500/30 shadow-lg">
                     <Image src="/images/logo.png" alt="Logo Rodapé" width={48} height={48} className="object-cover" />
@@ -268,7 +238,7 @@ const BlockchainBetBrasil = () => {
               </div>
 
               <p className="text-slate-400 text-sm">© 2025 Blockchain Bet Brasil. Todos os direitos reservados.</p>
-              <p className="text-slate-500 text-xs mt-2">Plataforma de interação e estratégia gamificada - Ethereum Mainnet</p>
+              <p className="text-slate-500 text-xs mt-2">Plataforma de interação e estratégia gamificada - Base Network</p>
               <div className="mt-6 flex justify-center gap-6">
                 <Link href="/termos-de-uso" className="text-slate-400 hover:text-emerald-400 text-sm transition-colors">
                   Termo de Uso

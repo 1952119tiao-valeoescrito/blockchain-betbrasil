@@ -1,10 +1,9 @@
-// src/components/ResultSimulator.tsx
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Calculator, RefreshCw, ExternalLink } from 'lucide-react';
 
-// A interface para guardar os resultados, agora com o número do prêmio
+// Interface dos resultados
 interface IResult {
   prizeNum: number;
   milhar: string;
@@ -15,31 +14,59 @@ interface IResult {
   prognostico: string;
 }
 
-export default function ResultSimulator() {
-  // Estado para guardar os 5 números da loteria
+// Props opcionais: se vierem dados da blockchain
+interface ResultSimulatorProps {
+  blockchainData?: {
+    milhares: string[];
+    grupos: number[];
+    timestamp: bigint;
+  } | null;
+}
+
+export default function ResultSimulator({ blockchainData }: ResultSimulatorProps) {
   const [lotteryNumbers, setLotteryNumbers] = useState({
     prize1: '', prize2: '', prize3: '', prize4: '', prize5: '',
   });
   
-  // Estado para guardar um ARRAY de resultados
   const [results, setResults] = useState<IResult[] | null>(null);
 
-  // Função para atualizar o estado quando o usuário digita em um dos campos
+  // EFEITO MÁGICO: Se vier dados da blockchain, preenche sozinho!
+  useEffect(() => {
+    if (blockchainData && blockchainData.milhares.length === 5) {
+      const formattedResults: IResult[] = blockchainData.milhares.map((milhar, index) => {
+        const milharNum = parseInt(milhar);
+        let d1 = Math.floor(milharNum / 100) % 100;
+        let d2 = milharNum % 100;
+        if (d1 === 0) d1 = 100;
+        if (d2 === 0) d2 = 100;
+        const g1 = Math.floor((d1 - 1) / 4) + 1;
+        const g2 = Math.floor((d2 - 1) / 4) + 1;
+
+        return {
+          prizeNum: index + 1,
+          milhar: milhar, 
+          dezena1: d1,
+          dezena2: d2,
+          grupo1: g1,
+          grupo2: g2,
+          prognostico: `${g1}/${g2}`
+        };
+      });
+      setResults(formattedResults);
+    }
+  }, [blockchainData]);
+
+  // Função manual
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, prizeNum: number) => {
-    setLotteryNumbers({
-      ...lotteryNumbers,
-      [`prize${prizeNum}`]: e.target.value,
-    });
+    setLotteryNumbers({ ...lotteryNumbers, [`prize${prizeNum}`]: e.target.value });
   };
 
   const handleSimulate = () => {
     const allResults: IResult[] = [];
     
-    // Loop que passa por cada um dos 5 prêmios
     for (let i = 1; i <= 5; i++) {
       const numStr = lotteryNumbers[`prize${i}` as keyof typeof lotteryNumbers];
       
-      // Só processa se o campo tiver pelo menos 4 dígitos
       if (numStr && numStr.length >= 4) {
         const milharStr = numStr.slice(-4);
         const milharNum = parseInt(milharStr, 10);
@@ -53,7 +80,6 @@ export default function ResultSimulator() {
         const g1 = Math.floor((d1 - 1) / 4) + 1;
         const g2 = Math.floor((d2 - 1) / 4) + 1;
         
-        // Adiciona o resultado processado ao nosso array
         allResults.push({
           prizeNum: i,
           milhar: milharStr,
@@ -75,54 +101,97 @@ export default function ResultSimulator() {
   };
 
   return (
-    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700">
-      <h2 className="text-2xl font-semibold text-center text-white mb-2">Simulador de Resultados</h2>
-      <p className="text-center text-gray-300 mb-6">
-        Tire a prova você mesmo! Insira os milhares sorteados, do 1º ao 5º prêmio, e veja a conversão.
-      </p>
-      
-      <div className="max-w-lg mx-auto">
-        {/* Formulário com 5 campos */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          {[1, 2, 3, 4, 5].map((prizeNum) => (
-            <div key={prizeNum}>
-              <label htmlFor={`lottery-sim-${prizeNum}`} className="block text-sm font-medium text-gray-300 mb-1">
-                Número do {prizeNum}º Prêmio
-              </label>
-              <input 
-                type="text" 
-                id={`lottery-sim-${prizeNum}`}
-                placeholder="Ex: 95467"
-                value={lotteryNumbers[`prize${prizeNum}` as keyof typeof lotteryNumbers]}
-                onChange={(e) => handleInputChange(e, prizeNum)}
-                className="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-white"
-              />
-            </div>
-          ))}
-        </div>
-        <button onClick={handleSimulate} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-md">
-          Simular
-        </button>
+    <div className="bg-slate-800 p-6 rounded-lg border border-slate-700 relative">
+      <div className="flex items-center justify-center gap-2 mb-2">
+         {blockchainData ? (
+            <span className="bg-emerald-500/20 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-500/50 flex items-center gap-1">
+               <RefreshCw size={12} className="animate-spin-slow" /> DADOS DA BLOCKCHAIN (OFICIAL)
+            </span>
+         ) : (
+            <span className="bg-cyan-500/20 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full border border-cyan-500/50">
+               MODO SIMULAÇÃO
+            </span>
+         )}
       </div>
 
-      {/* Área de Resultados */}
+      <h2 className="text-2xl font-semibold text-center text-white mb-2">
+        {blockchainData ? 'Último Sorteio Oficial' : 'Simulador de Resultados'}
+      </h2>
+      
+      <p className="text-center text-gray-300 mb-4 text-sm px-4">
+        {blockchainData 
+          ? 'Estes são os resultados registrados no Smart Contract.' 
+          : 'Insira os milhares sorteados para conferir seus prognósticos.'}
+      </p>
+
+      {/* --- 👇 O LINK PARA A CAIXA ESTÁ AQUI 👇 --- */}
+      <div className="flex justify-center mb-6">
+        <a 
+          href="https://loterias.caixa.gov.br/Paginas/Federal.aspx" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-xs md:text-sm bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 hover:text-blue-300 border border-blue-500/30 px-4 py-2 rounded-lg transition-all group"
+        >
+          <ExternalLink size={14} className="group-hover:scale-110 transition-transform"/>
+          Conferir Resultado Oficial (Caixa/Federal)
+        </a>
+      </div>
+      {/* --------------------------------------------- */}
+
+      {/* SÓ MOSTRA OS INPUTS SE NÃO TIVER DADOS DA BLOCKCHAIN */}
+      {!blockchainData && (
+        <div className="max-w-lg mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            {[1, 2, 3, 4, 5].map((prizeNum) => (
+              <div key={prizeNum}>
+                <label htmlFor={`lottery-sim-${prizeNum}`} className="block text-sm font-medium text-gray-300 mb-1">
+                  Número do {prizeNum}º Prêmio
+                </label>
+                <input 
+                  type="text" 
+                  id={`lottery-sim-${prizeNum}`}
+                  placeholder="Ex: 95467"
+                  maxLength={5}
+                  value={lotteryNumbers[`prize${prizeNum}` as keyof typeof lotteryNumbers]}
+                  onChange={(e) => handleInputChange(e, prizeNum)}
+                  className="w-full bg-slate-700 border border-slate-600 rounded-md p-2 text-white focus:border-cyan-500 focus:outline-none"
+                />
+              </div>
+            ))}
+          </div>
+          <button onClick={handleSimulate} className="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-md transition-colors flex items-center justify-center gap-2">
+            <Calculator size={18} /> Simular / Conferir
+          </button>
+        </div>
+      )}
+
+      {/* ÁREA DE RESULTADOS */}
       {results && results.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-xl font-bold text-center text-white mb-4">Resultados da Simulação</h3>
+        <div className="mt-8 border-t border-slate-700 pt-6">
+          <h3 className="text-xl font-bold text-center text-white mb-4">Resultados Processados</h3>
           <div className="space-y-4">
-            {/* Mapeia e exibe o resultado para cada prêmio simulado */}
             {results.map((res) => (
-              <div key={res.prizeNum} className="p-4 bg-slate-900 rounded-md text-base">
-                <h4 className="font-bold text-lg text-cyan-400 mb-2">{res.prizeNum}º Prêmio:</h4>
-                <p>Milhar Utilizado: <b className="text-yellow-400 float-right">{res.milhar}</b></p>
-                <hr className="border-slate-700 my-1"/>
-                <p>Dezena 1: <b className="text-green-400 float-right">{res.dezena1}</b></p>
-                <p>Dezena 2: <b className="text-blue-400 float-right">{res.dezena2}</b></p>
-                <hr className="border-slate-700 my-1"/>
-                <p>Grupo 1 (da Dezena 1): <b className="text-green-400 float-right">{res.grupo1}</b></p>
-                <p>Grupo 2 (da Dezena 2): <b className="text-blue-400 float-right">{res.grupo2}</b></p>
-                <hr className="border-slate-700 my-1"/>
-                <p className="text-xl mt-2 text-center">Prognóstico Final: <b className="text-cyan-400">{res.prognostico}</b></p>
+              <div key={res.prizeNum} className={`p-4 rounded-md text-base border shadow-lg ${blockchainData ? 'bg-emerald-950/30 border-emerald-500/30' : 'bg-slate-900 border-slate-700'}`}>
+                <div className="flex justify-between items-center mb-2">
+                    <h4 className={`font-bold text-lg ${blockchainData ? 'text-emerald-400' : 'text-cyan-400'}`}>{res.prizeNum}º Prêmio</h4>
+                    <span className="text-yellow-400 text-xl font-mono tracking-wider font-bold">{res.milhar}</span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 text-sm mb-3">
+                    <div className="bg-black/20 p-2 rounded">
+                        <span className="block text-gray-400 text-xs">Dezena 1</span>
+                        <span className="font-bold text-white">{res.dezena1} <span className="text-gray-500">→</span> Grp {res.grupo1}</span>
+                    </div>
+                    <div className="bg-black/20 p-2 rounded">
+                        <span className="block text-gray-400 text-xs">Dezena 2</span>
+                        <span className="font-bold text-white">{res.dezena2} <span className="text-gray-500">→</span> Grp {res.grupo2}</span>
+                    </div>
+                </div>
+                
+                <div className="text-center pt-2 border-t border-white/5">
+                    <span className="text-gray-400 text-xs uppercase mr-2">Prognóstico Final:</span>
+                    <b className={`${blockchainData ? 'text-emerald-400' : 'text-cyan-400'} text-lg`}>{res.prognostico}</b>
+                </div>
               </div>
             ))}
           </div>

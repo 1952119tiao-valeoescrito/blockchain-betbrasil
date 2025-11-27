@@ -3,21 +3,19 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Activity, Users, DollarSign, Gift, Database, Settings, Lock, Key, ShieldAlert, Pause, RefreshCw, Wallet, Loader2 } from 'lucide-react'
+import { Activity, Users, DollarSign, Gift, Settings, Lock, Key, Pause, RefreshCw, Wallet, Loader2, Trophy, AlertTriangle } from 'lucide-react'
 
 // --- WEB3 IMPORTS ---
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
-// --- IMPORTAÇÃO CORRETA ---
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 export default function PainelAdmin() {
-  // --- WEB3 HOOKS ---
   const { address, isConnected } = useAccount();
   const { writeContract, isPending: isTxPending } = useWriteContract();
   
-  // Leitura de Dados
+  // LEITURAS
   const { data: contractOwner } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -33,19 +31,23 @@ export default function PainelAdmin() {
   const { data: roundIdData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
-    functionName: 'currentRoundId',
+    functionName: 'rodadaAtualId', // Ajustado para o nome correto no contrato
   });
 
   const { data: balanceData } = useBalance({
     address: CONTRACT_ADDRESS,
   });
 
-  // --- ESTADOS ---
+  // ESTADOS
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Verifica Owner
+  // ESTADOS PARA O SORTEIO MANUAL
+  const [manualResults, setManualResults] = useState({
+    p1: '', p2: '', p3: '', p4: '', p5: ''
+  });
+
   const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -63,35 +65,85 @@ export default function PainelAdmin() {
     writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
-        functionName: 'togglePause',
+        // CORREÇÃO: Tirei as aspas do primeiro 'paused'. 
+        // Agora ele olha a variável isPausedData.
+        functionName: isPausedData ? 'unpause' : 'pause', 
     });
   };
 
   const handleWithdraw = () => {
-    if(confirm("Tem certeza que deseja sacar as taxas?")) {
+    const amount = prompt("Quantidade em Wei para sacar (Deixe vazio para tudo):");
+    if(amount) {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'withdrawFees',
+            functionName: 'sacarFundos',
+            args: [BigInt(amount)],
         });
     }
   };
 
-  const handleProcessRound = () => {
-    if(confirm("Iniciar sorteio da rodada atual?")) {
+  const handleStartNext = () => {
+     if(confirm("Iniciar nova rodada?")) {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'startNextRound',
+            functionName: 'iniciarNovaRodada',
         });
+     }
+  }
+
+  // --- FUNÇÃO CRÍTICA: DEFINIR RESULTADO ---
+  const handleDefineResult = () => {
+    // 1. Validar inputs
+    const { p1, p2, p3, p4, p5 } = manualResults;
+    if(!p1 || !p2 || !p3 || !p4 || !p5) {
+        alert("Preencha todos os 5 prêmios!");
+        return;
+    }
+
+    // 2. Converter Milhares para Coordenadas (Grupos)
+    // Lógica igual ao Simulador
+    const processPrize = (numStr: string) => {
+        const milharNum = parseInt(numStr);
+        let d1 = Math.floor(milharNum / 100) % 100; if(d1===0) d1=100;
+        let d2 = milharNum % 100; if(d2===0) d2=100;
+        const g1 = Math.floor((d1 - 1) / 4) + 1;
+        const g2 = Math.floor((d2 - 1) / 4) + 1;
+        return [g1, g2];
+    };
+
+    try {
+        const r1 = processPrize(p1);
+        const r2 = processPrize(p2);
+        const r3 = processPrize(p3);
+        const r4 = processPrize(p4);
+        const r5 = processPrize(p5);
+
+        // Array final uint8[10]
+        const finalArray = [...r1, ...r2, ...r3, ...r4, ...r5];
+
+        console.log("Enviando resultado:", finalArray);
+
+        writeContract({
+            address: CONTRACT_ADDRESS,
+            abi: CONTRACT_ABI,
+            functionName: 'definirResultado',
+            args: [finalArray],
+        });
+
+    } catch (err) {
+        alert("Erro ao processar números. Verifique se são números válidos.");
+        console.error(err);
     }
   };
 
-  // --- TELA DE LOGIN ---
+  // --- TELA DE LOGIN (Mantida igual) ---
   if (!isAuthenticated) {
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
-            <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden">
+             {/* ... (Mesmo código de login anterior) ... */}
+             <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-red-600 animate-pulse"></div>
                 
                 <div className="w-20 h-20 mx-auto mb-6 rounded-xl overflow-hidden border border-white/10 shadow-lg">
@@ -101,16 +153,6 @@ export default function PainelAdmin() {
                 <h1 className="text-2xl font-bold text-white mb-1">Área Restrita</h1>
                 <p className="text-gray-500 text-sm mb-4">Acesso exclusivo ao Owner.</p>
                 
-                <div className="mb-6 flex justify-center">
-                    {isConnected ? (
-                        <span className={`text-xs px-2 py-1 rounded border ${isWalletOwner ? 'bg-green-900/20 text-green-400 border-green-900' : 'bg-yellow-900/20 text-yellow-400 border-yellow-900'}`}>
-                            {isWalletOwner ? 'Wallet Owner Verificada' : 'Wallet Conectada (Não Owner)'}
-                        </span>
-                    ) : (
-                        <span className="text-xs text-red-400 bg-red-900/10 px-2 py-1 rounded border border-red-900">Carteira Desconectada</span>
-                    )}
-                </div>
-
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="relative">
                         <Key size={16} className="absolute left-3 top-3.5 text-gray-500" />
@@ -134,7 +176,7 @@ export default function PainelAdmin() {
               <Loader2 className="animate-spin" size={20} />
               <div>
                   <p className="text-sm font-bold">Processando Transação...</p>
-                  <p className="text-xs opacity-80">Aguarde confirmação.</p>
+                  <p className="text-xs opacity-80">Aguarde confirmação na Blockchain.</p>
               </div>
           </div>
       )}
@@ -147,96 +189,98 @@ export default function PainelAdmin() {
              </div>
              <div className="flex flex-col">
                 <span className="text-sm font-bold text-white leading-none">PAINEL ADMIN</span>
-                <span className="text-[10px] text-emerald-500 font-mono">Blockchain: {balanceData?.symbol || 'ETH'}</span>
+                <span className="text-[10px] text-emerald-500 font-mono">Modo: MANUAL (Juiz)</span>
              </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-[#111] rounded border border-white/10">
+             {/* Status Wallet */}
+             <div className="hidden md:flex items-center gap-2 px-3 py-1 bg-[#111] rounded border border-white/10">
                 <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                <span className="text-xs text-gray-400 font-mono">
-                    {isConnected ? `Conectado: ${address?.slice(0,6)}...` : 'Desconectado'}
-                </span>
-            </div>
-            <button onClick={() => setIsAuthenticated(false)} className="flex items-center gap-2 bg-red-900/20 hover:bg-red-900/40 text-red-400 px-4 py-2 rounded-lg text-sm transition-all border border-red-900/30">
-               <Lock size={14} /> Logout
-            </button>
+                <span className="text-xs text-gray-400 font-mono">{isConnected ? `Owner: ${address?.slice(0,6)}...` : 'Desconectado'}</span>
+             </div>
+             <button onClick={() => setIsAuthenticated(false)} className="bg-red-900/20 text-red-400 px-3 py-1 rounded text-xs border border-red-900/30">Logout</button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto p-4 md:p-8">
-        {/* INFO CARDS */}
+        {/* CARDS DE STATUS (Iguais) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#111] p-4 rounded-xl border border-emerald-500/20 shadow-lg">
-                <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Saldo</p>
-                    <DollarSign size={16} className="text-emerald-500" />
-                </div>
-                <p className="text-2xl font-bold text-white">
-                    {balanceData ? parseFloat(formatEther(balanceData.value)).toFixed(4) : '0.00'} <span className="text-sm">{balanceData?.symbol}</span>
-                </p>
+            <div className="bg-[#111] p-4 rounded-xl border border-emerald-500/20">
+                <p className="text-xs text-gray-500 font-bold uppercase">Saldo Contrato</p>
+                <p className="text-2xl font-bold text-white">{balanceData ? parseFloat(formatEther(balanceData.value)).toFixed(4) : '0.00'} ETH</p>
             </div>
-            
-            <div className="bg-[#111] p-4 rounded-xl border border-blue-500/20 shadow-lg">
-                <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Status</p>
-                    <Activity size={16} className={Boolean(isPausedData) ? "text-red-500" : "text-green-500"} />
-                </div>
-                <p className={`text-2xl font-bold ${Boolean(isPausedData) ? 'text-red-400' : 'text-green-400'}`}>
-                    {Boolean(isPausedData) ? "PAUSADO" : "ATIVO"}
-                </p>
+             <div className="bg-[#111] p-4 rounded-xl border border-purple-500/20">
+                <p className="text-xs text-gray-500 font-bold uppercase">Rodada Atual</p>
+                <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : '-'}</p>
             </div>
-
-            <div className="bg-[#111] p-4 rounded-xl border border-amber-500/20 shadow-lg opacity-70">
-                <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Taxas</p>
-                    <Gift size={16} className="text-amber-500" />
-                </div>
-                <p className="text-xl font-bold text-amber-400">Admin</p>
+             <div className="bg-[#111] p-4 rounded-xl border border-blue-500/20">
+                <p className="text-xs text-gray-500 font-bold uppercase">Status</p>
+                <p className={`text-xl font-bold ${Boolean(isPausedData) ? 'text-red-400' : 'text-green-400'}`}>{Boolean(isPausedData) ? "PAUSADO" : "RODANDO"}</p>
             </div>
-
-             <div className="bg-[#111] p-4 rounded-xl border border-purple-500/20 shadow-lg">
-                <div className="flex justify-between items-start mb-2">
-                    <p className="text-xs text-gray-500 uppercase font-bold">Rodada Atual</p>
-                    <Users size={16} className="text-purple-500" />
-                </div>
-                <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : 'Loading'}</p>
+             <div className="bg-[#111] p-4 rounded-xl border border-amber-500/20">
+                <p className="text-xs text-gray-500 font-bold uppercase">Admin Mode</p>
+                <p className="text-xl font-bold text-amber-400">Super User</p>
             </div>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-            {/* GERENCIAMENTO */}
+            
+            {/* --- ÁREA DO JUIZ (SORTEIO MANUAL) --- */}
             <div className="lg:col-span-2 space-y-8">
-                <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
-                    <div className="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
-                        <div>
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Activity className="text-emerald-500" size={20} />
-                                Gerenciamento
-                            </h2>
-                        </div>
-                        <div className="flex gap-2">
-                            <button 
-                                onClick={handleTogglePause}
-                                disabled={isTxPending}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 border border-white/10 transition-colors ${
-                                    Boolean(isPausedData) 
-                                    ? 'bg-green-900 hover:bg-green-800 text-green-100' 
-                                    : 'bg-slate-800 hover:bg-slate-700 text-white'
-                                }`}
-                            >
-                                <Pause size={12} /> {Boolean(isPausedData) ? "Retomar" : "Pausar"}
-                            </button>
-                            
-                            <button 
-                                onClick={handleProcessRound}
-                                disabled={isTxPending || Boolean(isPausedData)}
-                                className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg"
-                            >
-                                <RefreshCw size={12} className={isTxPending ? "animate-spin" : ""} /> Processar
-                            </button>
-                        </div>
+                <div className="bg-[#111] rounded-2xl p-6 border border-emerald-500/30 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10"><Trophy size={100} /></div>
+                    
+                    <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                        <Trophy className="text-emerald-500" size={20} />
+                        Definir Resultado da Rodada
+                    </h2>
+                    
+                    <div className="bg-yellow-900/20 border border-yellow-700/30 p-4 rounded-lg mb-6 flex items-start gap-3">
+                        <AlertTriangle className="text-yellow-500 flex-shrink-0" size={20} />
+                        <p className="text-sm text-yellow-200/80">
+                            <strong>Atenção:</strong> Insira os milhares exatos da Loteria Federal. O sistema converterá automaticamente para os grupos do bicho (1-25) e registrará na Blockchain. Ação irreversível.
+                        </p>
                     </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i}>
+                                <label className="text-xs text-gray-500 font-bold mb-1 block">{i}º Prêmio</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="Ex: 1234"
+                                    maxLength={4}
+                                    className="w-full bg-black border border-gray-700 rounded p-2 text-center text-white font-mono focus:border-emerald-500 outline-none"
+                                    value={manualResults[`p${i}` as keyof typeof manualResults]}
+                                    onChange={(e) => setManualResults({...manualResults, [`p${i}`]: e.target.value})}
+                                />
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-4">
+                        <button 
+                            onClick={handleDefineResult}
+                            disabled={isTxPending || !isConnected}
+                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg shadow-lg disabled:opacity-50 flex justify-center items-center gap-2"
+                        >
+                            {isTxPending ? <Loader2 className="animate-spin" /> : <Trophy size={18} />}
+                            ENCERRAR E DEFINIR VENCEDORES
+                        </button>
+                    </div>
+                </div>
+
+                 {/* NOVA RODADA */}
+                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
+                    <h2 className="text-lg font-bold text-white mb-4">Ciclo de Vida</h2>
+                    <p className="text-sm text-gray-500 mb-4">Após definir o resultado e pagar os vencedores, inicie a próxima.</p>
+                    <button 
+                        onClick={handleStartNext}
+                        className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg text-sm font-bold"
+                    >
+                        Iniciar Nova Rodada
+                    </button>
                 </div>
             </div>
 
@@ -244,16 +288,23 @@ export default function PainelAdmin() {
             <div className="space-y-8">
                 <div className="bg-[#111] rounded-2xl p-6 border border-white/5 shadow-xl">
                     <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                        <Settings size={18} className="text-gray-400" /> Ações
+                        <Settings size={18} className="text-gray-400" /> Controles
                     </h2>
                     <div className="space-y-4">
+                         <button 
+                            onClick={handleTogglePause}
+                            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors"
+                        >
+                            <span>{Boolean(isPausedData) ? "Retomar Contrato" : "Pausar Contrato (Emergência)"}</span>
+                            <Pause size={14} className={Boolean(isPausedData) ? "text-green-500" : "text-red-500"} />
+                        </button>
+                        
                         <button 
                             onClick={handleWithdraw}
-                            disabled={isTxPending}
-                            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors group disabled:opacity-50"
+                            className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 transition-colors"
                         >
-                            <span>Sacar Taxas</span>
-                            <Wallet size={14} className="text-gray-500 group-hover:text-white" />
+                            <span>Sacar Taxas Acumuladas</span>
+                            <Wallet size={14} className="text-gray-500" />
                         </button>
                     </div>
                 </div>
