@@ -1,20 +1,16 @@
-'use client';
+"use client";
+import Script from "next/script";
 
-import Script from 'next/script';
-
-const GoogleAnalytics = () => {
-  const gaMeasurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
-  
-  if (!gaMeasurementId) {
-    console.warn('Google Analytics ID não encontrado.');
-    return null;
-  }
+export default function GoogleAnalytics() {
+  // --- AQUI ESTÁ A CORREÇÃO ---
+  // Trocamos o AW-... pelo G-MGWSEGKZ0V (que está na sua imagem)
+  const GA_MEASUREMENT_ID = "G-MGWSEGKZ0V"; 
 
   return (
     <>
       <Script
         strategy="afterInteractive"
-        src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
       />
       <Script
         id="google-analytics"
@@ -24,7 +20,8 @@ const GoogleAnalytics = () => {
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '${gaMeasurementId}', {
+            
+            gtag('config', '${GA_MEASUREMENT_ID}', {
               page_path: window.location.pathname,
             });
           `,
@@ -32,6 +29,4 @@ const GoogleAnalytics = () => {
       />
     </>
   );
-};
-
-export default GoogleAnalytics;
+}
