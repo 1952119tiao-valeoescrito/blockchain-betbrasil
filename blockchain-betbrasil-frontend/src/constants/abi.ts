@@ -1,24 +1,73 @@
-// ENDEREÇO OFICIAL (REDE BASE - MAINNET)
+// Certifique-se que o endereço está certo!
 export const CONTRACT_ADDRESS = "0x7a3FF967aA0de97F3bDD334a94bc52A2F0f916Cf";
-// ABI HÍBRIDA (Funções do Jogo + Funções Administrativas)
+
 export const CONTRACT_ABI = [
-  // --- 1. FUNÇÃO DE APOSTA ---
+  // --- LEITURAS ---
   {
-    "inputs": [
-      { "internalType": "uint8[10]", "name": "_coords", "type": "uint8[10]" },
-      { "internalType": "uint8", "name": "_tier", "type": "uint8" }
-    ],
-    "name": "realizarAplicacao",
+    "inputs": [],
+    "name": "rodadaAtualId", // Nome exato do contrato
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "paused",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+
+  // --- AÇÕES DO ADMIN (PORTUGUÊS) ---
+  {
+    "inputs": [],
+    "name": "fecharRodada", // <--- IMPORTANTE: Tem que fechar antes de definir
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
-
-  // --- 2. FUNÇÕES ADMINISTRATIVAS (Para o Painel) ---
-  { "inputs": [], "name": "owner", "outputs": [{ "type": "address" }], "type": "function" },
-  { "inputs": [], "name": "paused", "outputs": [{ "type": "bool" }], "type": "function" },
-  { "inputs": [], "name": "currentRoundId", "outputs": [{ "type": "uint256" }], "type": "function" },
-  { "inputs": [], "name": "togglePause", "outputs": [], "type": "function" },
-  { "inputs": [], "name": "withdrawFees", "outputs": [], "type": "function" },
-  { "inputs": [], "name": "startNextRound", "outputs": [], "type": "function" }
+  {
+    "inputs": [{ "internalType": "uint8[10]", "name": "_resultado", "type": "uint8[10]" }],
+    "name": "definirResultado",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "iniciarNovaRodada",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "amount", "type": "uint256" }],
+    "name": "sacarFundos",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  
+  // --- PAUSE/UNPAUSE (Padrão OpenZeppelin - Inglês) ---
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unpause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ] as const;
