@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Settings, Key, Pause, Wallet, Loader2, Trophy, AlertTriangle, Lock } from 'lucide-react'
+import { Settings, Key, Pause, Wallet, Loader2, Trophy, Lock } from 'lucide-react'
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
@@ -12,7 +12,7 @@ export default function PainelAdmin() {
   const { address, isConnected } = useAccount();
   const { writeContract, isPending: isTxPending } = useWriteContract();
   
-  // --- LEITURAS (AGORA EM PORTUGUÊS) ---
+  // LEITURAS
   const { data: isPausedData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -22,7 +22,7 @@ export default function PainelAdmin() {
   const { data: roundIdData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
-    functionName: 'rodadaAtualId', // <--- AGORA VAI LER CERTO!
+    functionName: 'rodadaAtualId',
   });
 
   const { data: balanceData } = useBalance({
@@ -46,7 +46,6 @@ export default function PainelAdmin() {
   }
 
   // --- AÇÕES DO CONTRATO ---
-  
   const handleTogglePause = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -55,7 +54,6 @@ export default function PainelAdmin() {
     });
   };
 
-  // 1. PRIMEIRO PASSO: FECHAR A RODADA
   const handleCloseRound = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -64,7 +62,6 @@ export default function PainelAdmin() {
     });
   };
 
-  // 2. SEGUNDO PASSO: DEFINIR RESULTADO
   const handleDefineResult = () => {
     if(manualResults.some(val => val.trim() === '')) {
         alert("Preencha todos os 5 prêmios!");
@@ -93,8 +90,8 @@ export default function PainelAdmin() {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'definirResultado', // EM PORTUGUÊS
-            args: [finalArray],
+            functionName: 'definirResultado',
+            args: [finalArray as any], // <--- CORREÇÃO AQUI (as any)
         });
 
     } catch (err) {
@@ -103,13 +100,12 @@ export default function PainelAdmin() {
     }
   };
 
-  // 3. TERCEIRO PASSO: NOVA RODADA
   const handleStartNext = () => {
      if(confirm("Iniciar nova rodada?")) {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'iniciarNovaRodada', // EM PORTUGUÊS
+            functionName: 'iniciarNovaRodada',
         });
      }
   }
@@ -120,7 +116,7 @@ export default function PainelAdmin() {
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'sacarFundos', // EM PORTUGUÊS
+            functionName: 'sacarFundos',
             args: [BigInt(amount)],
         });
     }
@@ -132,7 +128,7 @@ export default function PainelAdmin() {
     setManualResults(newResults);
   };
 
-  // --- LOGIN ---
+  // --- TELA DE LOGIN ---
   if (!isAuthenticated) {
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
@@ -173,7 +169,6 @@ export default function PainelAdmin() {
           <button onClick={() => setIsAuthenticated(false)} className="bg-red-900/20 text-red-400 px-4 py-2 rounded text-sm hover:bg-red-900/40">Sair</button>
       </header>
 
-      {/* STATUS CARDS */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-[#111] p-4 rounded-xl border border-white/5">
                 <p className="text-xs text-gray-500 font-bold">SALDO</p>
@@ -190,25 +185,21 @@ export default function PainelAdmin() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
-            {/* PAINEL DE SORTEIO */}
             <div className="lg:col-span-2 bg-[#111] border border-emerald-500/20 rounded-2xl p-6 relative">
                 <div className="flex items-center gap-2 mb-6 text-emerald-400">
                     <Trophy size={24} />
                     <h2 className="text-xl font-bold">Gerenciar Rodada</h2>
                 </div>
 
-                {/* PASSO 1 */}
                 <div className="mb-6 p-4 bg-black/50 rounded-xl border border-white/5">
                     <p className="text-sm text-gray-400 mb-2 font-bold">PASSO 1: Fechar Apostas</p>
-                    <p className="text-xs text-gray-500 mb-3">Bloqueia novas entradas para permitir o sorteio.</p>
                     <button onClick={handleCloseRound} className="bg-yellow-600 hover:bg-yellow-500 text-white px-4 py-2 rounded font-bold text-sm flex items-center gap-2">
                         <Lock size={14} /> FECHAR RODADA
                     </button>
                 </div>
 
-                {/* PASSO 2 */}
                 <div className="mb-6">
-                    <p className="text-sm text-gray-400 mb-2 font-bold">PASSO 2: Inserir Milhares (Loteria Federal)</p>
+                    <p className="text-sm text-gray-400 mb-2 font-bold">PASSO 2: Inserir Milhares</p>
                     <div className="grid grid-cols-5 gap-2 mb-4">
                         {manualResults.map((val, index) => (
                             <input key={index} type="text" placeholder={`${index+1}º`} maxLength={4} 
@@ -221,7 +212,6 @@ export default function PainelAdmin() {
                     </button>
                 </div>
 
-                {/* PASSO 3 */}
                  <div className="pt-4 border-t border-white/10">
                     <p className="text-sm text-gray-400 mb-2 font-bold">PASSO 3: Próximo Ciclo</p>
                     <button onClick={handleStartNext} className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded font-bold text-sm">
@@ -230,7 +220,6 @@ export default function PainelAdmin() {
                 </div>
             </div>
 
-            {/* CONTROLES EXTRAS */}
             <div className="space-y-4">
                 <div className="bg-[#111] p-6 rounded-2xl border border-white/5">
                     <h3 className="text-lg font-bold text-white mb-4 flex gap-2"><Settings /> Sistema</h3>
