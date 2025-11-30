@@ -9,6 +9,7 @@ import { Activity, Users, DollarSign, Gift, Settings, Lock, Key, Pause, RefreshC
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
 
+// Certifique-se que este arquivo existe e tem as variáveis exportadas corretamente
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 export default function PainelAdmin() {
@@ -31,7 +32,7 @@ export default function PainelAdmin() {
   const { data: roundIdData } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
-    functionName: 'rodadaAtualId', // Ajustado para o nome correto no contrato
+    functionName: 'rodadaAtualId', 
   });
 
   const { data: balanceData } = useBalance({
@@ -43,15 +44,15 @@ export default function PainelAdmin() {
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // ESTADOS PARA O SORTEIO MANUAL
-  const [manualResults, setManualResults] = useState({
-    p1: '', p2: '', p3: '', p4: '', p5: ''
-  });
+  // ESTADO CORRIGIDO: Array de 5 strings em vez de objeto (Evita erro de Build)
+  const [manualResults, setManualResults] = useState<string[]>(['', '', '', '', '']);
 
-  const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
+  // Verifica se é o dono (segurança visual apenas, o contrato barra na blockchain)
+  // const isWalletOwner = address && contractOwner && address.toLowerCase() === (contractOwner as string).toLowerCase();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    // Chave simples para proteção de frontend (a segurança real é a carteira Owner na blockchain)
     if (accessKey !== 'ADMIN-B3-MASTER') {
         setErrorMsg('Chave de acesso incorreta.');
         setAccessKey('');
@@ -65,14 +66,14 @@ export default function PainelAdmin() {
     writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
-        // CORREÇÃO: Tirei as aspas do primeiro 'paused'. 
-        // Agora ele olha a variável isPausedData.
         functionName: isPausedData ? 'unpause' : 'pause', 
     });
   };
 
   const handleWithdraw = () => {
     const amount = prompt("Quantidade em Wei para sacar (Deixe vazio para tudo):");
+    // Se digitou algo usa o valor, se cancelou ou vazio saca tudo (0 geralmente aciona lógica de tudo no contrato ou precisa ajuste)
+    // Assumindo que seu contrato aceita parametro. Se for sacar tudo sem parametro, ajuste aqui.
     if(amount) {
         writeContract({
             address: CONTRACT_ADDRESS,
@@ -93,19 +94,26 @@ export default function PainelAdmin() {
      }
   }
 
+  // Funçao auxiliar para atualizar o input do array
+  const updateResultValue = (index: number, value: string) => {
+    const newResults = [...manualResults];
+    newResults[index] = value;
+    setManualResults(newResults);
+  };
+
   // --- FUNÇÃO CRÍTICA: DEFINIR RESULTADO ---
   const handleDefineResult = () => {
-    // 1. Validar inputs
-    const { p1, p2, p3, p4, p5 } = manualResults;
-    if(!p1 || !p2 || !p3 || !p4 || !p5) {
+    // 1. Validar se tem vazio
+    if(manualResults.some(val => val.trim() === '')) {
         alert("Preencha todos os 5 prêmios!");
         return;
     }
 
     // 2. Converter Milhares para Coordenadas (Grupos)
-    // Lógica igual ao Simulador
     const processPrize = (numStr: string) => {
         const milharNum = parseInt(numStr);
+        if (isNaN(milharNum)) throw new Error("Número inválido");
+
         let d1 = Math.floor(milharNum / 100) % 100; if(d1===0) d1=100;
         let d2 = milharNum % 100; if(d2===0) d2=100;
         const g1 = Math.floor((d1 - 1) / 4) + 1;
@@ -114,14 +122,12 @@ export default function PainelAdmin() {
     };
 
     try {
-        const r1 = processPrize(p1);
-        const r2 = processPrize(p2);
-        const r3 = processPrize(p3);
-        const r4 = processPrize(p4);
-        const r5 = processPrize(p5);
-
-        // Array final uint8[10]
-        const finalArray = [...r1, ...r2, ...r3, ...r4, ...r5];
+        // Gera o array final uint8[10]
+        const finalArray: number[] = [];
+        manualResults.forEach(res => {
+            const [g1, g2] = processPrize(res);
+            finalArray.push(g1, g2);
+        });
 
         console.log("Enviando resultado:", finalArray);
 
@@ -133,16 +139,15 @@ export default function PainelAdmin() {
         });
 
     } catch (err) {
-        alert("Erro ao processar números. Verifique se são números válidos.");
+        alert("Erro ao processar números. Verifique se digitou apenas números.");
         console.error(err);
     }
   };
 
-  // --- TELA DE LOGIN (Mantida igual) ---
+  // --- TELA DE LOGIN ---
   if (!isAuthenticated) {
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
-             {/* ... (Mesmo código de login anterior) ... */}
              <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl shadow-2xl p-8 text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-red-600 animate-pulse"></div>
                 
@@ -204,7 +209,7 @@ export default function PainelAdmin() {
       </header>
 
       <main className="container mx-auto p-4 md:p-8">
-        {/* CARDS DE STATUS (Iguais) */}
+        {/* CARDS DE STATUS */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <div className="bg-[#111] p-4 rounded-xl border border-emerald-500/20">
                 <p className="text-xs text-gray-500 font-bold uppercase">Saldo Contrato</p>
@@ -244,16 +249,17 @@ export default function PainelAdmin() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-                        {[1, 2, 3, 4, 5].map((i) => (
-                            <div key={i}>
-                                <label className="text-xs text-gray-500 font-bold mb-1 block">{i}º Prêmio</label>
+                        {/* LOOP CORRIGIDO PARA USAR O ARRAY */}
+                        {manualResults.map((val, index) => (
+                            <div key={index}>
+                                <label className="text-xs text-gray-500 font-bold mb-1 block">{index + 1}º Prêmio</label>
                                 <input 
                                     type="text" 
                                     placeholder="Ex: 1234"
                                     maxLength={4}
                                     className="w-full bg-black border border-gray-700 rounded p-2 text-center text-white font-mono focus:border-emerald-500 outline-none"
-                                    value={manualResults[`p${i}` as keyof typeof manualResults]}
-                                    onChange={(e) => setManualResults({...manualResults, [`p${i}`]: e.target.value})}
+                                    value={val}
+                                    onChange={(e) => updateResultValue(index, e.target.value)}
                                 />
                             </div>
                         ))}
