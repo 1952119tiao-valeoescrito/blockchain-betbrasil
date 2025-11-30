@@ -1,335 +1,320 @@
-'use client'
+"use client";
 
-import React, { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { Settings, Key, Pause, Wallet, Loader2, Trophy, Lock } from 'lucide-react'
-import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
-import { formatEther } from 'viem'
+import React, { useState, useEffect, Suspense, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  ShieldCheck, Trophy, Zap, Home, Activity, Lock, ChevronRight, 
+  Loader2, CheckCircle2, X, ExternalLink, Calculator, DollarSign 
+} from 'lucide-react';
+import Link from 'next/link';
+import Image from 'next/image';
+import CountdownTimer from '../../components/CountdownTimer';
+
+// WEB3
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { parseEther, formatUnits } from 'viem'; 
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
-export default function PainelAdmin() {
+import ResultSimulator from '../../components/ResultSimulator'; 
+
+// --- CONFIGURAÇÃO CHAINLINK (BASE MAINNET) ---
+const CHAINLINK_FEED_ADDRESS = "0x71041dddad3595F745215C5809381D1338eF9256";
+
+const CHAINLINK_ABI = [{
+  inputs: [],
+  name: "latestRoundData",
+  outputs: [
+    { name: "roundId", type: "uint80" },
+    { name: "answer", type: "int256" },
+    { name: "startedAt", type: "uint256" },
+    { name: "updatedAt", type: "uint256" },
+    { name: "answeredInRound", type: "uint80" }
+  ],
+  stateMutability: "view",
+  type: "function"
+}] as const;
+
+// PREÇO DE SEGURANÇA (Fallback)
+const FALLBACK_ETH_PRICE = 3700.00;
+
+function ApostasContent() {
+  const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
-  const { writeContract, isPending: isTxPending } = useWriteContract();
   
-  // --- LEITURAS ---
-  const { data: isPausedData } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'paused',
+  const { data: hash, isPending, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // Hook de Leitura (Chainlink)
+  const { data: priceData, isLoading: isLoadingPrice } = useReadContract({
+    address: CHAINLINK_FEED_ADDRESS,
+    abi: CHAINLINK_ABI,
+    functionName: 'latestRoundData',
+    query: {
+        refetchInterval: 60000 
+    }
   });
 
-  const { data: roundIdData } = useReadContract({
-    address: CONTRACT_ADDRESS,
-    abi: CONTRACT_ABI,
-    functionName: 'rodadaAtualId',
+  const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  const [palpites, setPalpites] = useState<{ [key: number]: { x: string, y: string } }>({
+    1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' },
   });
 
-  const { data: balanceData } = useBalance({
-    address: CONTRACT_ADDRESS,
-  });
+  useEffect(() => { setMounted(true); }, []);
 
-  // --- ESTADOS ---
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [accessKey, setAccessKey] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const [manualResults, setManualResults] = useState<string[]>(['', '', '', '', '']);
+  useEffect(() => {
+    const tierParam = searchParams.get('tier');
+    if (tierParam === 'INVEST') setTier('INVEST');
+    else setTier('BASIC');
+  }, [searchParams]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (accessKey !== 'ADMIN-B3-MASTER') {
-        setErrorMsg('Chave incorreta.');
-        setAccessKey('');
-        alert('Chave incorreta');
+  useEffect(() => {
+    if (isConfirmed) {
+        setShowSuccessModal(true);
+        setPalpites({ 1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' } });
+    }
+  }, [isConfirmed]);
+
+  // --- CÁLCULO FINANCEIRO BLINDADO ---
+  const USD_PRICE_BASIC = 1.00;    
+  const USD_PRICE_INVEST = 170.00; 
+
+  // Lógica de Ouro: Fallback se a Chainlink falhar
+  const ethPriceUSD = priceData 
+      ? Number(formatUnits(priceData[1], 8)) 
+      : FALLBACK_ETH_PRICE;
+  
+  const custoEmEth = useMemo(() => {
+    const divisor = (ethPriceUSD > 0) ? ethPriceUSD : FALLBACK_ETH_PRICE;
+    const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
+    const rawEth = targetUSD / divisor;
+    
+    return rawEth.toFixed(7);
+  }, [tier, ethPriceUSD]);
+
+  const valorBonusEstimado = tier === 'BASIC' ? '125x (Retorno)' : '125x (Retorno)';
+  const blockchainData = null;
+
+  // --- VALIDAÇÕES ---
+  const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
+    const numero = valor.replace(/[^0-9]/g, '');
+    if (numero === '') {
+        setPalpites(prev => ({ ...prev, [premio]: { ...prev[premio], [campo]: '' } }));
         return;
     }
-    setIsAuthenticated(true);
-  }
-
-  // --- AÇÕES ---
-  const handleTogglePause = () => {
-    writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: isPausedData ? 'unpause' : 'pause', 
-    });
-  };
-
-  const handleCloseRound = () => {
-    writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'fecharRodada',
-    });
-  };
-
-  const handleDefineResult = () => {
-    if(manualResults.some(val => val.trim() === '')) {
-        alert("Preencha todos os 5 prêmios!");
-        return;
+    const valInt = parseInt(numero);
+    if (valInt >= 1 && valInt <= 25) {
+        setPalpites(prev => ({ ...prev, [premio]: { ...prev[premio], [campo]: valInt.toString() } }));
     }
+  };
 
-    const processPrize = (numStr: string) => {
-        const milharNum = parseInt(numStr);
-        if (isNaN(milharNum)) throw new Error("Número inválido");
-        
-        let d1 = Math.floor(milharNum / 100) % 100; if(d1===0) d1=100;
-        let d2 = milharNum % 100; if(d2===0) d2=100;
-        
-        const g1 = Math.floor((d1 - 1) / 4) + 1;
-        const g2 = Math.floor((d2 - 1) / 4) + 1;
-        return [g1, g2];
-    };
+  const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
+
+  const handleConfirm = async () => {
+    if (!isFormValid || !address || custoEmEth === "0") return;
 
     try {
-        const finalArray: number[] = [];
-        manualResults.forEach(res => {
-            const [g1, g2] = processPrize(res);
-            finalArray.push(g1, g2);
-        });
+        const coordenadas = [
+            parseInt(palpites[1].x), parseInt(palpites[1].y),
+            parseInt(palpites[2].x), parseInt(palpites[2].y),
+            parseInt(palpites[3].x), parseInt(palpites[3].y),
+            parseInt(palpites[4].x), parseInt(palpites[4].y),
+            parseInt(palpites[5].x), parseInt(palpites[5].y)
+        ];
+
+        const tierCode = tier === 'BASIC' ? 1 : 2;
 
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
-            functionName: 'definirResultado',
-            args: [finalArray as any], 
+            functionName: 'realizarAplicacao',
+            args: [coordenadas as any, tierCode],
+            value: parseEther(custoEmEth), 
         });
 
-    } catch (err) {
-        alert("Erro nos números. Verifique se são apenas dígitos.");
-        console.error(err);
+    } catch (error) {
+        console.error("Erro na transação:", error);
     }
   };
 
-  const handleStartNext = () => {
-     if(confirm("Tem certeza que deseja iniciar uma nova rodada?")) {
-        writeContract({
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'iniciarNovaRodada',
-        });
-     }
-  }
+  if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
-  const handleWithdraw = () => {
-    const amount = prompt("Quantidade em WEI para sacar (ex: 1000000000000000000 = 1 ETH):");
-    if(amount) {
-        writeContract({
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'sacarFundos',
-            args: [BigInt(amount)],
-        });
-    }
-  };
-
-  const updateResultValue = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
-    const newResults = [...manualResults];
-    newResults[index] = value;
-    setManualResults(newResults);
-  };
-
-  // --- TELA DE LOGIN ---
-  if (!isAuthenticated) {
-    return (
-        // Aumentei aqui também: pt-32
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans pt-32">
-             <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl p-8 text-center shadow-2xl shadow-red-900/10">
-                <div className="w-20 h-20 mx-auto mb-6 bg-black rounded-xl border border-white/10 flex items-center justify-center">
-                    <Lock className="text-red-500" size={32} />
-                </div>
-                <h1 className="text-2xl font-bold text-white mb-4">Acesso Restrito</h1>
-                <p className="text-gray-500 text-sm mb-6">Área exclusiva para administração do Smart Contract.</p>
-                <form onSubmit={handleLogin} className="space-y-4">
-                    <input 
-                        type="password" 
-                        value={accessKey} 
-                        onChange={(e) => setAccessKey(e.target.value)} 
-                        placeholder="Chave Mestra"
-                        className="w-full bg-black border border-gray-800 rounded-lg py-3 px-4 text-white focus:border-red-500 outline-none transition-colors" 
-                    />
-                    <button type="submit" className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-lg transition-transform active:scale-95">
-                        Entrar no Painel
-                    </button>
-                    <div className="pt-2">
-                        <Link href="/">
-                            <span className="text-gray-500 text-xs hover:text-white cursor-pointer underline decoration-gray-700">Voltar ao site principal</span>
-                        </Link>
+  return (
+    <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
+      
+      <AnimatePresence>
+        {/* MODAL SUCESSO */}
+        {showSuccessModal && (
+            <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#111] border border-emerald-500/50 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative">
+                    <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X size={20} /></button>
+                    <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={48} className="text-emerald-500" /></div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Aposta Confirmada!</h2>
+                    <p className="text-gray-400 mb-6 text-sm">Sua aplicação foi registrada na Base Mainnet.</p>
+                    <div className="bg-black/50 p-4 rounded-lg border border-white/10 mb-6 text-left">
+                        <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
+                        <div className="flex items-center justify-between">
+                            <p className="text-emerald-400 font-mono text-xs truncate mr-2">{hash}</p>
+                            <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
+                                <ExternalLink size={14} />
+                            </a>
+                        </div>
                     </div>
-                </form>
+                    <button onClick={() => setShowSuccessModal(false)} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all">Nova Aplicação</button>
+                </motion.div>
+            </div>
+        )}
+
+        {/* MODAL SIMULADOR */}
+        {showSimulator && (
+            <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+                <motion.div 
+                  initial={{ scale: 0.95, opacity: 0 }} 
+                  animate={{ scale: 1, opacity: 1 }} 
+                  exit={{ scale: 0.95, opacity: 0 }}
+                  className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto"
+                >
+                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2">
+                           <Calculator size={20} /> Simulador de Resultados
+                        </h3>
+                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors">
+                            <X size={24} />
+                        </button>
+                    </div>
+                    <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
+                         <ResultSimulator blockchainData={blockchainData} />
+                    </div>
+                </motion.div>
+            </div>
+        )}
+      </AnimatePresence>
+
+      {!isConnected && (
+        <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-[#151515] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500"></div>
+                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><Lock size={40} className="text-[#D4A373]" /></div>
+                <h2 className="text-2xl font-bold text-white mb-2">Conectar Carteira</h2>
+                <p className="text-gray-400 mb-8 text-sm leading-relaxed">Conecte-se à rede Base para realizar suas aplicações.</p>
+                <div className="flex justify-center"><ConnectButton /></div>
+                <Link href="/"><button className="mt-6 text-gray-500 text-xs hover:text-white flex items-center justify-center gap-1 mx-auto"><Home size={12} /> Voltar</button></Link>
             </div>
         </div>
-    )
-  }
-
-  // --- DASHBOARD ADMIN ---
-  return (
-    // MUDANÇA AQUI: pt-32 (celular) e md:pt-40 (desktop)
-    <div className="min-h-screen bg-[#050505] text-slate-200 font-sans p-4 md:p-8 pt-32 md:pt-40">
-      
-      {isTxPending && (
-          // Ajustei o loading para não ficar escondido
-          <div className="fixed top-24 right-4 bg-blue-600 text-white px-6 py-4 rounded-xl z-[60] shadow-2xl flex items-center gap-3 animate-bounce shadow-blue-500/20">
-              <Loader2 className="animate-spin" size={24} />
-              <div className="flex flex-col">
-                  <span className="font-bold text-sm">Transação Enviada</span>
-                  <span className="text-xs opacity-80">Aguardando confirmação...</span>
-              </div>
-          </div>
       )}
 
-      {/* HEADER */}
-      <header className="flex flex-col md:flex-row justify-between items-center mb-8 bg-[#111] p-4 rounded-xl border border-white/10 gap-4">
-          <div className="flex items-center gap-3">
-             <Image src="/images/logo.png" alt="Logo" width={48} height={48} className="rounded-lg shadow-lg" />
-             <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">ADMINISTRATIVO <span className="text-emerald-500">B3</span></h1>
-                <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                    <p className="text-[10px] text-gray-400 font-mono">
-                        {CONTRACT_ADDRESS ? `${CONTRACT_ADDRESS.slice(0,6)}...${CONTRACT_ADDRESS.slice(-4)}` : "CONTRATO NÃO DETECTADO"}
-                    </p>
-                </div>
-             </div>
+      <div className={!isConnected ? 'filter blur-sm pointer-events-none select-none' : ''}>
+          
+          <div className="bg-[#0a0a0a] border-b border-white/5 text-gray-500 text-[10px] md:text-xs font-mono py-2 overflow-hidden flex items-center justify-center">
+            <div className="flex gap-4 md:gap-8 items-center opacity-80 whitespace-nowrap px-4">
+                <span className="flex items-center gap-1 text-emerald-500"><Activity size={10} /> BASE MAINNET</span>
+                
+                <span className="flex items-center gap-1 text-[#D4A373]">
+                    <DollarSign size={10} /> 
+                    {/* Exibe o preço. fallback usado se necessário */}
+                    ETH/USD: {`$${ethPriceUSD.toFixed(2)}`}
+                </span>
+                
+                <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> LIVE</span>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-              <div className="text-right hidden md:block">
-                  <p className="text-xs text-gray-500">Carteira Conectada</p>
-                  <p className="text-xs font-mono text-emerald-400">{address ? `${address.slice(0,6)}...${address.slice(-4)}` : 'Desconectado'}</p>
-              </div>
-              <button onClick={() => setIsAuthenticated(false)} className="bg-red-900/20 text-red-400 px-4 py-2 rounded text-sm hover:bg-red-900/40 border border-red-900/30 transition-colors">
-                  Sair
-              </button>
-          </div>
-      </header>
 
-      {/* STATUS CARDS */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-colors">
-                <p className="text-xs text-gray-500 font-bold mb-1">SALDO DO CONTRATO</p>
-                <p className="text-2xl font-bold text-emerald-400 truncate">
-                    {balanceData ? parseFloat(formatEther(balanceData.value)).toFixed(4) : '0.00'} <span className="text-sm text-gray-500">ETH</span>
-                </p>
-            </div>
-             <div className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-purple-500/30 transition-colors">
-                <p className="text-xs text-gray-500 font-bold mb-1">RODADA ATUAL</p>
-                <p className="text-2xl font-bold text-purple-400">#{roundIdData ? roundIdData.toString() : '...'}</p>
-            </div>
-             <div className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-blue-500/30 transition-colors">
-                <p className="text-xs text-gray-500 font-bold mb-1">STATUS DO SISTEMA</p>
-                <div className={`inline-flex items-center gap-2 px-2 py-1 rounded text-xs font-bold ${Boolean(isPausedData) ? 'bg-red-900/30 text-red-500' : 'bg-green-900/30 text-green-500'}`}>
-                    <span className={`w-2 h-2 rounded-full ${Boolean(isPausedData) ? 'bg-red-500' : 'bg-green-500'}`}></span>
-                    {Boolean(isPausedData) ? "PAUSADO" : "OPERANDO"}
+          <nav className="border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-16 z-40 mt-6">
+            <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <Link href="/" className="hover:scale-105 transition-transform">
+                        <div className="relative w-10 h-10 rounded-lg overflow-hidden shadow-lg border border-white/10">
+                            <Image src="/images/logo.png" alt="B3 Logo" width={40} height={40} className="object-cover" />
+                        </div>
+                    </Link>
+                    <div className="hidden md:block"><h1 className="text-xl font-bold tracking-tighter leading-none text-white">BBB <span className="text-[#D4A373]">APP</span></h1><p className="text-[10px] text-gray-500 tracking-widest uppercase">Módulo Web3</p></div>
                 </div>
-            </div>
-            <div className="bg-[#111] p-4 rounded-xl border border-white/5 hover:border-yellow-500/30 transition-colors">
-                 <p className="text-xs text-gray-500 font-bold mb-1">ADMINISTRADOR</p>
-                 <p className="text-sm text-gray-300 font-mono truncate">{address ? "Conectado" : "Desconectado"}</p>
-            </div>
-      </div>
-
-      {/* CONTROLES PRINCIPAIS */}
-      <div className="grid lg:grid-cols-3 gap-8">
-            {/* PAINEL DA RODADA (ESQUERDA) */}
-            <div className="lg:col-span-2 bg-[#111] border border-emerald-500/20 rounded-2xl p-6 relative shadow-lg shadow-emerald-900/5">
-                <div className="flex items-center gap-3 mb-8 border-b border-white/5 pb-4">
-                    <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
-                        <Trophy size={24} />
-                    </div>
-                    <div>
-                        <h2 className="text-xl font-bold text-white">Gerenciar Sorteio</h2>
-                        <p className="text-xs text-gray-500">Siga os passos na ordem para finalizar a rodada.</p>
-                    </div>
-                </div>
-
-                {/* PASSO 1 */}
-                <div className="mb-6 p-5 bg-black/40 rounded-xl border border-white/5 hover:border-yellow-500/30 transition-colors group">
-                    <div className="flex justify-between items-center mb-3">
-                        <p className="text-sm text-yellow-500 font-bold flex items-center gap-2">
-                            <span className="bg-yellow-500/20 px-2 py-0.5 rounded text-xs">PASSO 1</span>
-                            FECHAR APOSTAS
-                        </p>
-                        <Lock size={16} className="text-gray-600 group-hover:text-yellow-500 transition-colors"/>
-                    </div>
-                    <p className="text-xs text-gray-500 mb-4">Impede novas apostas para iniciar a apuração.</p>
-                    <button onClick={handleCloseRound} disabled={isTxPending} className="bg-yellow-600 hover:bg-yellow-500 disabled:opacity-50 text-white px-4 py-2 rounded-lg font-bold text-sm flex items-center gap-2 transition-colors w-full sm:w-auto justify-center">
-                        FECHAR RODADA AGORA
+                <div className="flex items-center gap-3 md:gap-4">
+                    <button onClick={() => setShowSimulator(true)} className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20">
+                        <Calculator size={16} /> <span className="hidden sm:inline">Simulador</span>
                     </button>
+                    <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition px-3 py-2 rounded-lg hover:bg-white/5"><Home size={16} /><span className="hidden sm:inline">Início</span></Link>
+                    <ConnectButton showBalance={false} />
                 </div>
+            </div>
+          </nav>
 
-                {/* PASSO 2 */}
-                <div className="mb-6 p-5 bg-black/40 rounded-xl border border-white/5 hover:border-emerald-500/30 transition-colors">
-                    <div className="flex justify-between items-center mb-3">
-                        <p className="text-sm text-emerald-500 font-bold flex items-center gap-2">
-                             <span className="bg-emerald-500/20 px-2 py-0.5 rounded text-xs">PASSO 2</span>
-                             INSERIR RESULTADOS
-                        </p>
-                    </div>
-                    <p className="text-xs text-gray-500 mb-4">Digite os 5 milhares da Loteria Federal (ex: 5432).</p>
-                    
-                    <div className="grid grid-cols-5 gap-2 mb-4">
-                        {manualResults.map((val, index) => (
-                            <div key={index} className="flex flex-col gap-1">
-                                <label className="text-[10px] text-gray-500 text-center">{index+1}º Prêmio</label>
-                                <input 
-                                    type="text" 
-                                    placeholder="0000" 
-                                    maxLength={4} 
-                                    className="bg-black border border-gray-700 rounded-lg p-2 text-center text-white font-mono focus:border-emerald-500 outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
-                                    value={val} 
-                                    onChange={(e) => updateResultValue(index, e.target.value)} 
-                                />
+          <div className="container mx-auto p-4 mt-20 md:mt-28 flex justify-center">
+            <div className="w-full max-w-4xl">
+                <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-[#D4A373] opacity-50 blur-sm"></div>
+
+                    <div className="bg-[#0f0f0f] p-5 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
+                            <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-white/5">
+                            <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>
+                                <span>BÁSICO ($1.00)</span>
+                                <span className="text-[9px] opacity-80 mt-1">
+                                    ≈ {(1.00 / ethPriceUSD).toFixed(5)} ETH
+                                </span>
+                            </button>
+                            <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}>
+                                <span>INTER-BET ($170.00)</span>
+                                <span className="text-[9px] opacity-80 mt-1">
+                                    ≈ {(170.00 / ethPriceUSD).toFixed(4)} ETH
+                                </span>
+                            </button>
                             </div>
-                        ))}
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 bg-green-900/10 px-3 py-1 rounded-full border border-green-900/20"><ShieldCheck size={12} /> Matriz Segura (1-25)</div>
                     </div>
-                    <button onClick={handleDefineResult} disabled={isTxPending} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold py-3 rounded-lg flex justify-center items-center gap-2 shadow-lg shadow-emerald-900/20 transition-all active:scale-[0.99]">
-                        {isTxPending ? <Loader2 className="animate-spin" /> : <Trophy size={18} />} 
-                        PROCESSAR PREMIAÇÃO NA BLOCKCHAIN
-                    </button>
-                </div>
 
-                 {/* PASSO 3 */}
-                 <div className="pt-6 border-t border-white/10 flex justify-between items-center">
-                    <div>
-                         <p className="text-sm text-blue-400 font-bold mb-1">PASSO 3: Próximo Ciclo</p>
-                         <p className="text-xs text-gray-500">Zera a rodada e libera novas apostas.</p>
-                    </div>
-                    <button onClick={handleStartNext} disabled={isTxPending} className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-bold text-sm shadow-lg shadow-blue-900/20 transition-transform active:scale-95">
-                        INICIAR NOVA RODADA
-                    </button>
-                </div>
-            </div>
-
-            {/* PAINEL DO SISTEMA (DIREITA) */}
-            <div className="space-y-4">
-                <div className="bg-[#111] p-6 rounded-2xl border border-white/5 h-full">
-                    <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                        <Settings className="text-gray-400" size={20} /> 
-                        Controles do Sistema
-                    </h3>
-                    
-                    <div className="space-y-4">
-                        <div>
-                            <p className="text-xs text-gray-500 mb-2 font-bold uppercase">Emergência</p>
-                            <button onClick={handleTogglePause} disabled={isTxPending} className={`w-full py-3 rounded-lg text-xs font-bold flex justify-between px-4 border transition-all ${Boolean(isPausedData) ? 'bg-green-600 border-green-500 text-white hover:bg-green-500' : 'bg-red-900/20 border-red-900/50 text-red-400 hover:bg-red-900/40'}`}>
-                                <span>{Boolean(isPausedData) ? "DESPAUSAR SISTEMA" : "PAUSAR TUDO (EMERGÊNCIA)"}</span>
-                                <Pause size={14} />
-                            </button>
+                    <div className="p-6 md:p-8">
+                        <div className="mb-8">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                                {[1, 2, 3, 4, 5].map((premio) => (
+                                    <div key={premio} className="bg-[#0a0a0a] p-3 pb-4 rounded-xl border border-white/5 hover:border-[#D4A373]/30 transition-colors group flex flex-col items-center justify-center relative shadow-inner">
+                                        <span className="absolute -top-2.5 bg-[#151515] px-2 text-[9px] text-gray-500 font-bold uppercase border border-white/5 rounded-full group-hover:text-[#D4A373] transition-colors">{premio}º Prêmio</span>
+                                        <div className="flex items-center gap-1 mt-1">
+                                            <input type="text" inputMode="numeric" value={palpites[premio].x} onChange={(e) => handleChange(premio, 'x', e.target.value)} maxLength={2} className="w-10 h-10 bg-[#1a1a1a] border border-white/10 rounded text-center font-mono text-lg text-white focus:border-[#D4A373] focus:ring-1 focus:ring-[#D4A373] focus:outline-none" placeholder="X" />
+                                            <span className="text-gray-700 font-thin text-xl">/</span>
+                                            <input type="text" inputMode="numeric" value={palpites[premio].y} onChange={(e) => handleChange(premio, 'y', e.target.value)} maxLength={2} className="w-10 h-10 bg-[#1a1a1a] border border-white/10 rounded text-center font-mono text-lg text-white focus:border-[#D4A373] focus:ring-1 focus:ring-[#D4A373] focus:outline-none" placeholder="Y" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
-                        <div className="pt-4 border-t border-white/5">
-                            <p className="text-xs text-gray-500 mb-2 font-bold uppercase">Financeiro</p>
-                            <button onClick={handleWithdraw} disabled={isTxPending} className="w-full bg-slate-800 hover:bg-slate-700 text-white py-3 rounded-lg text-xs font-bold flex justify-between px-4 border border-white/5 transition-colors">
-                                <span>SACAR TAXAS ACUMULADAS</span>
-                                <Wallet size={14} className="text-emerald-500"/>
+                        <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-5 relative mb-8">
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
+                                <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
+                        </div>
+
+                        <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-3 bg-[#D4A373]/5 px-4 py-3 rounded-lg border border-[#D4A373]/10 w-full md:w-auto justify-center">
+                                <span className="text-[#D4A373] text-xs uppercase font-bold">Retorno Estimado:</span>
+                                <span className="text-white font-mono font-bold text-lg">{valorBonusEstimado}</span>
+                            </div>
+                            <button 
+                                onClick={handleConfirm}
+                                disabled={!isFormValid || isPending || isConfirming}
+                                className={`flex-1 w-full h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all ${isFormValid && !isPending && !isConfirming ? 'bg-gradient-to-r from-[#D4A373] to-[#b08255] text-black hover:scale-[1.01]' : 'bg-[#222] text-gray-500 cursor-not-allowed'}`}
+                            >
+                                {isPending ? ( <><Loader2 size={20} className="animate-spin" /> ENVIANDO...</> ) : isConfirming ? ( <><Loader2 size={20} className="animate-spin" /> VALIDANDO...</> ) : ( <>CONFIRMAR (~{custoEmEth} ETH) <ChevronRight size={20} className="bg-black/10 rounded-full p-0.5" /></> )}
                             </button>
-                             <p className="text-[10px] text-gray-600 mt-2 text-center">Envia todo o saldo de taxas para o Admin.</p>
                         </div>
                     </div>
                 </div>
             </div>
+          </div>
       </div>
-    </div>
-  )
+    </main>
+  );
+}
+
+// CORREÇÃO: Adicionado 'props: any' para satisfazer o TypeScript da Vercel
+export default function ApostasPage(props: any) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
+        <ApostasContent />
+    </Suspense>
+  );
 }
