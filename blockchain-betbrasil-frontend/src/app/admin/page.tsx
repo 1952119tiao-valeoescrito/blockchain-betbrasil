@@ -6,16 +6,15 @@ import Image from 'next/image'
 import { Settings, Key, Pause, Wallet, Loader2, Trophy, Lock } from 'lucide-react'
 import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
 import { formatEther } from 'viem'
-// IMPORTANTE: Certifique-se que este arquivo existe e tem o ENDEREÇO + ABI corretos
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 export default function PainelAdmin() {
   const { address, isConnected } = useAccount();
   const { writeContract, isPending: isTxPending } = useWriteContract();
   
-  // --- LEITURAS DE DADOS DA BLOCKCHAIN ---
+  // --- LEITURAS ---
   const { data: isPausedData } = useReadContract({
-    address: CONTRACT_ADDRESS, // Agora usa a constante fixa
+    address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'paused',
   });
@@ -30,27 +29,24 @@ export default function PainelAdmin() {
     address: CONTRACT_ADDRESS,
   });
 
-  // --- ESTADOS LOCAIS ---
+  // --- ESTADOS ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [manualResults, setManualResults] = useState<string[]>(['', '', '', '', '']);
 
-  // --- FUNÇÃO DE LOGIN FAKE (APENAS FRONTEND) ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (accessKey !== 'ADMIN-B3-MASTER') {
         setErrorMsg('Chave incorreta.');
         setAccessKey('');
-        alert('Chave incorreta'); // Feedback visual simples
+        alert('Chave incorreta');
         return;
     }
     setIsAuthenticated(true);
   }
 
-  // --- AÇÕES DO CONTRATO (ESCRITA) ---
-  
-  // 1. Pausar / Despausar o Sistema
+  // --- AÇÕES ---
   const handleTogglePause = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -59,7 +55,6 @@ export default function PainelAdmin() {
     });
   };
 
-  // 2. Fechar as Apostas (Ninguém aposta mais nessa rodada)
   const handleCloseRound = () => {
     writeContract({
         address: CONTRACT_ADDRESS,
@@ -68,14 +63,12 @@ export default function PainelAdmin() {
     });
   };
 
-  // 3. Definir o Resultado (Calcula os ganhadores e paga)
   const handleDefineResult = () => {
     if(manualResults.some(val => val.trim() === '')) {
         alert("Preencha todos os 5 prêmios!");
         return;
     }
 
-    // Lógica para transformar Milhar (ex: 6553) em Grupo do Bicho (ex: 14)
     const processPrize = (numStr: string) => {
         const milharNum = parseInt(numStr);
         if (isNaN(milharNum)) throw new Error("Número inválido");
@@ -95,10 +88,8 @@ export default function PainelAdmin() {
             finalArray.push(g1, g2);
         });
 
-        console.log("Enviando (definirResultado):", finalArray);
-
         writeContract({
-            address: CONTRACT_ADDRESS, // O pulo do gato: endereço explícito
+            address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'definirResultado',
             args: [finalArray as any], 
@@ -110,7 +101,6 @@ export default function PainelAdmin() {
     }
   };
 
-  // 4. Iniciar Nova Rodada (Reseta tudo para o próximo sorteio)
   const handleStartNext = () => {
      if(confirm("Tem certeza que deseja iniciar uma nova rodada?")) {
         writeContract({
@@ -121,7 +111,6 @@ export default function PainelAdmin() {
      }
   }
 
-  // 5. Sacar Lucros (Taxas acumuladas)
   const handleWithdraw = () => {
     const amount = prompt("Quantidade em WEI para sacar (ex: 1000000000000000000 = 1 ETH):");
     if(amount) {
@@ -135,9 +124,7 @@ export default function PainelAdmin() {
   };
 
   const updateResultValue = (index: number, value: string) => {
-    // Apenas números
     if (!/^\d*$/.test(value)) return;
-    
     const newResults = [...manualResults];
     newResults[index] = value;
     setManualResults(newResults);
@@ -146,8 +133,8 @@ export default function PainelAdmin() {
   // --- TELA DE LOGIN ---
   if (!isAuthenticated) {
     return (
-        // Adicionado 'pt-20' para descer a tela de login também
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans pt-20">
+        // Aumentei aqui também: pt-32
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans pt-32">
              <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl p-8 text-center shadow-2xl shadow-red-900/10">
                 <div className="w-20 h-20 mx-auto mb-6 bg-black rounded-xl border border-white/10 flex items-center justify-center">
                     <Lock className="text-red-500" size={32} />
@@ -178,9 +165,11 @@ export default function PainelAdmin() {
 
   // --- DASHBOARD ADMIN ---
   return (
-    // ADICIONADO AQUI: 'pt-24' para o painel principal descer
-    <div className="min-h-screen bg-[#050505] text-slate-200 font-sans p-4 md:p-8 pt-24">
+    // MUDANÇA AQUI: pt-32 (celular) e md:pt-40 (desktop)
+    <div className="min-h-screen bg-[#050505] text-slate-200 font-sans p-4 md:p-8 pt-32 md:pt-40">
+      
       {isTxPending && (
+          // Ajustei o loading para não ficar escondido
           <div className="fixed top-24 right-4 bg-blue-600 text-white px-6 py-4 rounded-xl z-[60] shadow-2xl flex items-center gap-3 animate-bounce shadow-blue-500/20">
               <Loader2 className="animate-spin" size={24} />
               <div className="flex flex-col">

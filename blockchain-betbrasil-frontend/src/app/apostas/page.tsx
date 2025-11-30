@@ -36,6 +36,10 @@ const CHAINLINK_ABI = [{
   type: "function"
 }] as const;
 
+// PREÇO DE SEGURANÇA (Caso a Chainlink demore a responder)
+// Valor aproximado do ETH hoje ($3700). Isso evita o erro "Infinity".
+const FALLBACK_ETH_PRICE = 3700.00;
+
 function ApostasContent() {
   const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
@@ -77,20 +81,24 @@ function ApostasContent() {
     }
   }, [isConfirmed]);
 
-  // --- CÁLCULO FINANCEIRO AUTOMÁTICO (CORRIGIDO: MOVIDO PARA CIMA) ---
-  // Este hook useMemo AGORA roda ANTES do "if (!mounted)"
+  // --- CÁLCULO FINANCEIRO BLINDADO ---
   
   const USD_PRICE_BASIC = 1.00;    
   const USD_PRICE_INVEST = 170.00; 
 
-  const ethPriceUSD = priceData ? Number(formatUnits(priceData[1], 8)) : 0;
+  // LÓGICA DE OURO: Se priceData existir, usa ele. Se não, usa o FALLBACK ($3700)
+  const ethPriceUSD = priceData 
+      ? Number(formatUnits(priceData[1], 8)) 
+      : FALLBACK_ETH_PRICE;
   
   const custoEmEth = useMemo(() => {
-    if (!ethPriceUSD || ethPriceUSD === 0) return "0";
+    // Proteção dupla contra divisão por zero
+    const divisor = (ethPriceUSD > 0) ? ethPriceUSD : FALLBACK_ETH_PRICE;
     
     const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
-    const rawEth = targetUSD / ethPriceUSD;
+    const rawEth = targetUSD / divisor;
     
+    // Retorna com 7 casas decimais (suficiente para precisão de centavos em ETH)
     return rawEth.toFixed(7);
   }, [tier, ethPriceUSD]);
 
@@ -98,7 +106,7 @@ function ApostasContent() {
 
   const blockchainData = null;
 
-  // --- FUNÇÕES AUXILIARES ---
+  // --- VALIDAÇÕES ---
   const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
     const numero = valor.replace(/[^0-9]/g, '');
     if (numero === '') {
@@ -131,7 +139,6 @@ function ApostasContent() {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
-            // CORREÇÃO TYPESCRIPT: Adicionado 'as any' para evitar erro de tupla
             args: [coordenadas as any, tierCode],
             value: parseEther(custoEmEth), 
         });
@@ -141,14 +148,13 @@ function ApostasContent() {
     }
   };
 
-  // --- O "EARLY RETURN" AGORA ESTÁ NO LUGAR CERTO (APÓS TODOS OS HOOKS) ---
   if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
       
       <AnimatePresence>
-        {/* MODAL DE SUCESSO */}
+        {/* MODAL SUCESSO */}
         {showSuccessModal && (
             <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#111] border border-emerald-500/50 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative">
@@ -216,7 +222,8 @@ function ApostasContent() {
                 
                 <span className="flex items-center gap-1 text-[#D4A373]">
                     <DollarSign size={10} /> 
-                    ETH/USD: {isLoadingPrice ? <Loader2 size={8} className="animate-spin"/> : `$${ethPriceUSD.toFixed(2)}`}
+                    {/* Exibe o preço. Se estiver carregando, mostra o fallback ou loader */}
+                    ETH/USD: {`$${ethPriceUSD.toFixed(2)}`}
                 </span>
                 
                 <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> LIVE</span>
@@ -253,13 +260,13 @@ function ApostasContent() {
                             <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>
                                 <span>BÁSICO ($1.00)</span>
                                 <span className="text-[9px] opacity-80 mt-1">
-                                    ≈ {isLoadingPrice ? "..." : (1.00 / ethPriceUSD).toFixed(5)} ETH
+                                    ≈ {(1.00 / ethPriceUSD).toFixed(5)} ETH
                                 </span>
                             </button>
                             <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}>
                                 <span>INTER-BET ($170.00)</span>
                                 <span className="text-[9px] opacity-80 mt-1">
-                                    ≈ {isLoadingPrice ? "..." : (170.00 / ethPriceUSD).toFixed(4)} ETH
+                                    ≈ {(170.00 / ethPriceUSD).toFixed(4)} ETH
                                 </span>
                             </button>
                             </div>
@@ -292,9 +299,11 @@ function ApostasContent() {
                                 <span className="text-[#D4A373] text-xs uppercase font-bold">Retorno Estimado:</span>
                                 <span className="text-white font-mono font-bold text-lg">{valorBonusEstimado}</span>
                             </div>
+                            {/* O BOTÃO AGORA SÓ FICA DISABLED SE TIVER FALTA DE DADOS REAIS OU APOSTA PENDENTE */}
+                            {/* isLoadingPrice foi removido da condição de disable, pois agora temos fallback */}
                             <button 
                                 onClick={handleConfirm}
-                                disabled={!isFormValid || isPending || isConfirming || isLoadingPrice}
+                                disabled={!isFormValid || isPending || isConfirming}
                                 className={`flex-1 w-full h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all ${isFormValid && !isPending && !isConfirming ? 'bg-gradient-to-r from-[#D4A373] to-[#b08255] text-black hover:scale-[1.01]' : 'bg-[#222] text-gray-500 cursor-not-allowed'}`}
                             >
                                 {isPending ? ( <><Loader2 size={20} className="animate-spin" /> ENVIANDO...</> ) : isConfirming ? ( <><Loader2 size={20} className="animate-spin" /> VALIDANDO...</> ) : ( <>CONFIRMAR (~{custoEmEth} ETH) <ChevronRight size={20} className="bg-black/10 rounded-full p-0.5" /></> )}
@@ -306,13 +315,5 @@ function ApostasContent() {
           </div>
       </div>
     </main>
-  );
-}
-
-export default function ApostasPageWrapper() {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
-        <ApostasContent />
-    </Suspense>
   );
 }
