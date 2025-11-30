@@ -146,7 +146,8 @@ export default function PainelAdmin() {
   // --- TELA DE LOGIN ---
   if (!isAuthenticated) {
     return (
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
+        // Adicionado 'pt-20' para descer a tela de login também
+        <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans pt-20">
              <div className="max-w-md w-full bg-[#111] border border-red-900/30 rounded-2xl p-8 text-center shadow-2xl shadow-red-900/10">
                 <div className="w-20 h-20 mx-auto mb-6 bg-black rounded-xl border border-white/10 flex items-center justify-center">
                     <Lock className="text-red-500" size={32} />
@@ -177,9 +178,10 @@ export default function PainelAdmin() {
 
   // --- DASHBOARD ADMIN ---
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-200 font-sans p-4 md:p-8">
+    // ADICIONADO AQUI: 'pt-24' para o painel principal descer
+    <div className="min-h-screen bg-[#050505] text-slate-200 font-sans p-4 md:p-8 pt-24">
       {isTxPending && (
-          <div className="fixed top-4 right-4 bg-blue-600 text-white px-6 py-4 rounded-xl z-[60] shadow-2xl flex items-center gap-3 animate-bounce shadow-blue-500/20">
+          <div className="fixed top-24 right-4 bg-blue-600 text-white px-6 py-4 rounded-xl z-[60] shadow-2xl flex items-center gap-3 animate-bounce shadow-blue-500/20">
               <Loader2 className="animate-spin" size={24} />
               <div className="flex flex-col">
                   <span className="font-bold text-sm">Transação Enviada</span>

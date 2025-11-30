@@ -5,7 +5,8 @@ import { ArrowLeft, Trophy, Gem, Gift, Star, DollarSign } from 'lucide-react';
 
 export default function PremiacaoPage() {
   return (
-    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 relative overflow-hidden pb-20">
+    // Adicionado 'pt-24' aqui para descer o conteúdo e não ficar atrás do menu
+    <div className="min-h-screen bg-slate-950 font-sans text-slate-100 relative overflow-hidden pb-20 pt-24">
       
       {/* FUNDO ANIMADO (Igual à Home) */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-slate-950 to-slate-950 -z-10"></div>
@@ -36,7 +37,7 @@ export default function PremiacaoPage() {
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3 relative z-10">
                     <span className="bg-emerald-500/20 p-2 rounded-lg text-emerald-400"><Trophy size={24} /></span>
                     Interação Básica
-                    <span className="ml-auto text-lg bg-emerald-500 text-black px-3 py-1 rounded-full font-black">1 USDC</span>
+                    <span className="ml-auto text-lg bg-emerald-500 text-black px-3 py-1 rounded-full font-black">~$1 USD</span>
                 </h2>
                 
                 <div className="overflow-hidden rounded-xl border border-white/10 relative z-10">
@@ -74,7 +75,7 @@ export default function PremiacaoPage() {
                 <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3 relative z-10">
                     <span className="bg-purple-500/20 p-2 rounded-lg text-purple-400"><Gem size={24} /></span>
                     Inter-Bet
-                    <span className="ml-auto text-lg bg-purple-500 text-white px-3 py-1 rounded-full font-black">170 USDC</span>
+                    <span className="ml-auto text-lg bg-purple-500 text-white px-3 py-1 rounded-full font-black">~$170 USD</span>
                 </h2>
                 
                 <div className="overflow-hidden rounded-xl border border-white/10 relative z-10">
@@ -126,19 +127,19 @@ export default function PremiacaoPage() {
                 <div className="bg-black/40 p-6 rounded-2xl border border-amber-500/20 hover:border-amber-500/40 transition-colors">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="bg-amber-500/20 p-2 rounded-lg text-amber-400"><DollarSign size={20} /></div>
-                        <h3 className="font-bold text-white text-lg">Cashback Imediato</h3>
+                        <h3 className="font-bold text-white text-lg">Cashback Imediato (ETH)</h3>
                     </div>
                     <div className="space-y-3">
                         <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                             <span className="text-slate-400 text-sm">Aposta Básica</span>
-                            <span className="font-bold text-amber-400 font-mono">0.125 USDC</span>
+                            <span className="font-bold text-amber-400 font-mono">~$0.12 USD</span>
                         </div>
                         <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg">
                             <span className="text-slate-400 text-sm">Inter-Bet</span>
-                            <span className="font-bold text-amber-400 font-mono">21.25 USDC</span>
+                            <span className="font-bold text-amber-400 font-mono">~$21.25 USD</span>
                         </div>
                     </div>
-                    <p className="text-xs text-slate-500 mt-3">* Creditado automaticamente no saldo virtual.</p>
+                    <p className="text-xs text-slate-500 mt-3">* Devolvido em ETH automaticamente para sua carteira.</p>
                 </div>
                 
                 {/* FREE BET */}
@@ -160,7 +161,7 @@ export default function PremiacaoPage() {
                     <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
                         <div className="bg-green-500 h-full w-2/3 animate-pulse"></div>
                     </div>
-                    <p className="text-xs text-center text-slate-500 mt-2">Barra de progresso pessoal no painel.</p>
+                    <p className="text-xs text-center text-slate-500 mt-2">O sistema usa seu saldo de Free Bets automaticamente na próxima rodada.</p>
                 </div>
             </div>
         </div>
