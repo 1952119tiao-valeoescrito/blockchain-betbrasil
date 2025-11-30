@@ -32,7 +32,7 @@ export default function Navbar() {
               className="rounded-lg"
             />
             <span className="font-bold text-white tracking-tighter hidden sm:block">
-              BET<span className="text-amber-500">BRASIL</span>
+              BLOCKCHAIN-BET<span className="text-amber-500">BRASIL</span>
             </span>
           </Link>
 

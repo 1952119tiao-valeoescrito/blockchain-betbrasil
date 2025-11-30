@@ -7,7 +7,7 @@ import {
   ShieldCheck, 
   Trophy, 
   Zap, 
-  Home, // 👈 O ÍCONE QUE FALTAVA ESTÁ AQUI AGORA
+  Home, // 👈 Ícone Home devidamente importado
   Activity, 
   Lock, 
   ChevronRight, 
@@ -215,7 +215,8 @@ function ApostasContent() {
             </div>
           </nav>
 
-          <div className="container mx-auto p-4 mt-8 flex justify-center">
+          {/* 👇 AQUI ESTÁ A MUDANÇA: Mudei de mt-8 para mt-24 */}
+          <div className="container mx-auto p-4 mt-24 flex justify-center">
             <div className="w-full max-w-4xl">
                 <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-[#D4A373] opacity-50 blur-sm"></div>
