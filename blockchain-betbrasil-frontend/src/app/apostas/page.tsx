@@ -17,21 +17,17 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { parseEther, formatUnits } from 'viem'; 
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
-// Componente Simulador
 import ResultSimulator from '../../components/ResultSimulator'; 
 
 // --- CONFIGURAÇÃO CHAINLINK (BASE MAINNET) ---
-// Contrato Oficial ETH/USD na rede Base
-// Documentação: https://docs.chain.link/data-feeds/price-feeds/addresses?network=base
 const CHAINLINK_FEED_ADDRESS = "0x71041dddad3595F745215C5809381D1338eF9256";
 
-// ABI Mínima para ler o preço (GAS FREE - Leitura)
 const CHAINLINK_ABI = [{
   inputs: [],
   name: "latestRoundData",
   outputs: [
     { name: "roundId", type: "uint80" },
-    { name: "answer", type: "int256" }, // O Preço vem aqui
+    { name: "answer", type: "int256" },
     { name: "startedAt", type: "uint256" },
     { name: "updatedAt", type: "uint256" },
     { name: "answeredInRound", type: "uint80" }
@@ -44,17 +40,16 @@ function ApostasContent() {
   const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
   
-  // Hooks de Escrita (Aposta) - ISSO GASTA GÁS (Pagamento do Usuário)
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  // Hook de Leitura (Chainlink) - ISSO NÃO GASTA GÁS (Grátis)
+  // Hook de Leitura (Chainlink)
   const { data: priceData, isLoading: isLoadingPrice } = useReadContract({
     address: CHAINLINK_FEED_ADDRESS,
     abi: CHAINLINK_ABI,
     functionName: 'latestRoundData',
     query: {
-        refetchInterval: 60000 // Atualiza a cotação a cada 1 minuto na tela
+        refetchInterval: 60000 
     }
   });
 
@@ -78,15 +73,32 @@ function ApostasContent() {
   useEffect(() => {
     if (isConfirmed) {
         setShowSuccessModal(true);
-        // Limpa os campos após sucesso
         setPalpites({ 1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' } });
     }
   }, [isConfirmed]);
 
+  // --- CÁLCULO FINANCEIRO AUTOMÁTICO (CORRIGIDO: MOVIDO PARA CIMA) ---
+  // Este hook useMemo AGORA roda ANTES do "if (!mounted)"
+  
+  const USD_PRICE_BASIC = 1.00;    
+  const USD_PRICE_INVEST = 170.00; 
+
+  const ethPriceUSD = priceData ? Number(formatUnits(priceData[1], 8)) : 0;
+  
+  const custoEmEth = useMemo(() => {
+    if (!ethPriceUSD || ethPriceUSD === 0) return "0";
+    
+    const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
+    const rawEth = targetUSD / ethPriceUSD;
+    
+    return rawEth.toFixed(7);
+  }, [tier, ethPriceUSD]);
+
+  const valorBonusEstimado = tier === 'BASIC' ? '125x (Retorno)' : '125x (Retorno)';
+
   const blockchainData = null;
 
-  if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
-
+  // --- FUNÇÕES AUXILIARES ---
   const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
     const numero = valor.replace(/[^0-9]/g, '');
     if (numero === '') {
@@ -100,33 +112,6 @@ function ApostasContent() {
   };
 
   const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
-
-  // --- CÁLCULO FINANCEIRO AUTOMÁTICO ---
-  
-  // 1. Definimos o preço fixo em DÓLAR
-  const USD_PRICE_BASIC = 1.00;    // $1.00
-  const USD_PRICE_INVEST = 170.00; // $170.00
-
-  // 2. Pegamos o preço do ETH atual da Chainlink (Ex: 3500.00)
-  // A Chainlink retorna com 8 casas decimais, por isso o formatUnits(..., 8)
-  const ethPriceUSD = priceData ? Number(formatUnits(priceData[1], 8)) : 0;
-  
-  // 3. Calculamos quanto ETH é necessário para bater o valor em Dólar
-  // UseMemo evita recálculos desnecessários
-  const custoEmEth = useMemo(() => {
-    if (!ethPriceUSD || ethPriceUSD === 0) return "0";
-    
-    const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
-    
-    // Matemática: Valor em Dólar / Preço do ETH
-    // Ex: $1.00 / $3500.00 = 0.00028571 ETH
-    const rawEth = targetUSD / ethPriceUSD;
-    
-    // Retorna string com 7 casas decimais para precisão no envio
-    return rawEth.toFixed(7);
-  }, [tier, ethPriceUSD]);
-
-  const valorBonusEstimado = tier === 'BASIC' ? '125x (Retorno)' : '125x (Retorno)';
 
   const handleConfirm = async () => {
     if (!isFormValid || !address || custoEmEth === "0") return;
@@ -146,8 +131,8 @@ function ApostasContent() {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
+            // CORREÇÃO TYPESCRIPT: Adicionado 'as any' para evitar erro de tupla
             args: [coordenadas as any, tierCode],
-            // Envia o valor exato em ETH calculado pela cotação atual
             value: parseEther(custoEmEth), 
         });
 
@@ -155,6 +140,9 @@ function ApostasContent() {
         console.error("Erro na transação:", error);
     }
   };
+
+  // --- O "EARLY RETURN" AGORA ESTÁ NO LUGAR CERTO (APÓS TODOS OS HOOKS) ---
+  if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
@@ -207,7 +195,6 @@ function ApostasContent() {
         )}
       </AnimatePresence>
 
-      {/* TELA DE BLOQUEIO (Carteira Desconectada) */}
       {!isConnected && (
         <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#151515] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
@@ -221,15 +208,12 @@ function ApostasContent() {
         </div>
       )}
 
-      {/* CONTEÚDO PRINCIPAL (Filtro Blur se desconectado) */}
       <div className={!isConnected ? 'filter blur-sm pointer-events-none select-none' : ''}>
           
-          {/* BARRA DE STATUS (Com Cotação Automática) */}
           <div className="bg-[#0a0a0a] border-b border-white/5 text-gray-500 text-[10px] md:text-xs font-mono py-2 overflow-hidden flex items-center justify-center">
             <div className="flex gap-4 md:gap-8 items-center opacity-80 whitespace-nowrap px-4">
                 <span className="flex items-center gap-1 text-emerald-500"><Activity size={10} /> BASE MAINNET</span>
                 
-                {/* MOSTRADOR DE PREÇO (GRÁTIS) */}
                 <span className="flex items-center gap-1 text-[#D4A373]">
                     <DollarSign size={10} /> 
                     ETH/USD: {isLoadingPrice ? <Loader2 size={8} className="animate-spin"/> : `$${ethPriceUSD.toFixed(2)}`}
@@ -266,7 +250,6 @@ function ApostasContent() {
 
                     <div className="bg-[#0f0f0f] p-5 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-white/5">
-                            {/* BOTÕES DE TIER (Mostram o valor em USD fixo e a conversão em ETH) */}
                             <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>
                                 <span>BÁSICO ($1.00)</span>
                                 <span className="text-[9px] opacity-80 mt-1">
@@ -284,7 +267,6 @@ function ApostasContent() {
                     </div>
 
                     <div className="p-6 md:p-8">
-                        {/* GRID DE INPUTS */}
                         <div className="mb-8">
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                                 {[1, 2, 3, 4, 5].map((premio) => (
@@ -300,13 +282,11 @@ function ApostasContent() {
                             </div>
                         </div>
 
-                        {/* INFO RODADA */}
                         <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-5 relative mb-8">
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
                                 <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
                         </div>
 
-                        {/* BOTÃO CONFIRMAR (Mostra valor exato em ETH) */}
                         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-3 bg-[#D4A373]/5 px-4 py-3 rounded-lg border border-[#D4A373]/10 w-full md:w-auto justify-center">
                                 <span className="text-[#D4A373] text-xs uppercase font-bold">Retorno Estimado:</span>
