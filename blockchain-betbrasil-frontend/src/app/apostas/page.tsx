@@ -146,7 +146,7 @@ function ApostasContent() {
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
-            args: [coordenadas, tierCode],
+            args: [coordenadas as any, tierCode],
             // Envia o valor exato em ETH calculado pela cotação atual
             value: parseEther(custoEmEth), 
         });
