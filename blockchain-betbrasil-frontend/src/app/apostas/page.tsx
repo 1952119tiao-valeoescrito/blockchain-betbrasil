@@ -7,7 +7,7 @@ import {
   ShieldCheck, 
   Trophy, 
   Zap, 
-  Home, // 👈 Ícone Home devidamente importado
+  Home, 
   Activity, 
   Lock, 
   ChevronRight, 
@@ -33,24 +33,20 @@ function ApostasContent() {
   const searchParams = useSearchParams();
   const { address, isConnected } = useAccount();
   
-  // Hooks de Escrita e Confirmação na Blockchain
+  // Hooks
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
   const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
-  
-  // Estado para evitar erro de hidratação do Next.js
   const [mounted, setMounted] = useState(false);
 
   const [palpites, setPalpites] = useState<{ [key: number]: { x: string, y: string } }>({
     1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' },
   });
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     const tierParam = searchParams.get('tier');
@@ -58,7 +54,6 @@ function ApostasContent() {
     else setTier('BASIC');
   }, [searchParams]);
 
-  // Limpa o formulário após sucesso
   useEffect(() => {
     if (isConfirmed) {
         setShowSuccessModal(true);
@@ -66,31 +61,27 @@ function ApostasContent() {
     }
   }, [isConfirmed]);
 
-  // No modo manual, não puxamos dados automáticos para o simulador por enquanto
   const blockchainData = null;
 
-  // Renderização condicional para evitar erros de servidor/cliente
   if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
   const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
-    const numero = valor.replace(/[^0-9]/g, ''); // Apenas números
+    const numero = valor.replace(/[^0-9]/g, '');
     if (numero === '') {
         setPalpites(prev => ({ ...prev, [premio]: { ...prev[premio], [campo]: '' } }));
         return;
     }
     const valInt = parseInt(numero);
-    // Validação 1 a 25 (Grupos do Bicho)
     if (valInt >= 1 && valInt <= 25) {
         setPalpites(prev => ({ ...prev, [premio]: { ...prev[premio], [campo]: valInt.toString() } }));
     }
   };
 
   const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
-  const valorBonus = tier === 'BASIC' ? '0.125 USDC' : '21.25 USDC'; // Valores ajustados para Dólar
+  const valorBonus = tier === 'BASIC' ? '0.125 USDC' : '21.25 USDC';
 
   const handleConfirm = async () => {
     if (!isFormValid || !address) return;
-
     try {
         const coordenadas = [
             parseInt(palpites[1].x), parseInt(palpites[1].y),
@@ -99,16 +90,13 @@ function ApostasContent() {
             parseInt(palpites[4].x), parseInt(palpites[4].y),
             parseInt(palpites[5].x), parseInt(palpites[5].y)
         ];
-
         const tierCode = tier === 'BASIC' ? 1 : 2;
-
         writeContract({
             address: CONTRACT_ADDRESS,
             abi: CONTRACT_ABI,
             functionName: 'realizarAplicacao',
             args: [coordenadas as any, tierCode],
         });
-
     } catch (error) {
         console.error("Erro ao enviar:", error);
     }
@@ -118,7 +106,6 @@ function ApostasContent() {
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
       
       <AnimatePresence>
-        {/* MODAL DE SUCESSO */}
         {showSuccessModal && (
             <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
                 <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-[#111] border border-emerald-500/50 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative">
@@ -130,7 +117,6 @@ function ApostasContent() {
                         <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
                         <div className="flex items-center justify-between">
                             <p className="text-emerald-400 font-mono text-xs truncate mr-2">{hash}</p>
-                            {/* LINK PARA BASESCAN (MAINNET) */}
                             <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
                                 <ExternalLink size={14} />
                             </a>
@@ -141,7 +127,6 @@ function ApostasContent() {
             </div>
         )}
 
-        {/* MODAL DO SIMULADOR */}
         {showSimulator && (
             <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
                 <motion.div 
@@ -166,7 +151,6 @@ function ApostasContent() {
         )}
       </AnimatePresence>
 
-      {/* BLOQUEIO SE CARTEIRA NÃO CONECTADA */}
       {!isConnected && (
         <div className="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
             <div className="bg-[#151515] border border-white/10 rounded-2xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
@@ -191,7 +175,13 @@ function ApostasContent() {
             </div>
           </div>
 
-          <nav className="border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-50">
+          {/* 
+              👇 AQUI ESTÁ A MUDANÇA DA BARRA:
+              - 'top-16' (para não ficar atrás do menu principal)
+              - 'mt-6' (para descer um pouco e desgrudar do topo)
+              - 'z-40' (para ficar abaixo do menu principal se rolar)
+          */}
+          <nav className="border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-16 z-40 mt-6">
             <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="hover:scale-105 transition-transform">
@@ -215,8 +205,8 @@ function ApostasContent() {
             </div>
           </nav>
 
-          {/* 👇 AQUI ESTÁ A MUDANÇA: Mudei de mt-8 para mt-24 */}
-          <div className="container mx-auto p-4 mt-24 flex justify-center">
+          {/* CONTEÚDO PRINCIPAL (Já com o espaçamento ajustado antes) */}
+          <div className="container mx-auto p-4 mt-20 md:mt-28 flex justify-center">
             <div className="w-full max-w-4xl">
                 <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-[#D4A373] opacity-50 blur-sm"></div>
@@ -273,14 +263,9 @@ function ApostasContent() {
   );
 }
 
-// --- PÁGINA PRINCIPAL COM SUSPENSE ---
 export default function ApostasPageWrapper() {
   return (
-    <Suspense fallback={
-        <div className="min-h-screen bg-[#050505] flex items-center justify-center">
-            <Loader2 className="animate-spin text-[#D4A373]" size={40} />
-        </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
         <ApostasContent />
     </Suspense>
   );
