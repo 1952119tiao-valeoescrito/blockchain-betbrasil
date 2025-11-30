@@ -311,7 +311,13 @@ function ApostasContent() {
 }
 
 // CORREÇÃO: Adicionado 'props: any' para satisfazer o TypeScript da Vercel
-export default function ApostasPage(props: any) {
+export default function ApostasPage({
+  params,
+  searchParams,
+}: {
+  params: { slug: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
         <ApostasContent />
