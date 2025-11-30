@@ -1,11 +1,23 @@
-// Certifique-se que o endereço está certo!
+// ENDEREÇO DO CONTRATO
 export const CONTRACT_ADDRESS = "0x7a3FF967aA0de97F3bDD334a94bc52A2F0f916Cf";
 
 export const CONTRACT_ABI = [
-  // --- LEITURAS ---
+  // --- 1. FUNÇÕES DO JOGADOR (Essa era a que faltava!) ---
+  {
+    "inputs": [
+      { "internalType": "uint8[10]", "name": "_coords", "type": "uint8[10]" },
+      { "internalType": "uint8", "name": "_tier", "type": "uint8" }
+    ],
+    "name": "realizarAplicacao", // <--- VOLTOU!
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+
+  // --- 2. LEITURAS ---
   {
     "inputs": [],
-    "name": "rodadaAtualId", // Nome exato do contrato
+    "name": "rodadaAtualId",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
@@ -25,10 +37,10 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
 
-  // --- AÇÕES DO ADMIN (PORTUGUÊS) ---
+  // --- 3. AÇÕES DO ADMIN ---
   {
     "inputs": [],
-    "name": "fecharRodada", // <--- IMPORTANTE: Tem que fechar antes de definir
+    "name": "fecharRodada",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -55,7 +67,7 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
   
-  // --- PAUSE/UNPAUSE (Padrão OpenZeppelin - Inglês) ---
+  // --- 4. PAUSE/UNPAUSE ---
   {
     "inputs": [],
     "name": "pause",
