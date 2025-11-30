@@ -1,16 +1,16 @@
 // ENDEREÇO DO CONTRATO
-export const CONTRACT_ADDRESS = "0x7a3FF967aA0de97F3bDD334a94bc52A2F0f916Cf";
+export const CONTRACT_ADDRESS = "0x3314c45a23073B73622F24de03985Cd8220D52Fb";
 
 export const CONTRACT_ABI = [
-  // --- 1. FUNÇÕES DO JOGADOR (Essa era a que faltava!) ---
+  // --- 1. FUNÇÕES DO JOGADOR ---
   {
     "inputs": [
       { "internalType": "uint8[10]", "name": "_coords", "type": "uint8[10]" },
       { "internalType": "uint8", "name": "_tier", "type": "uint8" }
     ],
-    "name": "realizarAplicacao", // <--- VOLTOU!
+    "name": "realizarAplicacao",
     "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "payable", // <--- MUDANÇA CRUCIAL: AGORA ACEITA PAGAMENTO (ETH)
     "type": "function"
   },
 
