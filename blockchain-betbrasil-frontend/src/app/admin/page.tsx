@@ -7,14 +7,23 @@ import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi
 import { formatEther } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi'
 
-// Tipagem para o retorno da struct Rodada
+// Mapeamento exato da Struct Rodada do contrato:
+// struct Rodada {
+//    uint256 id; (Index 0)
+//    bool aberta; (Index 1)
+//    bool finalizada; (Index 2)
+//    uint256 totalArrecadadoBasic; (Index 3)
+//    uint256 totalArrecadadoInvest; (Index 4)
+//    uint8[10] resultadoSorteado; (Index 5)
+//    uint256 timestampInicio; (Index 6)
+// }
 type RodadaData = [bigint, boolean, boolean, bigint, bigint, readonly number[], bigint];
 
 export default function PainelAdmin() {
   const { address, isConnected } = useAccount();
   const { writeContract, isPending: isTxPending, isSuccess: isTxSuccess } = useWriteContract();
   
-  // -- ESTADOS LOCAIS --
+  // -- ESTADOS DE UI --
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessKey, setAccessKey] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -22,7 +31,7 @@ export default function PainelAdmin() {
     p1: '', p2: '', p3: '', p4: '', p5: ''
   });
 
-  // -- LEITURAS DA BLOCKCHAIN --
+  // -- LEITURAS DO CONTRATO --
 
   // 1. Status de Pausa
   const { data: isPausedData, refetch: refetchPause } = useReadContract({
@@ -38,9 +47,7 @@ export default function PainelAdmin() {
     functionName: 'rodadaAtualId',
   });
 
-  // 3. Dados da Rodada (Mapping)
-  // CORREÇÃO DO ERRO: Usamos 'as any' na ABI aqui para impedir que o TypeScript
-  // reclame que a função 'rodadas' não existe no arquivo JSON da ABI.
+  // 3. Dados da Rodada (usando 'as any' na ABI para evitar erro de build se o JSON estiver incompleto)
   const { data: rawRodadaData, refetch: refetchRodada } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI as any, 
@@ -58,20 +65,21 @@ export default function PainelAdmin() {
     address: CONTRACT_ADDRESS,
   });
 
-  // Atualizar dados após transação
+  // -- EFEITOS --
   useEffect(() => {
     if (isTxSuccess) {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             refetchPause();
             refetchRoundId();
             refetchRodada();
             refetchBalance();
         }, 3000);
+        return () => clearTimeout(timer);
     }
   }, [isTxSuccess, refetchPause, refetchRoundId, refetchRodada, refetchBalance]);
 
 
-  // -- HANDLERS (AÇÕES) --
+  // -- FUNÇÕES (HANDLERS) --
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,7 +90,7 @@ export default function PainelAdmin() {
         setErrorMsg('Chave de acesso inválida.');
         setAccessKey('');
     }
-  }
+  };
 
   const handleTogglePause = () => {
     writeContract({
@@ -108,7 +116,7 @@ export default function PainelAdmin() {
             abi: CONTRACT_ABI,
             functionName: 'iniciarNovaRodada',
         });
-  }
+  };
 
   const handleWithdraw = () => {
     const amount = prompt("Quantidade em WEI para sacar (Cuidado com os zeros!):");
@@ -129,6 +137,7 @@ export default function PainelAdmin() {
         return;
     }
 
+    // Lógica Matemática do Sorteio (Loteria Federal -> Coordenadas 1-25)
     const processPrize = (numStr: string) => {
         const milharNum = parseInt(numStr);
         let d1 = Math.floor(milharNum / 100) % 100; if(d1===0) d1=100;
@@ -148,7 +157,6 @@ export default function PainelAdmin() {
         
         const finalArray = [...r1, ...r2, ...r3, ...r4, ...r5];
         
-        // Também usamos 'as any' aqui para garantir que o array passe sem erro de tipagem estrita
         if(confirm(`Confirmar Resultado Gerado: ${finalArray.join(', ')}?`)) {
             writeContract({
                 address: CONTRACT_ADDRESS,
@@ -164,7 +172,7 @@ export default function PainelAdmin() {
     }
   };
 
-  // -- RENDER: TELA DE LOGIN --
+  // -- RENDERIZAÇÃO: TELA DE LOGIN --
   if (!isAuthenticated) {
     return (
         <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 font-sans">
@@ -205,14 +213,16 @@ export default function PainelAdmin() {
                 </form>
             </div>
         </div>
-    )
+    );
   }
 
-  // -- RENDER: PAINEL PRINCIPAL --
+  // -- PREPARAÇÃO DE DADOS PARA O DASHBOARD --
   const isRodadaAberta = rodadaData ? rodadaData[1] : false;
   const isRodadaFinalizada = rodadaData ? rodadaData[2] : false;
+  // Somando Basic [3] + Invest [4] conforme struct
   const totalArrecadado = rodadaData ? (rodadaData[3] + rodadaData[4]) : BigInt(0);
 
+  // -- RENDERIZAÇÃO: PAINEL PRINCIPAL --
   return (
     <div className="min-h-screen bg-[#050505] text-slate-200 font-sans pb-20">
       
@@ -251,6 +261,7 @@ export default function PainelAdmin() {
 
       <main className="container mx-auto p-4 md:p-8 space-y-8">
         
+        {/* CARDS DE STATUS */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="bg-[#111] p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
                 <div className="flex justify-between items-start mb-2">
@@ -285,7 +296,7 @@ export default function PainelAdmin() {
 
             <div className="bg-[#111] p-5 rounded-2xl border border-white/5 hover:border-white/10 transition-colors">
                 <div className="flex justify-between items-start mb-2">
-                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Arrecadado (Atual)</p>
+                    <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Arrecadado (Total)</p>
                     <Trophy size={14} className="text-yellow-500" />
                 </div>
                 <p className="text-2xl font-bold text-white font-mono">
@@ -294,10 +305,12 @@ export default function PainelAdmin() {
             </div>
         </div>
 
+        {/* ÁREA DE CONTROLE (FLUXO DO JOGO) */}
         <div className="grid lg:grid-cols-3 gap-6">
             
             <div className="lg:col-span-2 space-y-6">
                 
+                {/* Passo 1: Fechar */}
                 <div className={`rounded-2xl p-6 border transition-all ${isRodadaAberta ? 'bg-[#111] border-orange-500/30 shadow-lg shadow-orange-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 font-bold text-sm">1</div>
@@ -314,6 +327,7 @@ export default function PainelAdmin() {
                     </button>
                 </div>
 
+                {/* Passo 2: Apurar (Definir Resultado) */}
                 <div className={`rounded-2xl p-6 border transition-all ${(!isRodadaAberta && !isRodadaFinalizada) ? 'bg-[#111] border-emerald-500/30 shadow-lg shadow-emerald-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                     <div className="flex justify-between items-start mb-6">
                          <div className="flex items-center gap-3">
@@ -350,6 +364,7 @@ export default function PainelAdmin() {
                     </button>
                 </div>
 
+                {/* Passo 3: Nova Rodada */}
                 <div className={`rounded-2xl p-6 border transition-all ${isRodadaFinalizada ? 'bg-[#111] border-blue-500/30 shadow-lg shadow-blue-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                      <div className="flex items-center gap-3 mb-4">
                         <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-sm">3</div>
@@ -368,6 +383,7 @@ export default function PainelAdmin() {
 
             </div>
 
+            {/* ÁREA DE EMERGÊNCIA */}
             <div className="space-y-6">
                 <div className="bg-[#111] rounded-2xl p-6 border border-red-900/20">
                     <h3 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center gap-2">
@@ -381,3 +397,30 @@ export default function PainelAdmin() {
                             className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"
                         >
                             <span>{Boolean(isPausedData) ? "RETOMAR CONTRATO" : "PAUSAR TUDO (EMERGÊNCIA)"}</span>
+                            <Pause size={14} className={Boolean(isPausedData) ? "text-green-500" : "text-red-500"} />
+                        </button>
+
+                        <button 
+                            onClick={handleWithdraw} 
+                            disabled={isTxPending}
+                            className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"
+                        >
+                            <span>SACAR FUNDOS (OWNER)</span>
+                            <Wallet size={14} className="text-gray-400" />
+                        </button>
+
+                         <button 
+                            onClick={() => window.open(`https://basescan.org/address/${CONTRACT_ADDRESS}`, '_blank')}
+                            className="w-full bg-transparent hover:bg-white/5 border border-white/5 text-gray-500 py-3 px-4 rounded-lg text-xs flex justify-center items-center gap-2 transition-colors mt-8"
+                        >
+                            Ver no Explorer ↗
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+      </main>
+    </div>
+  );
+}
