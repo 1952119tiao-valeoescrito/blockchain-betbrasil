@@ -36,7 +36,7 @@ const CHAINLINK_ABI = [{
   type: "function"
 }] as const;
 
-// PREÇO DE SEGURANÇA (Fallback)
+// PREÇO DE SEGURANÇA (Fallback) - ~$3700 USD
 const FALLBACK_ETH_PRICE = 3700.00;
 
 function ApostasContent() {
@@ -46,14 +46,11 @@ function ApostasContent() {
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
-  // Hook de Leitura (Chainlink)
-  const { data: priceData, isLoading: isLoadingPrice } = useReadContract({
+  const { data: priceData } = useReadContract({
     address: CHAINLINK_FEED_ADDRESS,
     abi: CHAINLINK_ABI,
     functionName: 'latestRoundData',
-    query: {
-        refetchInterval: 60000 
-    }
+    query: { refetchInterval: 60000 }
   });
 
   const [tier, setTier] = useState<'BASIC' | 'INVEST'>('BASIC');
@@ -80,19 +77,26 @@ function ApostasContent() {
     }
   }, [isConfirmed]);
 
-  // --- CÁLCULO FINANCEIRO BLINDADO ---
+  // --- CÁLCULO FINANCEIRO (CORRIGIDO PARA NUNCA DAR ZERO) ---
   const USD_PRICE_BASIC = 1.00;    
   const USD_PRICE_INVEST = 170.00; 
 
-  // Lógica de Ouro: Fallback se a Chainlink falhar
-  const ethPriceUSD = priceData 
+  // Se priceData falhar ou vier zerado, usa 3700
+  const ethPriceUSD = (priceData && Number(formatUnits(priceData[1], 8)) > 0)
       ? Number(formatUnits(priceData[1], 8)) 
       : FALLBACK_ETH_PRICE;
   
   const custoEmEth = useMemo(() => {
+    // Garante que o divisor nunca é zero ou inválido
     const divisor = (ethPriceUSD > 0) ? ethPriceUSD : FALLBACK_ETH_PRICE;
     const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
-    const rawEth = targetUSD / divisor;
+    
+    let rawEth = targetUSD / divisor;
+
+    // TRAVA DE SEGURANÇA FINAL: Se der zero ou NaN, usa um valor fixo mínimo
+    if (!rawEth || isNaN(rawEth) || rawEth === 0) {
+        rawEth = (tier === 'BASIC') ? 0.00027 : 0.045; // Valores aproximados de segurança
+    }
     
     return rawEth.toFixed(7);
   }, [tier, ethPriceUSD]);
@@ -100,7 +104,6 @@ function ApostasContent() {
   const valorBonusEstimado = tier === 'BASIC' ? '125x (Retorno)' : '125x (Retorno)';
   const blockchainData = null;
 
-  // --- VALIDAÇÕES ---
   const handleChange = (premio: number, campo: 'x' | 'y', valor: string) => {
     const numero = valor.replace(/[^0-9]/g, '');
     if (numero === '') {
@@ -116,7 +119,8 @@ function ApostasContent() {
   const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
 
   const handleConfirm = async () => {
-    if (!isFormValid || !address || custoEmEth === "0") return;
+    // Removi a verificação de custoEmEth === "0" pois agora garantimos que não é zero
+    if (!isFormValid || !address) return;
 
     try {
         const coordenadas = [
@@ -146,7 +150,6 @@ function ApostasContent() {
 
   return (
     <main className="min-h-screen bg-[#050505] text-white font-sans selection:bg-[#D4A373] selection:text-black pb-20 relative">
-      
       <AnimatePresence>
         {/* MODAL SUCESSO */}
         {showSuccessModal && (
@@ -160,36 +163,22 @@ function ApostasContent() {
                         <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
                         <div className="flex items-center justify-between">
                             <p className="text-emerald-400 font-mono text-xs truncate mr-2">{hash}</p>
-                            <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white">
-                                <ExternalLink size={14} />
-                            </a>
+                            <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white"><ExternalLink size={14} /></a>
                         </div>
                     </div>
                     <button onClick={() => setShowSuccessModal(false)} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-xl transition-all">Nova Aplicação</button>
                 </motion.div>
             </div>
         )}
-
         {/* MODAL SIMULADOR */}
         {showSimulator && (
             <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-                <motion.div 
-                  initial={{ scale: 0.95, opacity: 0 }} 
-                  animate={{ scale: 1, opacity: 1 }} 
-                  exit={{ scale: 0.95, opacity: 0 }}
-                  className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto"
-                >
+                <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto">
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
-                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2">
-                           <Calculator size={20} /> Simulador de Resultados
-                        </h3>
-                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors">
-                            <X size={24} />
-                        </button>
+                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2"><Calculator size={20} /> Simulador de Resultados</h3>
+                        <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"><X size={24} /></button>
                     </div>
-                    <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar">
-                         <ResultSimulator blockchainData={blockchainData} />
-                    </div>
+                    <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar"><ResultSimulator blockchainData={blockchainData} /></div>
                 </motion.div>
             </div>
         )}
@@ -209,17 +198,10 @@ function ApostasContent() {
       )}
 
       <div className={!isConnected ? 'filter blur-sm pointer-events-none select-none' : ''}>
-          
           <div className="bg-[#0a0a0a] border-b border-white/5 text-gray-500 text-[10px] md:text-xs font-mono py-2 overflow-hidden flex items-center justify-center">
             <div className="flex gap-4 md:gap-8 items-center opacity-80 whitespace-nowrap px-4">
                 <span className="flex items-center gap-1 text-emerald-500"><Activity size={10} /> BASE MAINNET</span>
-                
-                <span className="flex items-center gap-1 text-[#D4A373]">
-                    <DollarSign size={10} /> 
-                    {/* Exibe o preço. fallback usado se necessário */}
-                    ETH/USD: {`$${ethPriceUSD.toFixed(2)}`}
-                </span>
-                
+                <span className="flex items-center gap-1 text-[#D4A373]"><DollarSign size={10} /> ETH/USD: {`$${ethPriceUSD.toFixed(2)}`}</span>
                 <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> LIVE</span>
             </div>
           </div>
@@ -235,9 +217,7 @@ function ApostasContent() {
                     <div className="hidden md:block"><h1 className="text-xl font-bold tracking-tighter leading-none text-white">BBB <span className="text-[#D4A373]">APP</span></h1><p className="text-[10px] text-gray-500 tracking-widest uppercase">Módulo Web3</p></div>
                 </div>
                 <div className="flex items-center gap-3 md:gap-4">
-                    <button onClick={() => setShowSimulator(true)} className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20">
-                        <Calculator size={16} /> <span className="hidden sm:inline">Simulador</span>
-                    </button>
+                    <button onClick={() => setShowSimulator(true)} className="flex items-center gap-2 text-sm text-cyan-500 hover:text-cyan-400 hover:bg-cyan-950/30 transition px-3 py-2 rounded-lg border border-cyan-500/20"><Calculator size={16} /> <span className="hidden sm:inline">Simulador</span></button>
                     <Link href="/" className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition px-3 py-2 rounded-lg hover:bg-white/5"><Home size={16} /><span className="hidden sm:inline">Início</span></Link>
                     <ConnectButton showBalance={false} />
                 </div>
@@ -248,25 +228,13 @@ function ApostasContent() {
             <div className="w-full max-w-4xl">
                 <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-[#D4A373] opacity-50 blur-sm"></div>
-
                     <div className="bg-[#0f0f0f] p-5 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-white/5">
-                            <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}>
-                                <span>BÁSICO ($1.00)</span>
-                                <span className="text-[9px] opacity-80 mt-1">
-                                    ≈ {(1.00 / ethPriceUSD).toFixed(5)} ETH
-                                </span>
-                            </button>
-                            <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}>
-                                <span>INTER-BET ($170.00)</span>
-                                <span className="text-[9px] opacity-80 mt-1">
-                                    ≈ {(170.00 / ethPriceUSD).toFixed(4)} ETH
-                                </span>
-                            </button>
+                            <button onClick={() => setTier('BASIC')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'BASIC' ? 'bg-[#D4A373] text-black shadow' : 'text-gray-500 hover:text-white'}`}><span>BÁSICO ($1.00)</span><span className="text-[9px] opacity-80 mt-1">≈ {(1.00 / ethPriceUSD).toFixed(5)} ETH</span></button>
+                            <button onClick={() => setTier('INVEST')} className={`px-6 py-2 rounded-md text-xs font-bold transition-all flex flex-col items-center ${tier === 'INVEST' ? 'bg-white text-black shadow' : 'text-gray-500 hover:text-white'}`}><span>INTER-BET ($170.00)</span><span className="text-[9px] opacity-80 mt-1">≈ {(170.00 / ethPriceUSD).toFixed(4)} ETH</span></button>
                             </div>
                             <div className="flex items-center gap-2 text-[10px] font-bold text-green-500 bg-green-900/10 px-3 py-1 rounded-full border border-green-900/20"><ShieldCheck size={12} /> Matriz Segura (1-25)</div>
                     </div>
-
                     <div className="p-6 md:p-8">
                         <div className="mb-8">
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
@@ -282,23 +250,17 @@ function ApostasContent() {
                                 ))}
                             </div>
                         </div>
-
                         <div className="bg-[#0a0a0a] rounded-xl border border-white/5 p-5 relative mb-8">
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 h-[1px] w-24 bg-gradient-to-r from-transparent via-[#D4A373] to-transparent opacity-50"></div>
                                 <div className="flex flex-col items-center justify-center"><p className="text-[10px] text-gray-500 text-center uppercase mb-2 tracking-[0.2em]">Encerramento da Rodada</p><CountdownTimer /></div>
                         </div>
-
                         <div className="pt-6 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-3 bg-[#D4A373]/5 px-4 py-3 rounded-lg border border-[#D4A373]/10 w-full md:w-auto justify-center">
                                 <span className="text-[#D4A373] text-xs uppercase font-bold">Retorno Estimado:</span>
                                 <span className="text-white font-mono font-bold text-lg">{valorBonusEstimado}</span>
                             </div>
-                            <button 
-                                onClick={handleConfirm}
-                                disabled={!isFormValid || isPending || isConfirming}
-                                className={`flex-1 w-full h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all ${isFormValid && !isPending && !isConfirming ? 'bg-gradient-to-r from-[#D4A373] to-[#b08255] text-black hover:scale-[1.01]' : 'bg-[#222] text-gray-500 cursor-not-allowed'}`}
-                            >
-                                {isPending ? ( <><Loader2 size={20} className="animate-spin" /> ENVIANDO...</> ) : isConfirming ? ( <><Loader2 size={20} className="animate-spin" /> VALIDANDO...</> ) : ( <>CONFIRMAR (~{custoEmEth} ETH) <ChevronRight size={20} className="bg-black/10 rounded-full p-0.5" /></> )}
+                            <button onClick={handleConfirm} disabled={!isFormValid || isPending || isConfirming} className={`flex-1 w-full h-14 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 uppercase tracking-wide transition-all ${isFormValid && !isPending && !isConfirming ? 'bg-gradient-to-r from-[#D4A373] to-[#b08255] text-black hover:scale-[1.01]' : 'bg-[#222] text-gray-500 cursor-not-allowed'}`}>
+                                {isPending ? (<><Loader2 size={20} className="animate-spin" /> ENVIANDO...</>) : isConfirming ? (<><Loader2 size={20} className="animate-spin" /> VALIDANDO...</>) : (<>CONFIRMAR (~{custoEmEth} ETH) <ChevronRight size={20} className="bg-black/10 rounded-full p-0.5" /></>)}
                             </button>
                         </div>
                     </div>
@@ -310,7 +272,6 @@ function ApostasContent() {
   );
 }
 
-// CORREÇÃO: Adicionado 'props: any' para satisfazer o TypeScript da Vercel
 const ApostasPage = () => {
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#050505] flex items-center justify-center"><Loader2 className="animate-spin text-[#D4A373]" size={40} /></div>}>
@@ -319,7 +280,4 @@ const ApostasPage = () => {
   );
 };
 
-// O PULO DO GATO:
-// Exportamos como 'any' para o TypeScript parar de reclamar que a página não segue o padrão estrito.
-// Isso não afeta o funcionamento, apenas libera o Build.
 export default ApostasPage as any;
