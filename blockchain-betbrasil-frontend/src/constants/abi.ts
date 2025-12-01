@@ -1,8 +1,8 @@
-// ENDEREÇO DO CONTRATO
+// ENDEREÇO DO CONTRATO (BASE MAINNET)
 export const CONTRACT_ADDRESS = "0x3314c45a23073B73622F24de03985Cd8220D52Fb";
 
 export const CONTRACT_ABI = [
-  // --- 1. FUNÇÕES DO JOGADOR ---
+  // --- 1. JOGADOR ---
   {
     "inputs": [
       { "internalType": "uint8[10]", "name": "_coords", "type": "uint8[10]" },
@@ -10,7 +10,7 @@ export const CONTRACT_ABI = [
     ],
     "name": "realizarAplicacao",
     "outputs": [],
-    "stateMutability": "payable", // <--- MUDANÇA CRUCIAL: AGORA ACEITA PAGAMENTO (ETH)
+    "stateMutability": "payable",
     "type": "function"
   },
 
@@ -19,6 +19,21 @@ export const CONTRACT_ABI = [
     "inputs": [],
     "name": "rodadaAtualId",
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "name": "rodadas",
+    "outputs": [
+      { "internalType": "uint256", "name": "id", "type": "uint256" },
+      { "internalType": "bool", "name": "aberta", "type": "bool" },
+      { "internalType": "bool", "name": "finalizada", "type": "bool" },
+      { "internalType": "uint256", "name": "totalArrecadadoBasic", "type": "uint256" },
+      { "internalType": "uint256", "name": "totalArrecadadoInvest", "type": "uint256" },
+      { "internalType": "uint8[10]", "name": "resultadoSorteado", "type": "uint8[10]" },
+      { "internalType": "uint256", "name": "timestampInicio", "type": "uint256" }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -37,7 +52,7 @@ export const CONTRACT_ABI = [
     "type": "function"
   },
 
-  // --- 3. AÇÕES DO ADMIN ---
+  // --- 3. ADMIN ---
   {
     "inputs": [],
     "name": "fecharRodada",
@@ -66,8 +81,15 @@ export const CONTRACT_ABI = [
     "stateMutability": "nonpayable",
     "type": "function"
   },
+  {
+    "inputs": [],
+    "name": "sacarTudo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
   
-  // --- 4. PAUSE/UNPAUSE ---
+  // --- 4. EMERGÊNCIA ---
   {
     "inputs": [],
     "name": "pause",
