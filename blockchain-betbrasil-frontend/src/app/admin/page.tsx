@@ -173,7 +173,8 @@ export default function PainelAdmin() {
                 address: CONTRACT_ADDRESS,
                 abi: CONTRACT_ABI,
                 functionName: 'definirResultado',
-                args: [finalArray], 
+                // A CORREÇÃO ESTÁ AQUI: 'as any' para calar o erro de tipo estrito de array fixo
+                args: [finalArray as any], 
             });
         }
 
