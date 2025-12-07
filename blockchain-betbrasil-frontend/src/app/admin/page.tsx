@@ -2,26 +2,48 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Activity, Lock, Unlock, Trophy, Settings, Key, Pause, Wallet, Loader2, AlertTriangle, PlayCircle, CheckCircle } from 'lucide-react'
-import { useAccount, useReadContract, useWriteContract, useBalance } from 'wagmi'
+import { Activity, Lock, Unlock, Trophy, Settings, Key, Pause, Wallet, Loader2, AlertTriangle, PlayCircle, CheckCircle, XCircle } from 'lucide-react'
+import { useAccount, useReadContract, useWriteContract, useBalance, useWaitForTransactionReceipt } from 'wagmi'
 import { formatEther } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi'
 
-// Definição exata da struct retornada pela função 'rodadas'
+// Tipagem correta para o retorno da struct Rodada
 type RodadaData = [
-  bigint,             // id [0]
-  boolean,            // aberta [1]
-  boolean,            // finalizada [2]
-  bigint,             // totalBasic [3]
-  bigint,             // totalInvest [4]
-  readonly number[],  // resultado [5]
-  bigint              // timestamp [6]
+  bigint,             // id
+  boolean,            // aberta
+  boolean,            // finalizada
+  bigint,             // totalBasic
+  bigint,             // totalInvest
+  readonly number[],  // resultado
+  bigint              // timestamp
 ];
 
 export default function PainelAdmin() {
   const { address, isConnected } = useAccount();
-  const { writeContract, isPending: isTxPending, isSuccess: isTxSuccess } = useWriteContract();
   
+  // -- CONTROLE DE TRANSAÇÃO --
+  // Guardamos o hash da transação para monitorar a mineração
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>(undefined);
+
+  const { 
+    writeContract, 
+    isPending: isWalletLoading, // Carregando carteira (assinatura)
+    isError: isWalletError, 
+    error: walletError,
+    reset: resetWrite 
+  } = useWriteContract();
+
+  // Monitora a confirmação do bloco (Mineração)
+  const { 
+    isLoading: isConfirming, 
+    isSuccess: isConfirmed 
+  } = useWaitForTransactionReceipt({ 
+    hash: txHash, 
+  });
+
+  // Estado geral de carregamento (Carteira OU Mineração)
+  const isProcessing = isWalletLoading || isConfirming;
+
   // -- ESTADOS LOCAIS --
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [accessKey, setAccessKey] = useState('');
@@ -32,7 +54,6 @@ export default function PainelAdmin() {
   });
 
   // -- LEITURAS DO CONTRATO --
-
   const { data: isPausedData, refetch: refetchPause } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
@@ -55,32 +76,63 @@ export default function PainelAdmin() {
     }
   });
   
-  // Conversão de tipo segura
   const rodadaData = rawRodadaData as RodadaData | undefined;
 
   const { data: balanceData, refetch: refetchBalance } = useBalance({
     address: CONTRACT_ADDRESS,
   });
 
-  // Atualizar dados após transação
+  // -- EFEITO DE ATUALIZAÇÃO E LIMPEZA --
   useEffect(() => {
-    if (isTxSuccess) {
+    if (isConfirmed) {
+        // Se confirmou na blockchain, atualiza os dados
+        refetchPause();
+        refetchRoundId();
+        refetchRodada();
+        refetchBalance();
+        
+        // Limpa o hash para permitir novas transações limpas
         const timer = setTimeout(() => {
-            refetchPause();
-            refetchRoundId();
-            refetchRodada();
-            refetchBalance();
+            setTxHash(undefined);
+            resetWrite();
         }, 3000);
         return () => clearTimeout(timer);
     }
-  }, [isTxSuccess, refetchPause, refetchRoundId, refetchRodada, refetchBalance]);
+    
+    // Se deu erro na carteira (rejeitou), reseta imediatamente
+    if (isWalletError) {
+        const timer = setTimeout(() => {
+            resetWrite();
+            setTxHash(undefined);
+        }, 3000);
+        return () => clearTimeout(timer);
+    }
+  }, [isConfirmed, isWalletError, refetchPause, refetchRoundId, refetchRodada, refetchBalance, resetWrite]);
 
 
   // -- HANDLERS --
 
+  // Função genérica para chamar o contrato e capturar o hash
+  const executeContractAction = (functionName: string, args: any[] = []) => {
+    resetWrite(); // Garante estado limpo
+    writeContract({
+        address: CONTRACT_ADDRESS,
+        abi: CONTRACT_ABI,
+        functionName,
+        args,
+    }, {
+        onSuccess: (hash) => {
+            setTxHash(hash); // Pega o hash e inicia o monitoramento do recibo
+        },
+        onError: (error) => {
+            console.error("Erro na transação:", error);
+        }
+    });
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (accessKey === 'ADMIN-B3-MASTER') {
+    if (accessKey === 'ADMIN-B3-MASTER') { // Cuidado: validação client-side não é segura para produção real
         setIsAuthenticated(true);
         setErrorMsg('');
     } else {
@@ -90,50 +142,33 @@ export default function PainelAdmin() {
   };
 
   const handleTogglePause = () => {
-    writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: isPausedData ? 'unpause' : 'pause',
-    });
+    executeContractAction(isPausedData ? 'unpause' : 'pause');
   };
 
   const handleCloseRound = () => {
     if(!confirm("CONFIRMAR FECHAMENTO DE RODADA?\n\nIsso impedirá novas apostas.")) return;
-    writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'fecharRodada',
-    });
+    executeContractAction('fecharRodada');
   };
 
   const handleStartNext = () => {
      if(!confirm("INICIAR NOVA RODADA?\n\nCertifique-se de que a rodada anterior já foi apurada.")) return;
-        writeContract({
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'iniciarNovaRodada',
-        });
+     executeContractAction('iniciarNovaRodada');
   };
 
   const handleWithdraw = () => {
     const amount = prompt("Quantidade em WEI para sacar:");
     if(amount) {
-        writeContract({
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'sacarFundos',
-            args: [BigInt(amount)],
-        });
+        try {
+            executeContractAction('sacarFundos', [BigInt(amount)]);
+        } catch (e) {
+            alert("Valor inválido");
+        }
     }
   };
   
   const handleWithdrawAll = () => {
     if(!confirm("SACAR TODO O SALDO?")) return;
-    writeContract({
-        address: CONTRACT_ADDRESS,
-        abi: CONTRACT_ABI,
-        functionName: 'sacarTudo',
-    });
+    executeContractAction('sacarTudo');
   };
 
   const handleDefineResult = () => {
@@ -143,10 +178,11 @@ export default function PainelAdmin() {
         return;
     }
 
-    // Lógica Loteria -> Coordenadas B3
     const processPrize = (numStr: string) => {
         const cleanStr = numStr.replace(/\D/g,'');
+        if(!cleanStr) throw new Error("Número vazio");
         const milharNum = parseInt(cleanStr);
+        if(isNaN(milharNum)) throw new Error("Número inválido");
         
         let d1 = Math.floor(milharNum / 100) % 100; if(d1===0) d1=100;
         let d2 = milharNum % 100; if(d2===0) d2=100;
@@ -166,20 +202,21 @@ export default function PainelAdmin() {
         
         const finalArray = [...r1, ...r2, ...r3, ...r4, ...r5];
         
+        // Validação final de tamanho
+        if (finalArray.length !== 10) {
+            alert("Erro na geração do array: Tamanho incorreto.");
+            return;
+        }
+
         const msg = `Confirma Resultado:\n[${finalArray.join(', ')}]\n\nGravar na Blockchain?`;
 
         if(confirm(msg)) {
-            writeContract({
-                address: CONTRACT_ADDRESS,
-                abi: CONTRACT_ABI,
-                functionName: 'definirResultado',
-                // A CORREÇÃO ESTÁ AQUI: 'as any' para calar o erro de tipo estrito de array fixo
-                args: [finalArray as any], 
-            });
+            // TypeScript trick: Força o tipo para coincidir com a ABI (uint8[10])
+            executeContractAction('definirResultado', [finalArray]);
         }
 
     } catch (err) {
-        alert("Erro ao processar números.");
+        alert("Erro ao processar números. Verifique se digitou apenas números.");
         console.error(err);
     }
   };
@@ -217,16 +254,31 @@ export default function PainelAdmin() {
   const isRodadaFinalizada = rodadaData ? rodadaData[2] : false;
   const totalArrecadado = rodadaData ? (rodadaData[3] + rodadaData[4]) : BigInt(0);
 
-  // -- RENDER: DASHBOARD --
   return (
     <div className="min-h-screen bg-[#050505] text-slate-200 font-sans pb-20">
       
-      {isTxPending && (
+      {/* LOADING OVERLAY: Só aparece se estiver processando E não tiver erro */}
+      {isProcessing && !isWalletError && (
           <div className="fixed top-6 right-6 bg-blue-950 text-blue-100 px-6 py-4 rounded-xl z-[60] flex items-center gap-4 shadow-2xl border border-blue-500/30 animate-in slide-in-from-top-5">
               <Loader2 className="animate-spin text-blue-400" size={24} />
               <div>
-                  <p className="text-sm font-bold">Processando...</p>
-                  <p className="text-xs opacity-70">Aguarde confirmação.</p>
+                  <p className="text-sm font-bold">
+                    {isWalletLoading ? "Aguardando assinatura..." : "Confirmando Bloco..."}
+                  </p>
+                  <p className="text-xs opacity-70">
+                    {isWalletLoading ? "Verifique sua carteira." : "A transação foi enviada."}
+                  </p>
+              </div>
+          </div>
+      )}
+
+      {/* ERROR OVERLAY */}
+      {isWalletError && (
+          <div className="fixed top-6 right-6 bg-red-950 text-red-100 px-6 py-4 rounded-xl z-[60] flex items-center gap-4 shadow-2xl border border-red-500/30 animate-in slide-in-from-top-5">
+              <XCircle className="text-red-400" size={24} />
+              <div>
+                  <p className="text-sm font-bold">Erro na Transação</p>
+                  <p className="text-xs opacity-70">Operação cancelada ou falhou.</p>
               </div>
           </div>
       )}
@@ -280,18 +332,18 @@ export default function PainelAdmin() {
                 
                 <div className={`rounded-2xl p-6 border transition-all ${isRodadaAberta ? 'bg-[#111] border-orange-500/30 shadow-lg shadow-orange-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                     <div className="flex items-center gap-3 mb-4"><div className="w-8 h-8 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 font-bold text-sm">1</div><h2 className="text-lg font-bold text-white">Fechar Rodada</h2></div>
-                    <button onClick={handleCloseRound} disabled={!isRodadaAberta || isTxPending} className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isTxPending ? <Loader2 className="animate-spin" /> : <Lock size={18} />} FECHAR AGORA</button>
+                    <button onClick={handleCloseRound} disabled={!isRodadaAberta || isProcessing} className="w-full bg-orange-600 hover:bg-orange-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isProcessing ? <Loader2 className="animate-spin" /> : <Lock size={18} />} FECHAR AGORA</button>
                 </div>
 
                 <div className={`rounded-2xl p-6 border transition-all ${(!isRodadaAberta && !isRodadaFinalizada) ? 'bg-[#111] border-emerald-500/30 shadow-lg shadow-emerald-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                     <div className="flex justify-between items-start mb-6"><div className="flex items-center gap-3"><div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500 font-bold text-sm">2</div><h2 className="text-lg font-bold text-white">Lançar Resultado</h2></div><span className="text-[10px] bg-emerald-900/30 text-emerald-400 px-2 py-1 rounded border border-emerald-900/50">AUTO-CONVERSÃO</span></div>
                     <div className="grid grid-cols-5 gap-3 mb-6">{[1, 2, 3, 4, 5].map((i) => (<div key={i} className="flex flex-col gap-1"><label className="text-[10px] text-gray-500 text-center font-bold">LOT {i}</label><input type="text" placeholder="00000" maxLength={5} disabled={isRodadaAberta || isRodadaFinalizada} className="w-full bg-black border border-gray-800 rounded-lg p-3 text-center text-emerald-400 font-mono focus:border-emerald-500 outline-none transition-colors disabled:opacity-50" value={manualResults[`p${i}` as keyof typeof manualResults]} onChange={(e) => setManualResults({...manualResults, [`p${i}`]: e.target.value})} /></div>))}</div>
-                    <button onClick={handleDefineResult} disabled={isRodadaAberta || isRodadaFinalizada || isTxPending} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isTxPending ? <Loader2 className="animate-spin" /> : <CheckCircle size={18} />} PROCESSAR & GRAVAR</button>
+                    <button onClick={handleDefineResult} disabled={isRodadaAberta || isRodadaFinalizada || isProcessing} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isProcessing ? <Loader2 className="animate-spin" /> : <CheckCircle size={18} />} PROCESSAR & GRAVAR</button>
                 </div>
 
                 <div className={`rounded-2xl p-6 border transition-all ${isRodadaFinalizada ? 'bg-[#111] border-blue-500/30 shadow-lg shadow-blue-900/10' : 'bg-black border-white/5 opacity-50'}`}>
                      <div className="flex items-center gap-3 mb-4"><div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold text-sm">3</div><h2 className="text-lg font-bold text-white">Iniciar Nova Rodada</h2></div>
-                     <button onClick={handleStartNext} disabled={!isRodadaFinalizada || isTxPending} className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isTxPending ? <Loader2 className="animate-spin" /> : <PlayCircle size={18} />} INICIAR RODADA #{(roundIdData ? Number(roundIdData) + 1 : 0)}</button>
+                     <button onClick={handleStartNext} disabled={!isRodadaFinalizada || isProcessing} className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-gray-800 disabled:text-gray-500 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition-all">{isProcessing ? <Loader2 className="animate-spin" /> : <PlayCircle size={18} />} INICIAR RODADA #{(roundIdData ? Number(roundIdData) + 1 : 0)}</button>
                 </div>
             </div>
 
@@ -299,9 +351,9 @@ export default function PainelAdmin() {
                 <div className="bg-[#111] rounded-2xl p-6 border border-red-900/20">
                     <h3 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center gap-2"><AlertTriangle size={14} /> Zona de Perigo</h3>
                     <div className="space-y-3">
-                        <button onClick={handleTogglePause} disabled={isTxPending} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>{Boolean(isPausedData) ? "RETOMAR" : "PAUSAR (PANIC)"}</span><Pause size={14} className={Boolean(isPausedData) ? "text-green-500" : "text-red-500"} /></button>
-                        <button onClick={handleWithdraw} disabled={isTxPending} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>SACAR (PARCIAL)</span><Wallet size={14} className="text-gray-400" /></button>
-                        <button onClick={handleWithdrawAll} disabled={isTxPending} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>SACAR TUDO</span><Wallet size={14} className="text-red-400" /></button>
+                        <button onClick={handleTogglePause} disabled={isProcessing} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>{Boolean(isPausedData) ? "RETOMAR" : "PAUSAR (PANIC)"}</span><Pause size={14} className={Boolean(isPausedData) ? "text-green-500" : "text-red-500"} /></button>
+                        <button onClick={handleWithdraw} disabled={isProcessing} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>SACAR (PARCIAL)</span><Wallet size={14} className="text-gray-400" /></button>
+                        <button onClick={handleWithdrawAll} disabled={isProcessing} className="w-full bg-gray-900 hover:bg-gray-800 border border-gray-700 text-white py-3 px-4 rounded-lg text-xs font-bold flex justify-between items-center transition-colors"><span>SACAR TUDO</span><Wallet size={14} className="text-red-400" /></button>
                          <button onClick={() => window.open(`https://basescan.org/address/${CONTRACT_ADDRESS}`, '_blank')} className="w-full bg-transparent hover:bg-white/5 border border-white/5 text-gray-500 py-3 px-4 rounded-lg text-xs flex justify-center items-center gap-2 transition-colors mt-8">Ver no Explorer ↗</button>
                     </div>
                 </div>
