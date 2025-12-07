@@ -113,17 +113,16 @@ export default function PainelAdmin() {
   // -- HANDLERS --
 
   // Função genérica para chamar o contrato e capturar o hash
-   const executeContractAction = (functionName: string, args: any[] = []) => {
-    resetWrite(); // Garante estado limpo
+  const executeContractAction = (functionName: string, args: any[] = []) => {
+    resetWrite(); 
     writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
-        // A CORREÇÃO É AQUI: Adicionar 'as any' para o TS aceitar a string dinâmica
-        functionName: functionName as any, 
-        args,
+        functionName: functionName as any, // Já tínhamos arrumado aqui
+        args: args as any,                 // <--- ADICIONE O 'as any' AQUI TAMBÉM
     }, {
         onSuccess: (hash) => {
-            setTxHash(hash); // Pega o hash e inicia o monitoramento do recibo
+            setTxHash(hash); 
         },
         onError: (error) => {
             console.error("Erro na transação:", error);
