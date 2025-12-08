@@ -1,11 +1,14 @@
 'use client'
-
+ 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Activity, Lock, Unlock, Trophy, Settings, Key, Pause, Wallet, Loader2, AlertTriangle, PlayCircle, CheckCircle, XCircle } from 'lucide-react'
 import { useAccount, useReadContract, useWriteContract, useBalance, useWaitForTransactionReceipt } from 'wagmi'
 import { formatEther } from 'viem'
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi'
+
+// ID da Rede BASE (Para forçar a troca automática se estiver na rede errada)
+const BASE_CHAIN_ID = 8453;
 
 // Tipagem correta para o retorno da struct Rodada
 type RodadaData = [
@@ -58,12 +61,14 @@ export default function PainelAdmin() {
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'paused',
+    chainId: BASE_CHAIN_ID, // Garante leitura na rede certa
   });
 
   const { data: roundIdData, refetch: refetchRoundId } = useReadContract({
     address: CONTRACT_ADDRESS,
     abi: CONTRACT_ABI,
     functionName: 'rodadaAtualId',
+    chainId: BASE_CHAIN_ID,
   });
 
   const { data: rawRodadaData, refetch: refetchRodada } = useReadContract({
@@ -71,6 +76,7 @@ export default function PainelAdmin() {
     abi: CONTRACT_ABI,
     functionName: 'rodadas',
     args: [roundIdData ? roundIdData : BigInt(1)],
+    chainId: BASE_CHAIN_ID,
     query: {
         enabled: !!roundIdData, 
     }
@@ -80,6 +86,7 @@ export default function PainelAdmin() {
 
   const { data: balanceData, refetch: refetchBalance } = useBalance({
     address: CONTRACT_ADDRESS,
+    chainId: BASE_CHAIN_ID,
   });
 
   // -- EFEITO DE ATUALIZAÇÃO E LIMPEZA --
@@ -118,8 +125,9 @@ export default function PainelAdmin() {
     writeContract({
         address: CONTRACT_ADDRESS,
         abi: CONTRACT_ABI,
-        functionName: functionName as any, // Já tínhamos arrumado aqui
-        args: args as any,                 // <--- ADICIONE O 'as any' AQUI TAMBÉM
+        functionName: functionName as any, 
+        args: args as any,   
+        chainId: BASE_CHAIN_ID, // <--- AQUI ESTÁ A MÁGICA: FORÇA A REDE BASE (8453)
     }, {
         onSuccess: (hash) => {
             setTxHash(hash); 
@@ -132,7 +140,7 @@ export default function PainelAdmin() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (accessKey === 'ADMIN-B3-MASTER') { // Cuidado: validação client-side não é segura para produção real
+    if (accessKey === 'ADMIN-B3-MASTER') { 
         setIsAuthenticated(true);
         setErrorMsg('');
     } else {
@@ -211,7 +219,6 @@ export default function PainelAdmin() {
         const msg = `Confirma Resultado:\n[${finalArray.join(', ')}]\n\nGravar na Blockchain?`;
 
         if(confirm(msg)) {
-            // TypeScript trick: Força o tipo para coincidir com a ABI (uint8[10])
             executeContractAction('definirResultado', [finalArray]);
         }
 
@@ -257,7 +264,7 @@ export default function PainelAdmin() {
   return (
     <div className="min-h-screen bg-[#050505] text-slate-200 font-sans pb-20">
       
-      {/* LOADING OVERLAY: Só aparece se estiver processando E não tiver erro */}
+      {/* LOADING OVERLAY */}
       {isProcessing && !isWalletError && (
           <div className="fixed top-6 right-6 bg-blue-950 text-blue-100 px-6 py-4 rounded-xl z-[60] flex items-center gap-4 shadow-2xl border border-blue-500/30 animate-in slide-in-from-top-5">
               <Loader2 className="animate-spin text-blue-400" size={24} />
