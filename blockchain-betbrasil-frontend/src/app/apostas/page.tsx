@@ -5,7 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, Trophy, Zap, Home, Activity, Lock, ChevronRight, 
-  Loader2, CheckCircle2, X, ExternalLink, Calculator, DollarSign 
+  Loader2, CheckCircle2, X, ExternalLink, Calculator, DollarSign,
+  History, Calendar, MapPin
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -19,9 +20,40 @@ import { CONTRACT_ADDRESS, CONTRACT_ABI } from '@/constants/abi';
 
 import ResultSimulator from '../../components/ResultSimulator'; 
 
+// --- ABI AUXILIAR (Para garantir a leitura mesmo sem atualizar o arquivo de constantes) ---
+const EXTRA_ABI = [
+  {
+    "inputs": [],
+    "name": "rodadaAtualId",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_rodadaId", "type": "uint256" }],
+    "name": "verMinhasApostas",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "apostador", "type": "address" },
+          { "internalType": "uint8[10]", "name": "coordenadas", "type": "uint8[10]" },
+          { "internalType": "uint8", "name": "tier", "type": "uint8" },
+          { "internalType": "bool", "name": "processada", "type": "bool" },
+          { "internalType": "uint8", "name": "pontos", "type": "uint8" },
+          { "internalType": "uint256", "name": "valorPago", "type": "uint256" }
+        ],
+        "internalType": "struct BlockchainBetBrasilNative.Aposta[]",
+        "name": "",
+        "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+] as const;
+
 // --- CONFIGURAÇÃO CHAINLINK (BASE MAINNET) ---
 const CHAINLINK_FEED_ADDRESS = "0x71041dddad3595F745215C5809381D1338eF9256";
-
 const CHAINLINK_ABI = [{
   inputs: [],
   name: "latestRoundData",
@@ -36,7 +68,6 @@ const CHAINLINK_ABI = [{
   type: "function"
 }] as const;
 
-// PREÇO DE SEGURANÇA (Fallback) - ~$3700 USD
 const FALLBACK_ETH_PRICE = 3700.00;
 
 function ApostasContent() {
@@ -45,6 +76,23 @@ function ApostasContent() {
   
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
+
+  // 1. Ler ID da Rodada Atual
+  const { data: rodadaId } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: EXTRA_ABI,
+    functionName: 'rodadaAtualId',
+    query: { refetchInterval: 30000 }
+  });
+
+  // 2. Ler Apostas do Usuário na Rodada Atual
+  const { data: minhasApostasRaw, isLoading: loadingApostas, refetch: refetchApostas } = useReadContract({
+    address: CONTRACT_ADDRESS,
+    abi: EXTRA_ABI,
+    functionName: 'verMinhasApostas',
+    args: rodadaId ? [rodadaId] : undefined,
+    query: { enabled: !!address && !!rodadaId, refetchInterval: 5000 }
+  });
 
   const { data: priceData } = useReadContract({
     address: CHAINLINK_FEED_ADDRESS,
@@ -74,30 +122,23 @@ function ApostasContent() {
     if (isConfirmed) {
         setShowSuccessModal(true);
         setPalpites({ 1: { x: '', y: '' }, 2: { x: '', y: '' }, 3: { x: '', y: '' }, 4: { x: '', y: '' }, 5: { x: '', y: '' } });
+        refetchApostas(); // Atualiza a lista assim que confirmar
     }
-  }, [isConfirmed]);
+  }, [isConfirmed, refetchApostas]);
 
-  // --- CÁLCULO FINANCEIRO (CORRIGIDO PARA NUNCA DAR ZERO) ---
+  // CÁLCULO FINANCEIRO
   const USD_PRICE_BASIC = 1.00;    
   const USD_PRICE_INVEST = 170.00; 
 
-  // Se priceData falhar ou vier zerado, usa 3700
   const ethPriceUSD = (priceData && Number(formatUnits(priceData[1], 8)) > 0)
       ? Number(formatUnits(priceData[1], 8)) 
       : FALLBACK_ETH_PRICE;
   
   const custoEmEth = useMemo(() => {
-    // Garante que o divisor nunca é zero ou inválido
     const divisor = (ethPriceUSD > 0) ? ethPriceUSD : FALLBACK_ETH_PRICE;
     const targetUSD = tier === 'BASIC' ? USD_PRICE_BASIC : USD_PRICE_INVEST;
-    
     let rawEth = targetUSD / divisor;
-
-    // TRAVA DE SEGURANÇA FINAL: Se der zero ou NaN, usa um valor fixo mínimo
-    if (!rawEth || isNaN(rawEth) || rawEth === 0) {
-        rawEth = (tier === 'BASIC') ? 0.00027 : 0.045; // Valores aproximados de segurança
-    }
-    
+    if (!rawEth || isNaN(rawEth) || rawEth === 0) rawEth = (tier === 'BASIC') ? 0.00027 : 0.045;
     return rawEth.toFixed(7);
   }, [tier, ethPriceUSD]);
 
@@ -119,9 +160,7 @@ function ApostasContent() {
   const isFormValid = Object.values(palpites).every(p => p.x !== '' && p.y !== '');
 
   const handleConfirm = async () => {
-    // Removi a verificação de custoEmEth === "0" pois agora garantimos que não é zero
     if (!isFormValid || !address) return;
-
     try {
         const coordenadas = [
             parseInt(palpites[1].x), parseInt(palpites[1].y),
@@ -130,7 +169,6 @@ function ApostasContent() {
             parseInt(palpites[4].x), parseInt(palpites[4].y),
             parseInt(palpites[5].x), parseInt(palpites[5].y)
         ];
-
         const tierCode = tier === 'BASIC' ? 1 : 2;
 
         writeContract({
@@ -140,11 +178,26 @@ function ApostasContent() {
             args: [coordenadas as any, tierCode],
             value: parseEther(custoEmEth), 
         });
-
     } catch (error) {
         console.error("Erro na transação:", error);
     }
   };
+
+  // Processa as apostas para exibição
+  const listaApostas = useMemo(() => {
+    if (!minhasApostasRaw || !Array.isArray(minhasApostasRaw)) return [];
+    // Clona e inverte para mostrar a mais recente primeiro
+    return [...minhasApostasRaw].reverse().map((aposta: any) => {
+      // Formata as coordenadas que vêm como array plano [x1, y1, x2, y2...]
+      const coordsFormatadas = [];
+      if (aposta.coordenadas && Array.isArray(aposta.coordenadas)) {
+        for (let i = 0; i < 10; i += 2) {
+          coordsFormatadas.push({ x: aposta.coordenadas[i], y: aposta.coordenadas[i+1] });
+        }
+      }
+      return { ...aposta, coordsFormatadas };
+    });
+  }, [minhasApostasRaw]);
 
   if (!mounted) return <div className="min-h-screen bg-[#050505]" />;
 
@@ -158,7 +211,7 @@ function ApostasContent() {
                     <button onClick={() => setShowSuccessModal(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X size={20} /></button>
                     <div className="w-20 h-20 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto mb-6"><CheckCircle2 size={48} className="text-emerald-500" /></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Aposta Confirmada!</h2>
-                    <p className="text-gray-400 mb-6 text-sm">Sua aplicação foi registrada na Base Mainnet.</p>
+                    <p className="text-gray-400 mb-6 text-sm">Sua aplicação foi registrada com sucesso.</p>
                     <div className="bg-black/50 p-4 rounded-lg border border-white/10 mb-6 text-left">
                         <p className="text-[10px] text-gray-500 uppercase mb-1">Hash da Transação</p>
                         <div className="flex items-center justify-between">
@@ -170,12 +223,11 @@ function ApostasContent() {
                 </motion.div>
             </div>
         )}
-        {/* MODAL SIMULADOR */}
         {showSimulator && (
             <div className="fixed inset-0 z-[200] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
                 <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="bg-[#151515] border border-cyan-500/30 rounded-2xl w-full max-w-3xl relative shadow-2xl my-auto">
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
-                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2"><Calculator size={20} /> Simulador de Resultados</h3>
+                        <h3 className="text-lg font-bold text-cyan-500 flex items-center gap-2"><Calculator size={20} /> Simulador</h3>
                         <button onClick={() => setShowSimulator(false)} className="text-gray-500 hover:text-white hover:bg-white/10 p-2 rounded-full transition-colors"><X size={24} /></button>
                     </div>
                     <div className="p-2 md:p-6 max-h-[85vh] overflow-y-auto custom-scrollbar"><ResultSimulator blockchainData={blockchainData} /></div>
@@ -190,7 +242,7 @@ function ApostasContent() {
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-cyan-500"></div>
                 <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse"><Lock size={40} className="text-[#D4A373]" /></div>
                 <h2 className="text-2xl font-bold text-white mb-2">Conectar Carteira</h2>
-                <p className="text-gray-400 mb-8 text-sm leading-relaxed">Conecte-se à rede Base para realizar suas aplicações.</p>
+                <p className="text-gray-400 mb-8 text-sm leading-relaxed">Conecte-se à rede Base para jogar.</p>
                 <div className="flex justify-center"><ConnectButton /></div>
                 <Link href="/"><button className="mt-6 text-gray-500 text-xs hover:text-white flex items-center justify-center gap-1 mx-auto"><Home size={12} /> Voltar</button></Link>
             </div>
@@ -202,7 +254,6 @@ function ApostasContent() {
             <div className="flex gap-4 md:gap-8 items-center opacity-80 whitespace-nowrap px-4">
                 <span className="flex items-center gap-1 text-emerald-500"><Activity size={10} /> BASE MAINNET</span>
                 <span className="flex items-center gap-1 text-[#D4A373]"><DollarSign size={10} /> ETH/USD: {`$${ethPriceUSD.toFixed(2)}`}</span>
-                <span className="hidden md:flex items-center gap-1 text-blue-400"><Zap size={10} /> LIVE</span>
             </div>
           </div>
 
@@ -226,7 +277,8 @@ function ApostasContent() {
 
           <div className="container mx-auto p-4 mt-20 md:mt-28 flex justify-center">
             <div className="w-full max-w-4xl">
-                <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative">
+                
+                <div className="bg-[#151515] rounded-[24px] border border-white/5 shadow-2xl overflow-hidden relative mb-12">
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-1 bg-[#D4A373] opacity-50 blur-sm"></div>
                     <div className="bg-[#0f0f0f] p-5 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4">
                             <div className="flex bg-[#1a1a1a] rounded-lg p-1 border border-white/5">
@@ -265,6 +317,58 @@ function ApostasContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* --- SEÇÃO MINHAS APOSTAS (AGORA CONECTADA À BLOCKCHAIN) --- */}
+                <div className="bg-[#151515] rounded-[24px] border border-white/5 overflow-hidden shadow-xl mb-12">
+                     <div className="p-5 border-b border-white/5 flex items-center gap-3 bg-[#0f0f0f]">
+                         <History className="text-[#D4A373]" size={20} />
+                         <h3 className="text-lg font-bold text-white">Minhas Apostas (Rodada Atual #{String(rodadaId || '...')})</h3>
+                         {loadingApostas && <Loader2 size={16} className="animate-spin text-gray-500" />}
+                     </div>
+                     
+                     <div className="p-6">
+                        {loadingApostas ? (
+                            <div className="text-center py-8 text-gray-500">Buscando na Blockchain...</div>
+                        ) : listaApostas.length > 0 ? (
+                            <div className="space-y-3">
+                                {listaApostas.map((aposta: any, index: number) => (
+                                    <div key={index} className="bg-[#0a0a0a] rounded-xl border border-white/5 p-4 flex flex-col gap-4 hover:border-white/10 transition-colors">
+                                        
+                                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${aposta.tier === 2 ? 'bg-white text-black' : 'bg-[#D4A373] text-black'}`}>
+                                                    {aposta.tier === 2 ? 'INTER-BET' : 'BÁSICO'}
+                                                </span>
+                                                <span className="text-[10px] text-gray-500">ID: {index + 1}</span>
+                                            </div>
+                                            <div className="text-[10px] text-gray-600 flex items-center gap-1">
+                                                 {aposta.processada ? <span className="text-red-500">Finalizada</span> : <span className="text-green-500">Em Jogo</span>}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-5 gap-2">
+                                            {aposta.coordsFormatadas && aposta.coordsFormatadas.map((coord: any, idx: number) => (
+                                                <div key={idx} className="bg-[#151515] p-1.5 rounded border border-white/5 text-center">
+                                                    <div className="text-[8px] text-gray-500 uppercase mb-0.5">{idx + 1}º</div>
+                                                    <div className="text-xs font-mono font-bold text-gray-300">
+                                                        {coord.x}<span className="text-gray-600 mx-0.5">/</span>{coord.y}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="text-center py-10 border border-dashed border-white/10 rounded-xl bg-[#0a0a0a]/50">
+                                <Trophy size={32} className="text-gray-600 mx-auto mb-3" />
+                                <p className="text-gray-400 font-medium">Você ainda não apostou nesta rodada</p>
+                            </div>
+                        )}
+                     </div>
+                </div>
+                {/* ---------------------------------------- */}
+
             </div>
           </div>
       </div>
