@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 11, 12, 16; /* #0b0c10 - Preto Profundo Oficial */
+  --gold-primary: #cfb16d; /* Dourado da Identidade Visual */
+}
+
+/* Configurações Globais */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #0b0c10; /* Fundo Preto Profundo para todo o site */
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Seleção de Texto Premium (Dourado com texto preto) */
+::selection {
+  background-color: var(--gold-primary);
+  color: #000000;
+}
+
+/* --- BARRA DE ROLAGEM PERSONALIZADA (Scrollbar) --- */
+@layer utilities {
+  /* Para Chrome, Safari e Edge */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #0a0a0a; 
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #2a2d35; /* Cinza escuro discreto */
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cfb16d; /* DOURADO ao passar o mouse */
+  }
+
+  /* Utilitário para esconder a barra mas manter a rolagem (usado em tabelas) */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  /* Scrollbar customizada fina para containers internos (como a tabela da matriz ou histórico) */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(207, 177, 109, 0.2); /* Dourado suave */
+    border-radius: 10px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #cfb16d; /* Dourado sólido */
+  }
+}
+
+/* --- ANIMAÇÕES PERSONALIZADAS --- */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-pulse-slow {
+  animation: pulseSlow 3s infinite;
+}
+
+/* Utilitários de atraso (Delays) para entrada sequencial */
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
