@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-// import Image from 'next/image'; 
 import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, ChevronRight, BarChart3 } from 'lucide-react';
 
 export default function HomePage() {
@@ -18,7 +17,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0b0c10] font-sans text-slate-100 selection:bg-[#cfb16d] selection:text-black overflow-x-hidden">
       
-      {/* BACKGROUND EFFECTS */}
+      {/* EFEITOS DE FUNDO */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#cfb16d]/5 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#cfb16d]/5 blur-[120px] rounded-full"></div>
@@ -66,47 +65,61 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* HERO SECTION - AJUSTADO AQUI (pt-28 e md:pt-32) */}
-      <section className="relative pt-28 pb-20 md:pt-32 md:pb-32 container mx-auto px-4 text-center">
+      {/* --- HERO SECTION REORGANIZADA --- */}
+      <section className="relative pt-32 pb-20 md:pt-36 md:pb-32 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6" id="inicio">
         
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#13151a] border border-[#2a2d35] text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#cfb16d] mb-8 animate-fade-in hover:border-[#cfb16d] transition-colors cursor-default">
-          <span className="w-2 h-2 rounded-full bg-[#cfb16d] animate-pulse"></span>
-          Protocolo 100% On-Chain
-        </div>
-        
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.95] tracking-tighter mb-8">
-          A SORTE AGORA É <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#cfb16d] via-[#f0e68c] to-[#cfb16d]">MATEMÁTICA.</span>
+        {/* 1. Bem-vindo */}
+        <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wide animate-fade-in">
+            Bem-vindo... <span className="text-[#cfb16d] block md:inline">BBB & Inter-Bet!</span>
+        </h3>
+
+        {/* 2. A Sorte é Matemática (Manchete Principal) */}
+        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.9] tracking-tighter my-2 drop-shadow-2xl">
+            A SORTE AGORA É <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#cfb16d] via-[#f0e68c] to-[#cfb16d]">
+                MATEMÁTICA.
+            </span>
         </h1>
-        
-        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.
+
+        {/* 3. Subtítulo e Frase de Impacto */}
+        <div className="max-w-4xl space-y-4">
+            <h2 className="text-xl md:text-3xl font-bold text-gray-200">
+                Blockchain Bet Brasil - O BBB da Web3.
+                <span className="text-white block mt-1 font-light">Interação e estratégia, sem paredão.</span>
+            </h2>
+            
+            <p className="text-xl md:text-2xl font-bold text-[#cfb16d] animate-pulse drop-shadow-lg py-2">
+                Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!
+            </p>
+        </div>
+
+        {/* 4. Descrição Técnica */}
+        <p className="text-base md:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed border-t border-[#2a2d35] pt-6 mt-2">
+            Aplicação sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.
         </p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+        {/* Botões de Ação */}
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8 w-full">
           <Link href="/inter-bet" className="w-full md:w-auto">
-            <button className="w-full md:w-auto bg-[#cfb16d] hover:bg-[#b59a5e] text-black font-bold text-lg px-8 py-4 rounded-xl shadow-[0_0_30px_rgba(207,177,109,0.2)] hover:shadow-[0_0_50px_rgba(207,177,109,0.4)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
+            <button className="w-full md:w-auto bg-[#cfb16d] hover:bg-[#b59a5e] text-black font-bold text-lg px-10 py-4 rounded-xl shadow-[0_0_30px_rgba(207,177,109,0.2)] hover:shadow-[0_0_50px_rgba(207,177,109,0.4)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
               Iniciar Adesão <ArrowRight size={20} />
             </button>
           </Link>
           <Link href="/como-funciona" className="w-full md:w-auto">
-            <button className="w-full md:w-auto bg-[#111] text-white border border-[#2a2d35] font-bold text-lg px-8 py-4 rounded-xl hover:bg-[#1a1a1a] hover:border-white/20 transition-all flex items-center justify-center gap-2">
+            <button className="w-full md:w-auto bg-[#111] text-white border border-[#2a2d35] font-bold text-lg px-10 py-4 rounded-xl hover:bg-[#1a1a1a] hover:border-white/20 transition-all flex items-center justify-center gap-2">
               Ler Documentação
             </button>
           </Link>
         </div>
 
-        {/* TRUST BADGES */}
-        <div className="mt-20 pt-8 border-t border-[#2a2d35] flex flex-wrap justify-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+        {/* Badges de Confiança */}
+        <div className="mt-16 flex flex-wrap justify-center gap-6 md:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 w-full">
           <div className="flex items-center gap-2"><Globe size={18} /> <span className="text-sm font-mono">Base Network</span></div>
           <div className="flex items-center gap-2"><Cpu size={18} /> <span className="text-sm font-mono">Chainlink VRF v2.5</span></div>
           <div className="flex items-center gap-2"><Lock size={18} /> <span className="text-sm font-mono">Audited Contract</span></div>
         </div>
       </section>
 
-      {/* RESTO DO CÓDIGO IGUAL... (Features, CTA, etc) */}
-      {/* ... (O restante permanece igual, só alteramos a section acima) */}
-      
       {/* FEATURES GRID */}
       <section className="py-20 bg-[#08090c] border-y border-[#2a2d35]">
         <div className="container mx-auto px-4">
