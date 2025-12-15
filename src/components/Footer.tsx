@@ -23,7 +23,7 @@ export default function Footer() {
             <Link href="/termos-de-uso" className="hover:text-[#cfb16d] transition-colors">
                 Termos de Uso
             </Link>
-            <Link href="/politica-privacidade" className="hover:text-[#cfb16d] transition-colors">
+            <Link href="/politica-de-privacidade" className="hover:text-[#cfb16d] transition-colors">
                 Política de Privacidade
             </Link>
         </div>

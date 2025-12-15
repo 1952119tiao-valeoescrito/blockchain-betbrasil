@@ -1,6 +1,6 @@
 // ⚠️ ATENÇÃO: SUBSTITUA PELO ENDEREÇO DO NOVO CONTRATO APÓS O DEPLOY
 // O endereço antigo NÃO vai funcionar pois a lógica mudou completamente.
-export const CONTRACT_ADDRESS = "0x3a8a525af72Ac2dB2CFFFA9199A6b143e9cDa17B";
+export const CONTRACT_ADDRESS = "0x2d383228062F7d9B4Aca13A68FCadA3371aFAa9B";
 
 export const CONTRACT_ABI = [
     {
@@ -80,6 +80,25 @@ export const CONTRACT_ABI = [
       "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "rodadaId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "poteTotal",
+          "type": "uint256"
+        }
+      ],
+      "name": "CascataCalculada",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
           "indexed": false,
           "internalType": "address",
           "name": "vrfCoordinator",
@@ -101,23 +120,11 @@ export const CONTRACT_ABI = [
         {
           "indexed": true,
           "internalType": "address",
-          "name": "user",
+          "name": "participante",
           "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint8",
-          "name": "tier",
-          "type": "uint8"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "valor",
-          "type": "uint256"
         }
       ],
-      "name": "NovaAposta",
+      "name": "NovaAplicacao",
       "type": "event"
     },
     {
@@ -164,7 +171,7 @@ export const CONTRACT_ABI = [
         {
           "indexed": true,
           "internalType": "address",
-          "name": "user",
+          "name": "participante",
           "type": "address"
         },
         {
@@ -172,15 +179,9 @@ export const CONTRACT_ABI = [
           "internalType": "uint256",
           "name": "valor",
           "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
         }
       ],
-      "name": "PremioPago",
+      "name": "SaqueRealizado",
       "type": "event"
     },
     {
@@ -199,7 +200,7 @@ export const CONTRACT_ABI = [
           "type": "uint8[10]"
         }
       ],
-      "name": "ResultadoDefinido",
+      "name": "SorteioRealizado",
       "type": "event"
     },
     {
@@ -209,31 +210,6 @@ export const CONTRACT_ABI = [
           "indexed": true,
           "internalType": "uint256",
           "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "totalPot",
-          "type": "uint256"
-        }
-      ],
-      "name": "RodadaFechada",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "rodadaId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "requestId",
           "type": "uint256"
         }
       ],
@@ -244,14 +220,39 @@ export const CONTRACT_ABI = [
       "anonymous": false,
       "inputs": [
         {
-          "indexed": false,
+          "indexed": true,
           "internalType": "uint256",
-          "name": "valor",
+          "name": "rodadaId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "participante",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8",
+          "name": "pontos",
+          "type": "uint8"
+        }
+      ],
+      "name": "VitoriaRegistrada",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "DURACAO_RODADA",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
           "type": "uint256"
         }
       ],
-      "name": "TreasuryPaga",
-      "type": "event"
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -268,7 +269,7 @@ export const CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "INTERVALO_MINIMO_RODADA",
+      "name": "JANELA_CHECKIN",
       "outputs": [
         {
           "internalType": "uint256",
@@ -281,7 +282,7 @@ export const CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "MAX_APOSTAS_POR_RODADA",
+      "name": "MAX_APLICACOES",
       "outputs": [
         {
           "internalType": "uint256",
@@ -295,19 +296,6 @@ export const CONTRACT_ABI = [
     {
       "inputs": [],
       "name": "MAX_NUM",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "NUMS_TO_PICK",
       "outputs": [
         {
           "internalType": "uint256",
@@ -351,37 +339,54 @@ export const CONTRACT_ABI = [
           "type": "uint256"
         }
       ],
-      "name": "apostasDaRodada",
+      "name": "aplicacoesDaRodada",
       "outputs": [
         {
           "internalType": "address",
-          "name": "apostador",
+          "name": "participante",
           "type": "address"
         },
         {
-          "internalType": "uint8",
-          "name": "tier",
-          "type": "uint8"
-        },
-        {
           "internalType": "bool",
-          "name": "processada",
+          "name": "verificado",
           "type": "bool"
         },
         {
-          "internalType": "uint256",
-          "name": "valorPago",
-          "type": "uint256"
+          "internalType": "bool",
+          "name": "pago",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint8",
+          "name": "pontos",
+          "type": "uint8"
         }
       ],
       "stateMutability": "view",
       "type": "function"
     },
     {
-      "inputs": [],
-      "name": "fecharRodadaESolicitarResultado",
-      "outputs": [],
-      "stateMutability": "nonpayable",
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        }
+      ],
+      "name": "checkUpkeep",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "upkeepNeeded",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "performData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -397,39 +402,44 @@ export const CONTRACT_ABI = [
           "type": "address"
         }
       ],
-      "name": "getMinhasApostas",
+      "name": "getAplicacoesUsuario",
       "outputs": [
         {
           "components": [
             {
               "internalType": "address",
-              "name": "apostador",
+              "name": "participante",
               "type": "address"
             },
             {
               "internalType": "uint8[10]",
-              "name": "coordenadas",
+              "name": "prognosticos",
               "type": "uint8[10]"
             },
             {
-              "internalType": "uint8",
-              "name": "tier",
-              "type": "uint8"
-            },
-            {
               "internalType": "bool",
-              "name": "processada",
+              "name": "verificado",
               "type": "bool"
             },
             {
-              "internalType": "uint256",
-              "name": "valorPago",
-              "type": "uint256"
+              "internalType": "bool",
+              "name": "pago",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint8",
+              "name": "pontos",
+              "type": "uint8"
             }
           ],
-          "internalType": "struct BlockchainBetBrasilTrustless.Aposta[]",
+          "internalType": "struct BlockchainBetBrasil.Aplicacao[]",
           "name": "",
           "type": "tuple[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "",
+          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
@@ -446,6 +456,19 @@ export const CONTRACT_ABI = [
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "performData",
+          "type": "bytes"
+        }
+      ],
+      "name": "performUpkeep",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -470,31 +493,13 @@ export const CONTRACT_ABI = [
       "inputs": [
         {
           "internalType": "uint8[10]",
-          "name": "_coords",
+          "name": "_prognosticos",
           "type": "uint8[10]"
-        },
-        {
-          "internalType": "uint8",
-          "name": "_tier",
-          "type": "uint8"
         }
       ],
       "name": "realizarAplicacao",
       "outputs": [],
       "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_rodadaId",
-          "type": "uint256"
-        }
-      ],
-      "name": "reivindicarPremio",
-      "outputs": [],
-      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -532,42 +537,37 @@ export const CONTRACT_ABI = [
         },
         {
           "internalType": "bool",
+          "name": "sorteada",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
           "name": "finalizada",
           "type": "bool"
         },
         {
           "internalType": "uint256",
-          "name": "totalArrecadadoBasic",
+          "name": "totalArrecadado",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
-          "name": "totalArrecadadoInvest",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "premioPorGanhadorBasic",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "premioPorGanhadorInvest",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "timestampInicio",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "timestampFim",
+          "name": "boloAcumulado",
           "type": "uint256"
         },
         {
           "internalType": "uint256",
           "name": "requestId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestampSorteio",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestampInicio",
           "type": "uint256"
         }
       ],
@@ -590,6 +590,37 @@ export const CONTRACT_ABI = [
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "_rodadaId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_indiceApp",
+          "type": "uint256"
+        }
+      ],
+      "name": "sacarRendimento",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "saldoRollover",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "_vrfCoordinator",
           "type": "address"
@@ -604,35 +635,29 @@ export const CONTRACT_ABI = [
       "inputs": [
         {
           "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "stats",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "freeBetsBasic",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "freeBetsInvest",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
           "name": "to",
           "type": "address"
         }
       ],
       "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_rodadaId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_indiceApp",
+          "type": "uint256"
+        }
+      ],
+      "name": "verificarAplicacao",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

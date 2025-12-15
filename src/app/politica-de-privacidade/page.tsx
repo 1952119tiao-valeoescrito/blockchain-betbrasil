@@ -40,4 +40,86 @@ export default function PoliticaPrivacidade() {
           <div className="prose prose-invert prose-lg max-w-none text-gray-300 leading-relaxed space-y-8 relative z-10 text-sm md:text-base">
             <p>
               A <strong>{platformName}</strong> é uma Interface Descentralizada (DApp) que interage diretamente com a rede <strong>Base Mainnet</strong>. 
-              Diferente de plataformas
+              Diferente de plataformas tradicionais, nós não mantemos um banco de dados centralizado com suas senhas, e-mails ou dados pessoais sensíveis.
+            </p>
+
+            {/* SEÇÃO 1 */}
+            <div>
+                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
+                <Database className="text-[#cfb16d]" size={20} /> 1. Dados Públicos vs. Privados
+                </h2>
+                <p className="text-gray-400 mb-3">
+                Ao conectar sua carteira (Wallet), o sistema lê apenas informações que são, por natureza, <strong>públicas</strong> na Blockchain:
+                </p>
+                <ul className="list-none space-y-3 bg-[#0b0c10] p-5 rounded-xl border border-[#2a2d35] text-sm">
+                    <li className="flex items-start gap-3">
+                        <span className="text-[#cfb16d] font-bold">✓</span>
+                        <span>Endereço Público da Carteira (Public Address).</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                        <span className="text-[#cfb16d] font-bold">✓</span>
+                        <span>Histórico de Interações com o Contrato Inteligente (Adesões e Saques).</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                        <span className="text-[#cfb16d] font-bold">✓</span>
+                        <span>Saldo de Token Nativo (ETH) para verificação de capacidade de adesão.</span>
+                    </li>
+                </ul>
+            </div>
+
+            {/* SEÇÃO 2 */}
+            <div>
+                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
+                <Eye className="text-[#cfb16d]" size={20} /> 2. Rastreamento e Analytics
+                </h2>
+                <p className="text-gray-400">
+                Utilizamos ferramentas de análise anônima (Google Analytics) estritamente para métricas de performance (tráfego, origem geográfica geral). 
+                <strong>Não realizamos cruzamento de dados</strong> (fingerprinting) para associar sua carteira à sua identidade física.
+                </p>
+            </div>
+
+            {/* SEÇÃO 3 */}
+            <div>
+                <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2 uppercase tracking-wide">
+                <Lock className="text-[#cfb16d]" size={20} /> 3. Segurança dos Fundos (Trustless)
+                </h2>
+                <div className="bg-[#cfb16d]/10 border-l-4 border-[#cfb16d] p-4 rounded-r-lg">
+                    <p className="text-sm text-[#cfb16d] font-bold">
+                        Nós NUNCA teremos acesso às suas Chaves Privadas (Private Keys) ou Frase de Recuperação (Seed Phrase).
+                    </p>
+                </div>
+                <p className="text-gray-400 mt-4">
+                    Todas as transações de valor devem ser assinadas manualmente por você através da sua carteira. 
+                    O Contrato Inteligente é <strong>auditável e imutável</strong>, garantindo que as regras de distribuição não podem ser alteradas por terceiros.
+                </p>
+            </div>
+
+            {/* SEÇÃO 4 */}
+            <div>
+                <h2 className="text-lg font-bold text-white mb-4 uppercase tracking-wide">4. Contato e Suporte</h2>
+                <div className="bg-[#0b0c10] p-6 rounded-2xl border border-[#2a2d35]">
+                <p className="mb-4 text-sm text-gray-400">
+                    Para questões relacionadas à interface ou funcionamento do protocolo:
+                </p>
+                <div className="text-white font-mono text-sm space-y-2">
+                    <p className="flex items-center gap-2">
+                        <span className="text-[#cfb16d] font-bold uppercase text-xs">E-mail Oficial:</span> 
+                        sfchagasfilho@yahoo.com.br
+                    </p>
+                </div>
+                </div>
+            </div>
+          </div>
+
+          <div className="mt-12 text-center border-t border-[#2a2d35] pt-8">
+            <Link href="/">
+              <button className="bg-white text-black hover:bg-[#cfb16d] px-8 py-4 rounded-xl transition-all duration-300 font-bold shadow-lg transform hover:scale-105 uppercase tracking-wide text-sm">
+                Li e Concordo com os Termos
+              </button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
