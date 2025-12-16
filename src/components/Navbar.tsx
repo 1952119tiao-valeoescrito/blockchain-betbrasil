@@ -12,8 +12,8 @@ export default function Navbar() {
   const links = [
     { name: "Início", href: "/" },
     { name: "Como Funciona", href: "/como-funciona" },
+    { name: "Resultados / Saque", href: "/resultados" }, // <--- ADICIONE ISSO
     { name: "Premiação", href: "/premiacao" },
-    // A página /apostas (Adesão) deixamos destacada no botão Inter-Bet ou no Header
   ];
 
   return (
