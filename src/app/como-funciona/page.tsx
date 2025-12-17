@@ -1,10 +1,9 @@
 "use client";
 
 import Navbar from "../../components/Navbar";
-import { CheckCircle2, Cpu, Coins } from "lucide-react"; // Adicionei ícones para ficar mais visual
+import { CheckCircle2, Cpu, Coins, Search, FileText, Eye, ExternalLink, ShieldCheck } from "lucide-react";
 
 export default function ComoFunciona() {
-  // Gera os números de 1 a 25 para montar a matriz
   const nums = Array.from({ length: 25 }, (_, i) => i + 1);
 
   return (
@@ -13,7 +12,7 @@ export default function ComoFunciona() {
       
       <div className="container mx-auto px-4 pt-32 pb-20">
         
-        {/* Cabeçalho */}
+        {/* --- CABEÇALHO --- */}
         <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-[#cfb16d] mb-4 uppercase tracking-widest">
                 Matriz de Referência
@@ -24,8 +23,8 @@ export default function ComoFunciona() {
             </p>
         </div>
         
-        {/* Container da Tabela (Estilo Card) */}
-        <div className="max-w-6xl mx-auto bg-[#13151a] border border-[#2a2d35] rounded-2xl p-6 shadow-2xl">
+        {/* --- TABELA DA MATRIZ --- */}
+        <div className="max-w-6xl mx-auto bg-[#13151a] border border-[#2a2d35] rounded-2xl p-6 shadow-2xl mb-20">
             
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-bold text-white">Tabela de Prognósticos (X/Y)</h3>
@@ -34,8 +33,7 @@ export default function ComoFunciona() {
                 </div>
             </div>
 
-            {/* A TABELA DE 625 ITENS */}
-            <div className="overflow-x-auto overflow-y-auto max-h-[600px] border border-[#2a2d35] rounded-lg scrollbar-thin scrollbar-thumb-[#cfb16d] scrollbar-track-[#0b0c10]">
+            <div className="overflow-x-auto overflow-y-auto max-h-[500px] border border-[#2a2d35] rounded-lg scrollbar-thin scrollbar-thumb-[#cfb16d] scrollbar-track-[#0b0c10]">
                 <table className="w-full text-center border-collapse">
                     <thead className="bg-[#1a1c22] sticky top-0 z-10">
                         <tr>
@@ -50,12 +48,9 @@ export default function ComoFunciona() {
                     <tbody className="bg-[#0b0c10]">
                         {nums.map(x => (
                             <tr key={x} className="hover:bg-[#1e2029] transition-colors">
-                                {/* Coluna Indicadora do X */}
                                 <td className="p-3 bg-[#13151a] border-r border-[#2a2d35] text-[#cfb16d] font-bold text-xs sticky left-0 z-10">
                                     X-{x}
                                 </td>
-                                
-                                {/* Células da Matriz (1/1, 1/2, etc) */}
                                 {nums.map(y => (
                                     <td key={`${x}-${y}`} className="p-2 border border-[#1a1c22] text-xs text-gray-500 font-mono hover:text-white hover:bg-[#cfb16d]/20 cursor-default">
                                         {x}/{y}
@@ -68,22 +63,17 @@ export default function ComoFunciona() {
             </div>
 
             <div className="mt-6 text-center">
-                <p className="text-sm text-gray-400 mb-4">
-                    A cada rodada, 5 prognósticos são validados pela Chainlink. A probabilidade é imutável e verificável na Blockchain.
-                </p>
                 <a 
                     href="/apostas" 
                     className="inline-block px-8 py-3 bg-[#cfb16d] text-black font-bold rounded-lg hover:bg-[#b59a5e] transition-all shadow-[0_0_20px_rgba(207,177,109,0.2)]"
                 >
-                    REALIZAR APLICAÇÃO
+                    REALIZAR APLICAÇÃO AGORA
                 </a>
             </div>
-
         </div>
 
-        {/* Regras Rápidas (Ajustadas para o Contrato Otimizado) */}
-        <div className="grid md:grid-cols-3 gap-6 mt-16 max-w-5xl mx-auto">
-            
+        {/* --- REGRAS RÁPIDAS --- */}
+        <div className="grid md:grid-cols-3 gap-6 mb-20 max-w-5xl mx-auto">
             <div className="p-6 bg-[#13151a] border border-[#2a2d35] rounded-xl hover:border-[#cfb16d]/50 transition-colors group">
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
                     <CheckCircle2 size={24} />
@@ -110,10 +100,80 @@ export default function ComoFunciona() {
                 </div>
                 <h4 className="text-white font-bold mb-2 text-lg">3. Apuração e Saque</h4>
                 <p className="text-sm text-gray-400">
-                    Após o sorteio e cálculo da cascata (90% payout), os vencedores <strong>reivindicam (sacam)</strong> seus rendimentos diretamente no painel.
+                    Após o sorteio e cálculo da cascata (90% payout), os vencedores reivindicam (sacam) seus rendimentos diretamente no painel.
                 </p>
             </div>
+        </div>
 
+        {/* --- TUTORIAL DE AUDITORIA (NOVO) --- */}
+        <div className="max-w-4xl mx-auto bg-[#0f1014] border border-[#2a2d35] rounded-3xl p-8 md:p-12 relative overflow-hidden">
+            {/* Fundo Decorativo */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#cfb16d]/5 rounded-full blur-[100px] pointer-events-none"></div>
+
+            <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
+                <ShieldCheck className="text-[#cfb16d]" size={32} />
+                Como Auditar sua Aplicação?
+            </h2>
+
+            <div className="space-y-8 relative z-10">
+                
+                {/* Passo 1 */}
+                <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">1</div>
+                    <div>
+                        <h3 className="text-lg font-bold text-white mb-2">Acesse o Comprovante (BaseScan)</h3>
+                        <p className="text-gray-400 text-sm mb-3">
+                            Ao confirmar sua aplicação, você receberá um link para o <strong>BaseScan</strong>. Você também pode encontrá-lo no histórico da sua carteira.
+                        </p>
+                        <div className="inline-flex items-center gap-2 px-3 py-2 bg-[#13151a] rounded border border-[#2a2d35] text-xs text-blue-400">
+                            <ExternalLink size={12} /> View on block explorer
+                        </div>
+                    </div>
+                </div>
+
+                {/* Passo 2 */}
+                <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">2</div>
+                    <div>
+                        <h3 className="text-lg font-bold text-white mb-2">Decodifique os Dados</h3>
+                        <p className="text-gray-400 text-sm mb-3">
+                            No BaseScan, role até a aba <strong>Overview</strong> e clique no botão <strong>"Decode Input Data"</strong>. Isso traduzirá o código da blockchain para números legíveis.
+                        </p>
+                        
+                        {/* Simulação Visual do BaseScan */}
+                        <div className="bg-white text-black p-4 rounded-lg font-mono text-xs shadow-lg max-w-md border-l-4 border-[#cfb16d]">
+                            <div className="flex justify-between border-b border-gray-200 pb-2 mb-2">
+                                <span className="font-bold text-gray-600">Input Data</span>
+                                <span className="bg-gray-200 px-2 py-0.5 rounded text-[10px]">Decoded</span>
+                            </div>
+                            <div className="space-y-1">
+                                <p><span className="text-gray-500">Function:</span> realizarAplicacao(uint8[10] _prognosticos)</p>
+                                <p><span className="text-gray-500">MethodID:</span> 0x8b...3a</p>
+                                <div className="mt-2 bg-gray-100 p-2 rounded">
+                                    <span className="text-gray-500">[0]:</span> <span className="font-bold text-blue-600">_prognosticos</span> (uint8[])
+                                    <br/>
+                                    <span className="ml-4 text-black">[ 1, 1, 15, 3, 25, 25, 8, 2, 10, 10 ]</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p className="text-[10px] text-gray-500 mt-2 italic">
+                            *Exemplo: Aqui você vê seus números (1/1, 15/3, 25/25...) gravados eternamente.
+                        </p>
+                    </div>
+                </div>
+
+                {/* Passo 3 */}
+                <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">3</div>
+                    <div>
+                        <h3 className="text-lg font-bold text-white mb-2">Confirmação Imutável</h3>
+                        <p className="text-gray-400 text-sm">
+                            Uma vez confirmado o bloco, <strong>ninguém</strong> (nem os desenvolvedores) pode alterar seus números. Seus prognósticos estão seguros matematicamente até o momento da apuração.
+                        </p>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
       </div>
