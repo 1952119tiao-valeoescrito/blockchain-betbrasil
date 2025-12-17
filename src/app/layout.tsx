@@ -3,13 +3,13 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 
-// Imports Oficiais e Otimizados
+// Import Oficial do Google
 import { GoogleAnalytics } from '@next/third-parties/google';
 import Script from 'next/script';
 
 // Componentes do Projeto
 import { Web3Provider } from "../Web3Provider";
-import Footer from "../components/Footer"; // Importando o Footer que criamos
+import Footer from "../components/Footer";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   title: "Blockchain Bet Brasil | Protocolo Web3",
   description: "Sistema Descentralizado de Distribuição e Prognósticos na Rede Base.",
   icons: {
-    icon: '/images/logo.png', // Garante que o ícone apareça na aba do navegador
+    icon: '/images/logo.png',
   },
 };
 
@@ -31,25 +31,20 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0c10] text-gray-200 selection:bg-[#cfb16d] selection:text-black`}>
         <Web3Provider>
             
-            {/* 
-               NOTA: Navbar global removido propositalmente.
-               Cada página gerencia seu próprio menu para flexibilidade.
-            */}
-
             {/* Conteúdo Principal */}
             <main className="flex-grow flex flex-col">
                 {children}
             </main>
 
-            {/* Rodapé Global (Importado do Componente) */}
+            {/* Rodapé Global */}
             <Footer />
             
         </Web3Provider>
 
-        {/* Google Analytics */}
+        {/* 👇 GOOGLE ANALYTICS OFICIAL */}
         <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
 
-        {/* JivoChat */}
+        {/* JivoChat (Mantido conforme configuração anterior) */}
         <Script 
           src="//code.jivosite.com/widget/uIZfU1ccP5" 
           strategy="lazyOnload" 

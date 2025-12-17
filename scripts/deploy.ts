@@ -18,7 +18,7 @@ async function main() {
   const keyHash = "0x9e1344a14d322025f6baf9738c6541604a11c8a3069176378c3b174775d78703";
 
   // SEU ID GIGANTE DA CHAINLINK (Confirme se é este mesmo)
-  const subscriptionId = "43006425227731859292746153181735802666457705377193959189252672374584802340013"; 
+  const subscriptionId = "29574306574099432236311817104098705224295120407155089140736933246380503803700"; 
 
   // Sua carteira (onde cairão os 10% de taxa)
   const treasury = deployer.address;
