@@ -18,7 +18,7 @@ const config: HardhatUserConfig = {
   },
   networks: {
     base: {
-      url: "https://mainnet.base.org",
+      url: "https://1rpc.io/base",
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
       chainId: 8453,
       // Configurações de Gas para garantir que a transação não trave

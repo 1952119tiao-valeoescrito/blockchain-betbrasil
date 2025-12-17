@@ -1,6 +1,6 @@
 // ⚠️ ATENÇÃO: SUBSTITUA PELO ENDEREÇO DO NOVO CONTRATO APÓS O DEPLOY
 // O endereço antigo NÃO vai funcionar pois a lógica mudou completamente.
-export const CONTRACT_ADDRESS = "0x726A85813C2d69C3bf70D32DcAf0201327B2E416";
+export const CONTRACT_ADDRESS = "0xA2aE0D44613fA0b47738F9f45599f9Da83B52d61";
 
 export const CONTRACT_ABI = [
     {
