@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image"; // Importação do componente de Imagem
+import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Menu, X, Zap } from "lucide-react";
 
@@ -21,23 +21,28 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-20">
           
           {/* --- LOGO + NOME --- */}
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition group">
+          <Link href="/" className="flex items-center space-x-2 md:space-x-3 hover:opacity-80 transition group z-50">
             
-            {/* Container da Imagem (Visível em Mobile e Desktop) */}
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a]">
+            {/* Logo Imagem */}
+            <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a] flex-shrink-0">
                 <Image 
                   src="/images/logo.png" 
                   alt="Blockchain Bet Brasil Logo" 
                   fill
-                  className="object-cover p-1" // p-1 dá um respiro para a borda não colar no logo
+                  className="object-cover p-1"
                   priority
                 />
             </div>
 
-            {/* Texto (Escondido em telas muito pequenas para não quebrar, visível em tablets/desktop) */}
-            <span className="font-bold text-white tracking-tight hidden sm:block text-sm md:text-base uppercase leading-tight">
-              Blockchain Bet <span className="text-[#cfb16d] block md:inline">Brasil</span>
-            </span>
+            {/* Texto (Agora visível no Mobile também) */}
+            <div className="flex flex-col leading-none">
+                <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">
+                  Blockchain Bet
+                </span>
+                <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">
+                  Brasil
+                </span>
+            </div>
           </Link>
 
           {/* --- MENU DESKTOP --- */}
@@ -52,7 +57,7 @@ export default function Navbar() {
               </Link>
             ))}
             
-            {/* Link Especial Inter-Bet (Dourado) */}
+            {/* Link Especial Inter-Bet */}
             <Link 
                 href="/inter-bet" 
                 className="text-sm font-bold text-[#cfb16d] hover:text-[#b59a5e] transition-colors flex items-center gap-1 border border-[#cfb16d]/20 px-3 py-1.5 rounded-lg hover:bg-[#cfb16d]/10"
@@ -62,14 +67,15 @@ export default function Navbar() {
           </div>
 
           {/* --- BOTÕES (Carteira + Mobile) --- */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             
             {/* Botão da Carteira (RainbowKit) */}
-            <div className="scale-90 sm:scale-100">
+            {/* Ajustado para ficar apenas o ícone ou menor no mobile para não quebrar */}
+            <div className="scale-75 md:scale-100 origin-right">
                <ConnectButton 
                  showBalance={false} 
-                 accountStatus={{ smallScreen: 'avatar', largeScreen: 'full' }} 
-                 chainStatus="icon" 
+                 accountStatus="avatar"
+                 chainStatus="none"
                />
             </div>
 
@@ -89,7 +95,7 @@ export default function Navbar() {
 
       {/* --- MENU MOBILE EXPANSÍVEL --- */}
       {isOpen && (
-        <div className="md:hidden bg-[#0b0c10] border-b border-[#2a2d35] shadow-2xl animate-in slide-in-from-top-5">
+        <div className="md:hidden bg-[#0b0c10] border-b border-[#2a2d35] shadow-2xl animate-in slide-in-from-top-5 absolute top-20 left-0 w-full">
           <div className="px-6 py-6 space-y-4 flex flex-col">
             {links.map((link) => (
               <Link
