@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image'; // <--- Importando Image
 import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, ChevronRight, BarChart3 } from 'lucide-react';
 
 export default function HomePage() {
@@ -23,12 +24,19 @@ export default function HomePage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#cfb16d]/5 blur-[120px] rounded-full"></div>
       </div>
 
-      {/* NAVBAR */}
+      {/* NAVBAR DA HOME */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${isScrolled ? 'bg-[#0b0c10]/90 backdrop-blur-md border-[#2a2d35] py-3' : 'bg-transparent border-transparent py-5'}`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
+          
+          {/* LOGO CORRIGIDO */}
           <div className="flex items-center gap-3">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#2a2d35] shadow-lg shadow-[#cfb16d]/10 flex items-center justify-center bg-[#13151a]">
-               <span className="text-[#cfb16d] font-bold text-xl">B</span>
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border border-[#2a2d35] shadow-lg shadow-[#cfb16d]/10 bg-[#13151a]">
+               <Image 
+                  src="/images/logo.png" 
+                  alt="Logo" 
+                  fill 
+                  className="object-cover p-1"
+               />
             </div>
             <span className="font-bold text-lg tracking-tight hidden md:block text-white">
               Blockchain Bet <span className="text-[#cfb16d]">Brasil</span>
@@ -65,40 +73,30 @@ export default function HomePage() {
         )}
       </nav>
 
-      {/* --- HERO SECTION REORGANIZADA --- */}
-      <section className="relative pt-32 pb-20 md:pt-36 md:pb-32 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6" id="inicio">
-        
-        {/* 1. Bem-vindo */}
-        <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wide animate-fade-in">
-            Bem-vindo... <span className="text-[#cfb16d] block md:inline">BBB & Inter-Bet!</span>
-        </h3>
-
-        {/* 2. A Sorte é Matemática (Manchete Principal) */}
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-black text-white leading-[0.9] tracking-tighter my-2 drop-shadow-2xl">
-            A SORTE AGORA É <br />
+      {/* HERO SECTION */}
+      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6" id="inicio">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#13151a] border border-[#2a2d35] text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#cfb16d] mb-4 animate-fade-in hover:border-[#cfb16d] transition-colors cursor-default">
+          <span className="w-2 h-2 rounded-full bg-[#cfb16d] animate-pulse"></span>
+          Protocolo 100% On-Chain
+        </div>
+        <h3 className="text-4xl md:text-6xl font-extrabold text-white leading-tight animate-fade-in drop-shadow-2xl">
+            Bem-vindo...<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#cfb16d] via-[#f0e68c] to-[#cfb16d]">
-                MATEMÁTICA.
+                BBB & Inter-Bet!
             </span>
-        </h1>
-
-        {/* 3. Subtítulo e Frase de Impacto */}
-        <div className="max-w-4xl space-y-4">
-            <h2 className="text-xl md:text-3xl font-bold text-gray-200">
+        </h3>
+        <div className="my-4 max-w-4xl">
+            <h2 className="text-2xl md:text-4xl font-bold text-gray-200">
                 Blockchain Bet Brasil - O BBB da Web3.
                 <span className="text-white block mt-1 font-light">Interação e estratégia, sem paredão.</span>
             </h2>
-            
-            <p className="text-xl md:text-2xl font-bold text-[#cfb16d] animate-pulse drop-shadow-lg py-2">
+            <p className="mt-6 text-xl md:text-3xl font-bold text-[#cfb16d] animate-pulse drop-shadow-lg py-2">
                 Ganha com 5, 4, 3, 2 e até com 1 ponto apenas!
             </p>
         </div>
-
-        {/* 4. Descrição Técnica */}
         <p className="text-base md:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed border-t border-[#2a2d35] pt-6 mt-2">
             Aplicação sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.
         </p>
-
-        {/* Botões de Ação */}
         <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8 w-full">
           <Link href="/inter-bet" className="w-full md:w-auto">
             <button className="w-full md:w-auto bg-[#cfb16d] hover:bg-[#b59a5e] text-black font-bold text-lg px-10 py-4 rounded-xl shadow-[0_0_30px_rgba(207,177,109,0.2)] hover:shadow-[0_0_50px_rgba(207,177,109,0.4)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
@@ -111,8 +109,6 @@ export default function HomePage() {
             </button>
           </Link>
         </div>
-
-        {/* Badges de Confiança */}
         <div className="mt-16 flex flex-wrap justify-center gap-6 md:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 w-full">
           <div className="flex items-center gap-2"><Globe size={18} /> <span className="text-sm font-mono">Base Network</span></div>
           <div className="flex items-center gap-2"><Cpu size={18} /> <span className="text-sm font-mono">Chainlink VRF v2.5</span></div>
