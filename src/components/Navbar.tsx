@@ -9,9 +9,11 @@ import { Menu, X, Zap } from "lucide-react";
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  // 👇 AQUI ESTAVA O ERRO: Adicionei de volta o link de Resultados
   const links = [
     { name: "Início", href: "/" },
     { name: "Como Funciona", href: "/como-funciona" },
+    { name: "Resultados / Saque", href: "/resultados" }, // <--- VOLTOU!
     { name: "Premiação", href: "/premiacao" },
   ];
 
@@ -34,7 +36,7 @@ export default function Navbar() {
                 />
             </div>
 
-            {/* Texto (Agora visível no Mobile também) */}
+            {/* Texto (Visível no Mobile e Desktop) */}
             <div className="flex flex-col leading-none">
                 <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">
                   Blockchain Bet
@@ -46,12 +48,12 @@ export default function Navbar() {
           </Link>
 
           {/* --- MENU DESKTOP --- */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
             {links.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                className="text-sm font-medium text-gray-400 hover:text-white transition-colors whitespace-nowrap"
               >
                 {link.name}
               </Link>
@@ -60,7 +62,7 @@ export default function Navbar() {
             {/* Link Especial Inter-Bet */}
             <Link 
                 href="/inter-bet" 
-                className="text-sm font-bold text-[#cfb16d] hover:text-[#b59a5e] transition-colors flex items-center gap-1 border border-[#cfb16d]/20 px-3 py-1.5 rounded-lg hover:bg-[#cfb16d]/10"
+                className="text-sm font-bold text-[#cfb16d] hover:text-[#b59a5e] transition-colors flex items-center gap-1 border border-[#cfb16d]/20 px-3 py-1.5 rounded-lg hover:bg-[#cfb16d]/10 whitespace-nowrap"
             >
                 <Zap size={14} /> Inter-Bet Pro
             </Link>
@@ -70,7 +72,6 @@ export default function Navbar() {
           <div className="flex items-center gap-2 md:gap-4">
             
             {/* Botão da Carteira (RainbowKit) */}
-            {/* Ajustado para ficar apenas o ícone ou menor no mobile para não quebrar */}
             <div className="scale-75 md:scale-100 origin-right">
                <ConnectButton 
                  showBalance={false} 
@@ -95,7 +96,7 @@ export default function Navbar() {
 
       {/* --- MENU MOBILE EXPANSÍVEL --- */}
       {isOpen && (
-        <div className="md:hidden bg-[#0b0c10] border-b border-[#2a2d35] shadow-2xl animate-in slide-in-from-top-5 absolute top-20 left-0 w-full">
+        <div className="md:hidden bg-[#0b0c10] border-b border-[#2a2d35] shadow-2xl animate-in slide-in-from-top-5 absolute top-20 left-0 w-full z-40">
           <div className="px-6 py-6 space-y-4 flex flex-col">
             {links.map((link) => (
               <Link

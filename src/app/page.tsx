@@ -29,7 +29,6 @@ export default function HomePage() {
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${isScrolled ? 'bg-[#0b0c10]/90 backdrop-blur-md border-[#2a2d35] py-3' : 'bg-transparent border-transparent py-5'}`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
           
-          {/* --- LOGO CORRIGIDO (MOBILE + DESKTOP) --- */}
           <div className="flex items-center gap-2 md:gap-3 z-50">
             <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden border border-[#2a2d35] shadow-lg shadow-[#cfb16d]/10 bg-[#13151a] flex-shrink-0">
                <Image 
@@ -39,32 +38,27 @@ export default function HomePage() {
                   className="object-cover p-1"
                />
             </div>
-            
             <div className="flex flex-col leading-none">
-                <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">
-                  Blockchain Bet
-                </span>
-                <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">
-                  Brasil
-                </span>
+                <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">Blockchain Bet</span>
+                <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">Brasil</span>
             </div>
           </div>
 
           {/* MENU DESKTOP */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6 lg:gap-8">
             <Link href="/como-funciona" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Como Funciona</Link>
+            <Link href="/resultados" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Resultados / Saque</Link>
             <Link href="/premiacao" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">Premiação</Link>
             <Link href="/inter-bet" className="text-sm font-medium text-[#cfb16d] hover:text-[#b08d55] transition-colors flex items-center gap-1">
                 <Zap size={14} /> Inter-Bet Pro
             </Link>
             
-            {/* Botão Carteira Desktop */}
             <div className="scale-100">
                <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="icon" />
             </div>
           </div>
 
-          {/* CONTROLES MOBILE (Carteira Pequena + Menu) */}
+          {/* CONTROLES MOBILE */}
           <div className="flex items-center gap-2 md:hidden">
             <div className="scale-75 origin-right">
                 <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="none" />
@@ -75,10 +69,11 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* MENU MOBILE EXPANSÍVEL */}
+        {/* MENU MOBILE */}
         {mobileMenuOpen && (
           <div className="absolute top-full left-0 w-full bg-[#0b0c10] border-b border-[#2a2d35] p-6 flex flex-col gap-4 md:hidden shadow-2xl animate-in slide-in-from-top-5">
              <Link href="/como-funciona" className="text-lg font-medium text-gray-300">Como Funciona</Link>
+             <Link href="/resultados" className="text-lg font-medium text-gray-300">Resultados / Saque</Link>
              <Link href="/premiacao" className="text-lg font-medium text-gray-300">Premiação</Link>
              <Link href="/inter-bet" className="text-lg font-bold text-[#cfb16d]">Inter-Bet Pro</Link>
              <Link href="/apostas">
@@ -134,7 +129,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* FEATURES GRID */}
+      {/* FEATURES */}
       <section className="py-20 bg-[#08090c] border-y border-[#2a2d35]">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8">
@@ -169,7 +164,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CALL TO ACTION */}
+      {/* CTA */}
       <section className="py-16 container mx-auto px-4">
         <div className="bg-gradient-to-r from-[#13151a] to-[#0b0c10] rounded-[32px] p-8 md:p-16 border border-[#2a2d35] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10">
           <div className="absolute top-0 right-0 w-64 h-64 bg-[#cfb16d]/10 rounded-full blur-[80px] pointer-events-none"></div>
