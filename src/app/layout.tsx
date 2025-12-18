@@ -3,11 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 
-// Import Oficial do Google
+// Imports Oficiais e Otimizados
 import { GoogleAnalytics } from '@next/third-parties/google';
 import Script from 'next/script';
 
-// Componentes do Projeto
+// Componentes
 import { Web3Provider } from "../Web3Provider";
 import Footer from "../components/Footer";
 
@@ -41,10 +41,10 @@ export default function RootLayout({
             
         </Web3Provider>
 
-        {/* 👇 GOOGLE ANALYTICS OFICIAL */}
+        {/* 👇 AQUI: Isso garante que o Analytics G-MGWSEGKZ0V seja carregado */}
         <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
 
-        {/* JivoChat (Mantido conforme configuração anterior) */}
+        {/* JivoChat */}
         <Script 
           src="//code.jivosite.com/widget/uIZfU1ccP5" 
           strategy="lazyOnload" 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-// import Image from "next/image"; // Se não tiver logo.png, deixe comentado e use o placeholder abaixo
+import Image from "next/image"; // Importação do componente de Imagem
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Menu, X, Zap } from "lucide-react";
 
@@ -12,7 +12,6 @@ export default function Navbar() {
   const links = [
     { name: "Início", href: "/" },
     { name: "Como Funciona", href: "/como-funciona" },
-    { name: "Resultados / Saque", href: "/resultados" }, // <--- ADICIONE ISSO
     { name: "Premiação", href: "/premiacao" },
   ];
 
@@ -21,14 +20,23 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           
-          {/* --- LOGO --- */}
+          {/* --- LOGO + NOME --- */}
           <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition group">
-            <div className="relative w-9 h-9 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors flex items-center justify-center bg-[#13151a]">
-                {/* Se tiver a imagem: <Image src="/images/logo.png" ... /> */}
-                <span className="text-[#cfb16d] font-bold text-lg">B</span>
+            
+            {/* Container da Imagem (Visível em Mobile e Desktop) */}
+            <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a]">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="Blockchain Bet Brasil Logo" 
+                  fill
+                  className="object-cover p-1" // p-1 dá um respiro para a borda não colar no logo
+                  priority
+                />
             </div>
-            <span className="font-bold text-white tracking-tight hidden sm:block text-sm md:text-base uppercase">
-              Blockchain Bet <span className="text-[#cfb16d]">Brasil</span>
+
+            {/* Texto (Escondido em telas muito pequenas para não quebrar, visível em tablets/desktop) */}
+            <span className="font-bold text-white tracking-tight hidden sm:block text-sm md:text-base uppercase leading-tight">
+              Blockchain Bet <span className="text-[#cfb16d] block md:inline">Brasil</span>
             </span>
           </Link>
 
