@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // <--- Importando Image
+import Image from 'next/image'; 
 import { ArrowLeft, CheckCircle2, Gem, Zap } from 'lucide-react';
+import { ConnectButton } from "@rainbow-me/rainbowkit"; // Opcional, se quiser o botão aqui também
 
 export default function InvestBetPage() {
   return (
@@ -13,8 +14,8 @@ export default function InvestBetPage() {
       <nav className="fixed top-0 left-0 right-0 bg-[#0b0c10]/90 backdrop-blur-md border-b border-[#2a2d35] z-50">
         <div className="container mx-auto px-4 h-20 flex items-center justify-between">
             <Link href="/" className="flex items-center gap-3 group">
-              {/* LOGO CORRIGIDO AQUI TAMBÉM */}
-              <div className="relative w-10 h-10 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a]">
+              {/* LOGO CORRIGIDO */}
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a]">
                  <Image 
                     src="/images/logo.png" 
                     alt="Logo" 
@@ -22,9 +23,12 @@ export default function InvestBetPage() {
                     className="object-cover p-1"
                  />
               </div>
-              <span className="text-white font-bold text-lg hidden md:block group-hover:text-[#cfb16d] transition-colors">
-                Blockchain Bet <span className="text-[#cfb16d]">Brasil</span>
-              </span>
+              
+              {/* TEXTO CORRIGIDO (Visível Mobile) */}
+              <div className="flex flex-col leading-none">
+                <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">Blockchain Bet</span>
+                <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">Brasil</span>
+              </div>
             </Link>
             <Link href="/">
                 <button className="flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-white transition-colors">
