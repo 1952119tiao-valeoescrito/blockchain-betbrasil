@@ -5,7 +5,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagm
 import { parseEther } from "viem";
 import Navbar from "../../components/Navbar";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../constants/abi";
-import { Check, Trash2, Zap } from "lucide-react";
+import { Check, Trash2, Zap, Grid3X3 } from "lucide-react";
 
 // --- TEMA VISUAL ---
 const THEME = {
@@ -50,7 +50,7 @@ export default function AplicacaoPage() {
     }
   }, [isConfirmed, hash]);
 
-  // Lógica da Matriz: Clicou, preencheu o primeiro vazio
+  // Lógica da Matriz: Clicou no prognóstico (X/Y), preenche o primeiro vazio
   const handleMatrixClick = (x: number, y: number) => {
     const emptyIndex = pairs.findIndex(p => p.x === null);
     
@@ -84,16 +84,14 @@ export default function AplicacaoPage() {
     try {
       const valorEth = tier === 1 ? "0.00027" : "0.0459"; 
       
-      // 👇 AQUI ESTÁ A CORREÇÃO: Adicionamos 'as any' para o TypeScript parar de bloquear o build
-      // A lógica está certa, é apenas o verificador de tipos sendo chato.
       writeContract({
         address: CONTRACT_ADDRESS as `0x${string}`,
         abi: CONTRACT_ABI,
         functionName: "realizarAplicacao", 
-        args: [allNumbers], 
+        // CORREÇÃO DO ERRO DE TIPO TYPESCRIPT:
+        args: [allNumbers as unknown as readonly [number, number, number, number, number, number, number, number, number, number]], 
         value: parseEther(valorEth),
-      } as any); 
-
+      });
     } catch (error) {
       console.error("Erro ao enviar transação:", error);
     }
@@ -107,10 +105,10 @@ export default function AplicacaoPage() {
     <main className={`min-h-screen ${THEME.bg} text-gray-200 font-sans selection:bg-[#cfb16d] selection:text-black`}>
       <Navbar />
 
-      <div className="container mx-auto px-4 pt-28 pb-20 flex flex-col md:flex-row gap-8 items-start justify-center">
+      <div className="container mx-auto px-4 pt-28 pb-20 flex flex-col xl:flex-row gap-8 items-start justify-center">
         
-        {/* COLUNA ESQUERDA: RESUMO DA APLICAÇÃO */}
-        <div className={`w-full md:w-[350px] ${THEME.card} border ${THEME.border} rounded-2xl shadow-xl p-6 md:sticky md:top-32`}>
+        {/* COLUNA ESQUERDA: RESUMO DA APLICAÇÃO (Fixa no Desktop) */}
+        <div className={`w-full xl:w-[350px] ${THEME.card} border ${THEME.border} rounded-2xl shadow-xl p-6 xl:sticky xl:top-32 order-1`}>
             
             <h2 className="text-xl font-bold text-white mb-6 uppercase tracking-wider flex items-center gap-2">
                 <Zap className="text-[#cfb16d]" size={20} /> Sua Adesão
@@ -170,38 +168,42 @@ export default function AplicacaoPage() {
 
         </div>
 
-        {/* COLUNA DIREITA: MATRIZ DE SELEÇÃO 25x25 */}
-        <div className="flex-1 w-full max-w-4xl">
+        {/* COLUNA DIREITA: MATRIZ DE 625 PROGNÓSTICOS */}
+        <div className="flex-1 w-full max-w-5xl order-2">
             <div className={`${THEME.card} border ${THEME.border} rounded-2xl shadow-xl overflow-hidden`}>
-                <div className="p-4 border-b border-[#2a2d35] bg-[#1a1c22] flex justify-between items-center">
-                    <h3 className="text-sm font-bold text-white uppercase">Selecione na Matriz</h3>
-                    <span className="text-xs text-gray-500">Clique para adicionar à lista</span>
+                <div className="p-4 border-b border-[#2a2d35] bg-[#1a1c22] flex justify-between items-center flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                        <Grid3X3 className="text-[#cfb16d]" size={18} />
+                        <h3 className="text-sm font-bold text-white uppercase">Matriz de Prognósticos (625 Opções)</h3>
+                    </div>
+                    <span className="text-xs text-gray-500">Clique em um par para selecionar</span>
                 </div>
 
                 {/* Container com Scroll para a Matriz */}
-                <div className="overflow-auto max-h-[600px] p-1 custom-scrollbar">
+                <div className="overflow-auto max-h-[600px] p-0 custom-scrollbar bg-[#0b0c10]">
                     <table className="w-full text-center border-collapse">
-                        <thead className="bg-[#0b0c10] sticky top-0 z-10">
+                        <thead className="bg-[#1a1c22] sticky top-0 z-10 shadow-md">
                             <tr>
-                                <th className="p-2 text-[#cfb16d] border-b border-[#2a2d35] font-bold text-xs bg-[#0b0c10]">X↓</th>
+                                <th className="p-3 text-[#cfb16d] border-b border-[#2a2d35] font-bold text-xs bg-[#1a1c22] border-r">X↓ / Y→</th>
                                 {nums.map(y => (
-                                    <th key={y} className="p-2 text-gray-500 border-b border-[#2a2d35] text-[10px] font-mono min-w-[40px] bg-[#0b0c10]">
-                                        Y{y}
+                                    <th key={y} className="p-2 text-gray-400 border-b border-[#2a2d35] text-xs font-mono min-w-[50px] bg-[#1a1c22]">
+                                        {y}
                                     </th>
                                 ))}
                             </tr>
                         </thead>
-                        <tbody className="bg-[#0b0c10]">
+                        <tbody>
                             {nums.map(x => (
                                 <tr key={x} className="hover:bg-[#1e2029] transition-colors">
                                     <td className="p-2 bg-[#13151a] border-r border-[#2a2d35] text-[#cfb16d] font-bold text-xs sticky left-0 z-10">
-                                        X{x}
+                                        {x}
                                     </td>
                                     {nums.map(y => (
-                                        <td key={`${x}-${y}`} className="p-0">
+                                        <td key={`${x}-${y}`} className="p-0 border border-[#1a1c22]">
                                             <button 
                                                 onClick={() => handleMatrixClick(x, y)}
-                                                className="w-full h-10 flex items-center justify-center text-[10px] text-gray-500 hover:text-white hover:bg-[#cfb16d] hover:font-bold transition-all border border-[#1a1c22]"
+                                                className="w-full h-10 flex items-center justify-center text-[10px] font-mono text-gray-500 hover:text-black hover:bg-[#cfb16d] hover:font-bold transition-all focus:outline-none focus:bg-[#cfb16d]/50"
+                                                title={`Prognóstico ${x} / ${y}`}
                                             >
                                                 {x}/{y}
                                             </button>

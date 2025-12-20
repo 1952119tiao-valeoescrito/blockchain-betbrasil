@@ -80,7 +80,7 @@ export default function ComoFunciona() {
                 </div>
                 <h4 className="text-white font-bold mb-2 text-lg">1. Seleção de Prognósticos</h4>
                 <p className="text-sm text-gray-400">
-                    Escolha 5 coordenadas da Matriz (ex: 10/5, 25/25). A ordem de inserção define a faixa de pontuação (1 a 5 pontos).
+                    Escolha 5 coordenadas da Matriz (ex: 10/5, 25/25, 8/18, 1/2, 17/3). A ordem de inserção define a faixa de pontuação (1 a 5 pontos).
                 </p>
             </div>
 
@@ -90,7 +90,7 @@ export default function ComoFunciona() {
                 </div>
                 <h4 className="text-white font-bold mb-2 text-lg">2. Validação Trustless</h4>
                 <p className="text-sm text-gray-400">
-                    O oráculo Chainlink VRF insere os resultados on-chain automaticamente a cada 24 horas, garantindo entropia real.
+                    O oráculo Chainlink VRF insere os resultados on-chain automaticamente a cada 142 horas, garantindo entropia real.
                 </p>
             </div>
 

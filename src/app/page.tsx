@@ -181,7 +181,7 @@ export default function HomePage() {
                </div>
                <div className="w-px h-12 bg-[#2a2d35]"></div>
                <div className="flex flex-col">
-                  <span className="text-3xl font-black text-white">24h</span>
+                  <span className="text-3xl font-black text-white">142h</span>
                   <span className="text-xs uppercase text-[#cfb16d] font-bold tracking-wider">Ciclos</span>
                </div>
             </div>
