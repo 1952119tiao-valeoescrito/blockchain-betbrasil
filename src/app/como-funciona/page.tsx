@@ -12,7 +12,9 @@ export default function ComoFunciona() {
       
       <div className="container mx-auto px-4 pt-32 pb-20">
         
-        {/* --- CABEÇALHO --- */}
+        {/* ... (Matriz e Tabela permanecem iguais) ... */}
+        
+        {/* CABEÇALHO */}
         <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-[#cfb16d] mb-4 uppercase tracking-widest">
                 Matriz de Referência
@@ -23,7 +25,7 @@ export default function ComoFunciona() {
             </p>
         </div>
         
-        {/* --- TABELA DA MATRIZ --- */}
+        {/* Container da Tabela (Estilo Card) */}
         <div className="max-w-6xl mx-auto bg-[#13151a] border border-[#2a2d35] rounded-2xl p-6 shadow-2xl mb-20">
             
             <div className="flex justify-between items-center mb-6">
@@ -72,7 +74,6 @@ export default function ComoFunciona() {
             </div>
         </div>
 
-        {/* --- REGRAS RÁPIDAS --- */}
         <div className="grid md:grid-cols-3 gap-6 mb-20 max-w-5xl mx-auto">
             <div className="p-6 bg-[#13151a] border border-[#2a2d35] rounded-xl hover:border-[#cfb16d]/50 transition-colors group">
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
@@ -80,7 +81,7 @@ export default function ComoFunciona() {
                 </div>
                 <h4 className="text-white font-bold mb-2 text-lg">1. Seleção de Prognósticos</h4>
                 <p className="text-sm text-gray-400">
-                    Escolha 5 coordenadas da Matriz (ex: 10/5, 25/25, 8/18, 1/2, 17/3). A ordem de inserção define a faixa de pontuação (1 a 5 pontos).
+                    Escolha 5 coordenadas da Matriz (ex: 10/5, 25/25). A ordem de inserção define a faixa de pontuação (1 a 5 pontos).
                 </p>
             </div>
 
@@ -88,9 +89,9 @@ export default function ComoFunciona() {
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
                     <Cpu size={24} />
                 </div>
-                <h4 className="text-white font-bold mb-2 text-lg">2. Validação Trustless</h4>
+                <h4 className="text-white font-bold mb-2 text-lg">2. Ciclo Semanal</h4>
                 <p className="text-sm text-gray-400">
-                    O oráculo Chainlink VRF insere os resultados on-chain automaticamente a cada 142 horas, garantindo entropia real.
+                    A rodada fecha na Sexta-feira. A Chainlink VRF audita e insere os resultados on-chain para garantir entropia real.
                 </p>
             </div>
 
@@ -98,16 +99,16 @@ export default function ComoFunciona() {
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
                     <Coins size={24} />
                 </div>
-                <h4 className="text-white font-bold mb-2 text-lg">3. Apuração e Saque</h4>
+                <h4 className="text-white font-bold mb-2 text-lg">3. Apuração aos Sábados</h4>
                 <p className="text-sm text-gray-400">
-                    Após o sorteio e cálculo da cascata (90% payout), os vencedores reivindicam (sacam) seus rendimentos diretamente no painel.
+                    Após o sorteio de sexta, o cálculo da cascata ocorre e os vencedores reivindicam seus rendimentos aos <strong>Sábados</strong>.
                 </p>
             </div>
         </div>
 
-        {/* --- TUTORIAL DE AUDITORIA (NOVO) --- */}
+        {/* ... (Tutorial de Auditoria continua igual) ... */}
+        
         <div className="max-w-4xl mx-auto bg-[#0f1014] border border-[#2a2d35] rounded-3xl p-8 md:p-12 relative overflow-hidden">
-            {/* Fundo Decorativo */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#cfb16d]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
             <h2 className="text-3xl font-bold text-white mb-8 flex items-center gap-3">
@@ -116,8 +117,6 @@ export default function ComoFunciona() {
             </h2>
 
             <div className="space-y-8 relative z-10">
-                
-                {/* Passo 1 */}
                 <div className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">1</div>
                     <div>
@@ -131,7 +130,6 @@ export default function ComoFunciona() {
                     </div>
                 </div>
 
-                {/* Passo 2 */}
                 <div className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">2</div>
                     <div>
@@ -140,7 +138,6 @@ export default function ComoFunciona() {
                             No BaseScan, role até a aba <strong>Overview</strong> e clique no botão <strong>"Decode Input Data"</strong>. Isso traduzirá o código da blockchain para números legíveis.
                         </p>
                         
-                        {/* Simulação Visual do BaseScan */}
                         <div className="bg-white text-black p-4 rounded-lg font-mono text-xs shadow-lg max-w-md border-l-4 border-[#cfb16d]">
                             <div className="flex justify-between border-b border-gray-200 pb-2 mb-2">
                                 <span className="font-bold text-gray-600">Input Data</span>
@@ -162,7 +159,6 @@ export default function ComoFunciona() {
                     </div>
                 </div>
 
-                {/* Passo 3 */}
                 <div className="flex gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#1a1c22] border border-[#2a2d35] flex items-center justify-center text-[#cfb16d] font-bold">3</div>
                     <div>

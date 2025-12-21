@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { parseEther } from "viem";
 import Navbar from "../../components/Navbar";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../constants/abi";
-import { Trophy, Search, Loader2, Coins, CheckCircle, AlertTriangle } from "lucide-react";
-import { formatEther } from "viem";
+import { Trophy, Search, Loader2, Coins, CheckCircle, AlertTriangle, Calendar } from "lucide-react";
 
 // --- TEMA PRETO & DOURADO ---
 const THEME = {
@@ -22,14 +22,13 @@ export default function ResultadosPage() {
   const [mounted, setMounted] = useState(false);
   const [rodadaIdInput, setRodadaIdInput] = useState<number>(1); 
 
-  // 1. Pega ID da Rodada Atual
+  // ... (Hooks de Leitura e Escrita idênticos ao anterior) ...
   const { data: currentId } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
     functionName: "rodadaAtualId",
   });
 
-  // 2. Dados da Rodada
   const { data: rodadaData, refetch: refetchRodada } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
@@ -37,7 +36,6 @@ export default function ResultadosPage() {
     args: [BigInt(rodadaIdInput)],
   });
 
-  // 3. Apostas do Usuário
   const { data: userBetsData, refetch: refetchBets } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
@@ -45,14 +43,12 @@ export default function ResultadosPage() {
     args: [BigInt(rodadaIdInput), address as `0x${string}`],
   });
 
-  // Escrita (Check-In e Saque)
   const { writeContract, data: hash, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   useEffect(() => {
     setMounted(true);
     if (currentId) {
-        // Tenta mostrar a rodada anterior (que provavelmente acabou), senão mostra a 1
         const id = Number(currentId);
         setRodadaIdInput(id > 1 ? id - 1 : 1);
     }
@@ -65,7 +61,6 @@ export default function ResultadosPage() {
     }
   }, [isSuccess]);
 
-  // AÇÕES DO USUÁRIO
   const handleVerificar = (indexApp: bigint) => {
     writeContract({
       address: CONTRACT_ADDRESS as `0x${string}`,
@@ -86,16 +81,11 @@ export default function ResultadosPage() {
 
   if (!mounted) return null;
 
-  // Processamento de Dados
-  // O contrato retorna: [ListaDeStructs, ListaDeIndicesReais]
   const minhasApostas = userBetsData ? (userBetsData as any)[0] : [];
   const meusIndices = userBetsData ? (userBetsData as any)[1] : [];
-
-  // Dados da Rodada (Mapeamento da Struct)
   const isSorteada = rodadaData ? (rodadaData as any)[2] : false; 
-  const isFinalizada = rodadaData ? (rodadaData as any)[3] : false; // Cascata calculada?
+  const isFinalizada = rodadaData ? (rodadaData as any)[3] : false; 
   const resultadoRaw = rodadaData ? (rodadaData as any)[6] : []; 
-  const totalArrecadado = rodadaData ? (rodadaData as any)[4] : BigInt(0);
 
   return (
     <main className={`min-h-screen ${THEME.bg} text-gray-200 font-sans selection:bg-[#cfb16d] selection:text-black`}>
@@ -103,6 +93,13 @@ export default function ResultadosPage() {
 
       <div className="container mx-auto px-4 pt-32 pb-20">
         
+        {/* BANNER AVISO SEMANAL */}
+        <div className="flex justify-center mb-8">
+            <div className="bg-[#1a1c22] border border-[#cfb16d]/30 text-[#cfb16d] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                <Calendar size={14} /> Resultados divulgados sempre aos Sábados
+            </div>
+        </div>
+
         {/* SELETOR DE RODADA */}
         <div className="flex flex-col items-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-[#cfb16d] mb-6 uppercase tracking-widest">
@@ -134,7 +131,7 @@ export default function ResultadosPage() {
                 <div className="animate-fade-in">
                     <div className="flex justify-center items-center gap-2 mb-6">
                         <Trophy className="text-[#cfb16d]" />
-                        <h2 className="text-xl font-bold text-white uppercase tracking-wide">Prognósticos Sorteados</h2>
+                        <h2 className="text-xl font-bold text-white uppercase tracking-wide">Prognósticos da Rodada</h2>
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -147,22 +144,18 @@ export default function ResultadosPage() {
                             </div>
                         ))}
                     </div>
-                    
-                    <div className="mt-4 text-xs text-gray-500">
-                        Total no Pote: <span className="text-[#cfb16d]">{formatEther(totalArrecadado)} ETH</span>
-                    </div>
                 </div>
             ) : (
                 <div className="p-10 bg-[#13151a] rounded-xl border border-dashed border-[#2a2d35] flex flex-col items-center gap-4">
                     <div className="w-12 h-12 rounded-full bg-[#1a1c22] flex items-center justify-center animate-pulse">
                         <Loader2 className="text-gray-500" />
                     </div>
-                    <p className="text-gray-400">Aguardando auditoria da Chainlink para esta rodada...</p>
+                    <p className="text-gray-400">Aguardando fechamento da rodada (Sexta) e apuração (Sábado).</p>
                 </div>
             )}
         </div>
 
-        {/* --- LISTA DE APLICAÇÕES DO USUÁRIO --- */}
+        {/* --- MINHAS APLICAÇÕES E SAQUES --- */}
         <div className="max-w-4xl mx-auto">
             <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-wide border-l-4 border-[#cfb16d] pl-4 flex items-center justify-between">
                 <span>Suas Aplicações (Rodada {rodadaIdInput})</span>
@@ -215,17 +208,14 @@ export default function ResultadosPage() {
                                     </div>
                                 </div>
 
-                                {/* ÁREA DE AÇÃO (Fluxo do Gás Otimizado) */}
+                                {/* ÁREA DE AÇÃO */}
                                 <div className="min-w-[200px] flex justify-center md:justify-end">
-                                    
-                                    {/* 1. AGUARDANDO SORTEIO */}
                                     {!isSorteada && (
                                         <button disabled className="px-5 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">
-                                            Aguardando Sorteio
+                                            Aguardando Sábado
                                         </button>
                                     )}
 
-                                    {/* 2. FAZER CHECK-IN (Verificar se ganhou) */}
                                     {isSorteada && !verificado && (
                                         <button 
                                             onClick={() => handleVerificar(realIndex)}
@@ -237,18 +227,15 @@ export default function ResultadosPage() {
                                         </button>
                                     )}
 
-                                    {/* 3. VERIFICADO E GANHOU -> ESPERANDO CASCATA */}
                                     {verificado && pontos > 0 && !isFinalizada && (
                                         <div className="flex flex-col items-end">
                                             <button disabled className="px-5 py-3 rounded-lg bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 text-xs font-bold uppercase flex items-center gap-2 cursor-wait">
                                                 <Loader2 className="animate-spin" size={14} />
-                                                Aguardando Apuração
+                                                Apuração em Andamento
                                             </button>
-                                            <span className="text-[10px] text-gray-600 mt-1">Cálculo da Cascata em andamento</span>
                                         </div>
                                     )}
 
-                                    {/* 4. VERIFICADO, GANHOU E APURADO -> SACAR! */}
                                     {verificado && pontos > 0 && isFinalizada && !pago && (
                                         <button 
                                             onClick={() => handleSacar(realIndex)}
@@ -259,20 +246,17 @@ export default function ResultadosPage() {
                                         </button>
                                     )}
 
-                                    {/* 5. JÁ PAGO */}
                                     {pago && (
                                         <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-green-500 border border-green-500/30 text-xs font-bold uppercase flex items-center gap-2">
                                             <CheckCircle size={16} /> Pago na Carteira
                                         </button>
                                     )}
 
-                                    {/* 6. NÃO GANHOU */}
                                     {verificado && pontos === 0 && (
                                         <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">
                                             Não Premiado
                                         </button>
                                     )}
-
                                 </div>
                             </div>
                         );
