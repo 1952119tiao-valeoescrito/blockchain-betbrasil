@@ -1,18 +1,18 @@
 // ⚠️ ATENÇÃO: SUBSTITUA PELO ENDEREÇO DO NOVO CONTRATO APÓS O DEPLOY
 // O endereço antigo NÃO vai funcionar pois a lógica mudou completamente.
-export const CONTRACT_ADDRESS = "0xBD1cBDE25d135E5BF228E546f7C248b2d9efEBf7";
+export const CONTRACT_ADDRESS = "0x0B65F76D58cA4319714D0eAa15D70c484696f2f0";
 
 export const CONTRACT_ABI = [
     {
       "inputs": [
         {
           "internalType": "address",
-          "name": "_vrfCoordinator",
+          "name": "_vrf",
           "type": "address"
         },
         {
           "internalType": "uint256",
-          "name": "_subscriptionId",
+          "name": "_subId",
           "type": "uint256"
         },
         {
@@ -88,7 +88,13 @@ export const CONTRACT_ABI = [
         {
           "indexed": false,
           "internalType": "uint256",
-          "name": "poteTotal",
+          "name": "poteBasic",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "potePro",
           "type": "uint256"
         }
       ],
@@ -122,9 +128,34 @@ export const CONTRACT_ABI = [
           "internalType": "address",
           "name": "participante",
           "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isPro",
+          "type": "bool"
         }
       ],
       "name": "NovaAplicacao",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "rodadaId",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "NovaRodadaIniciada",
       "type": "event"
     },
     {
@@ -236,10 +267,29 @@ export const CONTRACT_ABI = [
           "internalType": "uint8",
           "name": "pontos",
           "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "bool",
+          "name": "isPro",
+          "type": "bool"
         }
       ],
       "name": "VitoriaRegistrada",
       "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "CICLO_TOTAL",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -321,6 +371,32 @@ export const CONTRACT_ABI = [
     },
     {
       "inputs": [],
+      "name": "VALOR_BASIC_MIN",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "VALOR_PRO_MIN",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "acceptOwnership",
       "outputs": [],
       "stateMutability": "nonpayable",
@@ -360,6 +436,11 @@ export const CONTRACT_ABI = [
           "internalType": "uint8",
           "name": "pontos",
           "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "isPro",
+          "type": "bool"
         }
       ],
       "stateMutability": "view",
@@ -430,6 +511,11 @@ export const CONTRACT_ABI = [
               "internalType": "uint8",
               "name": "pontos",
               "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "isPro",
+              "type": "bool"
             }
           ],
           "internalType": "struct BlockchainBetBrasil.Aplicacao[]",
@@ -547,17 +633,12 @@ export const CONTRACT_ABI = [
         },
         {
           "internalType": "uint256",
-          "name": "totalArrecadado",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "boloAcumulado",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
           "name": "requestId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestampInicio",
           "type": "uint256"
         },
         {
@@ -567,7 +648,22 @@ export const CONTRACT_ABI = [
         },
         {
           "internalType": "uint256",
-          "name": "timestampInicio",
+          "name": "totalBasic",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "boloBasic",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalPro",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "boloPro",
           "type": "uint256"
         }
       ],
@@ -607,7 +703,20 @@ export const CONTRACT_ABI = [
     },
     {
       "inputs": [],
-      "name": "saldoRollover",
+      "name": "saldoRolloverBasic",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "saldoRolloverPro",
       "outputs": [
         {
           "internalType": "uint256",

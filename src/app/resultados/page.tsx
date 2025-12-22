@@ -82,16 +82,26 @@ export default function ResultadosPage() {
   const minhasApostas = userBetsData ? (userBetsData as any)[0] : [];
   const meusIndices = userBetsData ? (userBetsData as any)[1] : [];
 
-  // Mapeamento da Nova Struct (Dual Pool)
-  // 0:id, 1:aberta, 2:sorteada, 3:finalizada, 4:resultado, 5:requestId, 6:inicio, 7:sorteio time, 
-  // 8:totalBasic, 9:boloBasic, ... 12:totalPro, 13:boloPro...
-  const isSorteada = rodadaData ? (rodadaData as any)[2] : false; 
-  const isFinalizada = rodadaData ? (rodadaData as any)[3] : false; 
-  const resultadoRaw = rodadaData ? (rodadaData as any)[4] : []; // Ajustado o índice
+  // --- PROTEÇÃO CONTRA CRASH (SAFEE GUARDS) ---
+  // Se rodadaData for null ou undefined, usa valores padrão
+  const rData = rodadaData as any[] || [];
   
-  // Potes Separados
-  const totalBasic = rodadaData ? (rodadaData as any)[8] : BigInt(0);
-  const totalPro = rodadaData ? (rodadaData as any)[12] : BigInt(0);
+  const isSorteada = rData[2] || false; 
+  const isFinalizada = rData[3] || false; 
+  const resultadoRaw = rData[4] || []; 
+  
+  // Tratamento seguro para BigInt (evita crash se vier undefined)
+  const safeFormatEther = (val: any) => {
+    try {
+        return val ? formatEther(val) : "0";
+    } catch {
+        return "0";
+    }
+  };
+
+  // Potes Separados (Indices atualizados conforme struct nova)
+  const totalBasic = rData[8] || BigInt(0);
+  const totalPro = rData[12] || BigInt(0);
 
   return (
     <main className={`min-h-screen ${THEME.bg} text-gray-200 font-sans selection:bg-[#cfb16d] selection:text-black`}>
@@ -121,15 +131,15 @@ export default function ResultadosPage() {
             </div>
         </div>
 
-        {/* --- EXIBIÇÃO DOS POTES (NOVO) --- */}
+        {/* --- EXIBIÇÃO DOS POTES --- */}
         <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto mb-10">
             <div className="bg-[#13151a] p-4 rounded-xl border border-blue-900/50 flex flex-col items-center">
                 <span className="text-xs text-blue-400 font-bold uppercase mb-1">Pote Básico</span>
-                <span className="text-xl text-white font-mono">{formatEther(totalBasic)} ETH</span>
+                <span className="text-xl text-white font-mono">{safeFormatEther(totalBasic)} ETH</span>
             </div>
             <div className="bg-[#13151a] p-4 rounded-xl border border-purple-900/50 flex flex-col items-center">
                 <span className="text-xs text-purple-400 font-bold uppercase mb-1">Pote Pro</span>
-                <span className="text-xl text-white font-mono">{formatEther(totalPro)} ETH</span>
+                <span className="text-xl text-white font-mono">{safeFormatEther(totalPro)} ETH</span>
             </div>
         </div>
 
@@ -146,7 +156,7 @@ export default function ResultadosPage() {
                             <div key={i} className="bg-[#13151a] p-4 rounded-xl border border-[#cfb16d]/50 shadow-[0_0_15px_rgba(207,177,109,0.1)] flex flex-col items-center">
                                 <span className="text-[10px] text-gray-500 font-bold uppercase mb-1">{i + 1}º Prêmio</span>
                                 <div className="text-2xl font-black text-[#cfb16d] font-mono">
-                                    {Number(resultadoRaw[i*2])} / {Number(resultadoRaw[i*2+1])}
+                                    {resultadoRaw[i*2] ? Number(resultadoRaw[i*2]) : "?"} / {resultadoRaw[i*2+1] ? Number(resultadoRaw[i*2+1]) : "?"}
                                 </div>
                             </div>
                         ))}
@@ -180,10 +190,12 @@ export default function ResultadosPage() {
                         const pontos = Number(aposta.pontos);
                         const verificado = aposta.verificado;
                         const pago = aposta.pago;
-                        const isPro = aposta.isPro; // Identifica se é PRO
+                        const isPro = aposta.isPro; 
 
                         const jogo = [];
-                        for(let k=0; k<5; k++) jogo.push(`${aposta.prognosticos[k*2]}/${aposta.prognosticos[k*2+1]}`);
+                        if (aposta.prognosticos) {
+                            for(let k=0; k<5; k++) jogo.push(`${aposta.prognosticos[k*2]}/${aposta.prognosticos[k*2+1]}`);
+                        }
 
                         return (
                             <div key={idx} className={`bg-[#13151a] p-6 rounded-xl border flex flex-col md:flex-row items-center justify-between gap-6 transition-colors ${isPro ? 'border-purple-900/40 hover:border-purple-500' : 'border-[#2a2d35] hover:border-blue-500'}`}>
