@@ -41,8 +41,8 @@ export default function RootLayout({
             
         </Web3Provider>
 
-        {/* 👇 AQUI: Isso garante que o Analytics G-MGWSEGKZ0V seja carregado */}
-        <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
+        {/* 👇 AQUI: Isso garante que o Analytics G-5P5C08L3SD seja carregado */}
+        <GoogleAnalytics gaId="G-5P5C08L3SD" />
 
         {/* JivoChat */}
         <Script 

@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseEther } from "viem";
 import Navbar from "../../components/Navbar";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../constants/abi";
-import { Trophy, Search, Loader2, Coins, CheckCircle, AlertTriangle, Calendar } from "lucide-react";
+import { Trophy, Search, Loader2, Coins, CheckCircle, AlertTriangle, Wallet } from "lucide-react";
+import { formatEther } from "viem";
 
-// --- TEMA PRETO & DOURADO ---
 const THEME = {
   bg: "bg-[#0b0c10]",
   card: "bg-[#13151a]",
@@ -22,7 +21,6 @@ export default function ResultadosPage() {
   const [mounted, setMounted] = useState(false);
   const [rodadaIdInput, setRodadaIdInput] = useState<number>(1); 
 
-  // ... (Hooks de Leitura e Escrita idênticos ao anterior) ...
   const { data: currentId } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
@@ -83,9 +81,17 @@ export default function ResultadosPage() {
 
   const minhasApostas = userBetsData ? (userBetsData as any)[0] : [];
   const meusIndices = userBetsData ? (userBetsData as any)[1] : [];
+
+  // Mapeamento da Nova Struct (Dual Pool)
+  // 0:id, 1:aberta, 2:sorteada, 3:finalizada, 4:resultado, 5:requestId, 6:inicio, 7:sorteio time, 
+  // 8:totalBasic, 9:boloBasic, ... 12:totalPro, 13:boloPro...
   const isSorteada = rodadaData ? (rodadaData as any)[2] : false; 
   const isFinalizada = rodadaData ? (rodadaData as any)[3] : false; 
-  const resultadoRaw = rodadaData ? (rodadaData as any)[6] : []; 
+  const resultadoRaw = rodadaData ? (rodadaData as any)[4] : []; // Ajustado o índice
+  
+  // Potes Separados
+  const totalBasic = rodadaData ? (rodadaData as any)[8] : BigInt(0);
+  const totalPro = rodadaData ? (rodadaData as any)[12] : BigInt(0);
 
   return (
     <main className={`min-h-screen ${THEME.bg} text-gray-200 font-sans selection:bg-[#cfb16d] selection:text-black`}>
@@ -93,19 +99,10 @@ export default function ResultadosPage() {
 
       <div className="container mx-auto px-4 pt-32 pb-20">
         
-        {/* BANNER AVISO SEMANAL */}
-        <div className="flex justify-center mb-8">
-            <div className="bg-[#1a1c22] border border-[#cfb16d]/30 text-[#cfb16d] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                <Calendar size={14} /> Resultados divulgados sempre aos Sábados
-            </div>
-        </div>
-
-        {/* SELETOR DE RODADA */}
         <div className="flex flex-col items-center mb-12">
             <h1 className="text-3xl md:text-4xl font-bold text-[#cfb16d] mb-6 uppercase tracking-widest">
                 Central de Resultados
             </h1>
-            
             <div className={`flex items-center bg-[#1a1c22] p-2 rounded-xl border ${THEME.border}`}>
                 <span className="pl-4 text-gray-500 text-sm font-bold uppercase mr-3">Consultar Rodada #</span>
                 <input 
@@ -124,16 +121,26 @@ export default function ResultadosPage() {
             </div>
         </div>
 
+        {/* --- EXIBIÇÃO DOS POTES (NOVO) --- */}
+        <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto mb-10">
+            <div className="bg-[#13151a] p-4 rounded-xl border border-blue-900/50 flex flex-col items-center">
+                <span className="text-xs text-blue-400 font-bold uppercase mb-1">Pote Básico</span>
+                <span className="text-xl text-white font-mono">{formatEther(totalBasic)} ETH</span>
+            </div>
+            <div className="bg-[#13151a] p-4 rounded-xl border border-purple-900/50 flex flex-col items-center">
+                <span className="text-xs text-purple-400 font-bold uppercase mb-1">Pote Pro</span>
+                <span className="text-xl text-white font-mono">{formatEther(totalPro)} ETH</span>
+            </div>
+        </div>
+
         {/* --- RESULTADO OFICIAL --- */}
         <div className="max-w-4xl mx-auto mb-16 text-center">
-            
             {isSorteada && resultadoRaw.length > 0 ? (
                 <div className="animate-fade-in">
                     <div className="flex justify-center items-center gap-2 mb-6">
                         <Trophy className="text-[#cfb16d]" />
-                        <h2 className="text-xl font-bold text-white uppercase tracking-wide">Prognósticos da Rodada</h2>
+                        <h2 className="text-xl font-bold text-white uppercase tracking-wide">Prognósticos Sorteados</h2>
                     </div>
-
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                         {Array.from({ length: 5 }).map((_, i) => (
                             <div key={i} className="bg-[#13151a] p-4 rounded-xl border border-[#cfb16d]/50 shadow-[0_0_15px_rgba(207,177,109,0.1)] flex flex-col items-center">
@@ -150,70 +157,59 @@ export default function ResultadosPage() {
                     <div className="w-12 h-12 rounded-full bg-[#1a1c22] flex items-center justify-center animate-pulse">
                         <Loader2 className="text-gray-500" />
                     </div>
-                    <p className="text-gray-400">Aguardando fechamento da rodada (Sexta) e apuração (Sábado).</p>
+                    <p className="text-gray-400">Aguardando fechamento da rodada e sorteio Chainlink.</p>
                 </div>
             )}
         </div>
 
-        {/* --- MINHAS APLICAÇÕES E SAQUES --- */}
+        {/* --- MINHAS APLICAÇÕES --- */}
         <div className="max-w-4xl mx-auto">
             <h3 className="text-lg font-bold text-white mb-6 uppercase tracking-wide border-l-4 border-[#cfb16d] pl-4 flex items-center justify-between">
-                <span>Suas Aplicações (Rodada {rodadaIdInput})</span>
-                {isConnected && <span className="text-xs text-gray-500 normal-case bg-[#13151a] px-2 py-1 rounded">Total: {minhasApostas.length}</span>}
+                <span>Suas Aplicações</span>
+                {isConnected && <span className="text-xs text-gray-500 bg-[#13151a] px-2 py-1 rounded">Total: {minhasApostas.length}</span>}
             </h3>
 
             {!isConnected ? (
-                <div className="text-center py-12 bg-[#13151a] rounded-xl border border-[#2a2d35]">
-                    <p className="text-gray-400">Conecte sua carteira para verificar seus resultados.</p>
-                </div>
+                <div className="text-center py-12 bg-[#13151a] rounded-xl border border-[#2a2d35]"><p className="text-gray-400">Conecte sua carteira.</p></div>
             ) : minhasApostas.length === 0 ? (
-                <div className="text-center py-12 bg-[#13151a] rounded-xl border border-[#2a2d35] opacity-60">
-                    <p className="text-gray-500">Nenhuma aplicação encontrada nesta rodada.</p>
-                </div>
+                <div className="text-center py-12 bg-[#13151a] rounded-xl border border-[#2a2d35] opacity-60"><p className="text-gray-500">Nenhuma aplicação nesta rodada.</p></div>
             ) : (
                 <div className="space-y-4">
                     {minhasApostas.map((aposta: any, idx: number) => {
-                        const realIndex = meusIndices[idx]; // Índice para o contrato
+                        const realIndex = meusIndices[idx];
                         const pontos = Number(aposta.pontos);
                         const verificado = aposta.verificado;
                         const pago = aposta.pago;
-                        
-                        // Parse dos números jogados
+                        const isPro = aposta.isPro; // Identifica se é PRO
+
                         const jogo = [];
-                        for(let k=0; k<5; k++) {
-                            jogo.push(`${aposta.prognosticos[k*2]}/${aposta.prognosticos[k*2+1]}`);
-                        }
+                        for(let k=0; k<5; k++) jogo.push(`${aposta.prognosticos[k*2]}/${aposta.prognosticos[k*2+1]}`);
 
                         return (
-                            <div key={idx} className="bg-[#13151a] p-6 rounded-xl border border-[#2a2d35] flex flex-col md:flex-row items-center justify-between gap-6 hover:border-[#cfb16d]/30 transition-colors">
+                            <div key={idx} className={`bg-[#13151a] p-6 rounded-xl border flex flex-col md:flex-row items-center justify-between gap-6 transition-colors ${isPro ? 'border-purple-900/40 hover:border-purple-500' : 'border-[#2a2d35] hover:border-blue-500'}`}>
                                 
-                                {/* Resumo da Aposta */}
                                 <div className="flex-1 text-center md:text-left">
                                     <div className="flex flex-col md:flex-row gap-2 mb-3 items-center md:items-start">
-                                        <span className="text-[10px] bg-[#2a2d35] text-gray-300 px-2 py-1 rounded uppercase font-bold tracking-wider">
-                                            Ticket #{idx + 1}
+                                        <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold tracking-wider ${isPro ? 'bg-purple-900/20 text-purple-400' : 'bg-blue-900/20 text-blue-400'}`}>
+                                            {isPro ? 'INTER-BET PRO' : 'BÁSICO'}
                                         </span>
+                                        <span className="text-[10px] bg-[#2a2d35] text-gray-300 px-2 py-1 rounded uppercase font-bold">#{idx + 1}</span>
                                         {verificado && (
-                                            <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold ${pontos > 0 ? "bg-green-900/30 text-green-400 border border-green-500/30" : "bg-red-900/20 text-red-500 border border-red-500/20"}`}>
-                                                {pontos} Pontos (Faixa {pontos > 0 ? 6 - pontos : '-'})
+                                            <span className={`text-[10px] px-2 py-1 rounded uppercase font-bold ${pontos > 0 ? "bg-green-900/30 text-green-400" : "bg-red-900/20 text-red-500"}`}>
+                                                {pontos} Pontos
                                             </span>
                                         )}
                                     </div>
                                     <div className="text-sm text-gray-400 font-mono flex flex-wrap gap-2 justify-center md:justify-start">
                                         {jogo.map((par, pIdx) => (
-                                            <span key={pIdx} className="bg-[#0b0c10] px-2 py-1 rounded border border-[#2a2d35] text-xs">
-                                                {par}
-                                            </span>
+                                            <span key={pIdx} className="bg-[#0b0c10] px-2 py-1 rounded border border-[#2a2d35] text-xs">{par}</span>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* ÁREA DE AÇÃO */}
                                 <div className="min-w-[200px] flex justify-center md:justify-end">
                                     {!isSorteada && (
-                                        <button disabled className="px-5 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">
-                                            Aguardando Sábado
-                                        </button>
+                                        <button disabled className="px-5 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">Aguardando Sorteio</button>
                                     )}
 
                                     {isSorteada && !verificado && (
@@ -222,18 +218,14 @@ export default function ResultadosPage() {
                                             disabled={isPending || isConfirming}
                                             className={`px-6 py-3 rounded-lg text-xs font-bold uppercase flex items-center gap-2 ${THEME.buttonVerify}`}
                                         >
-                                            {isPending ? <Loader2 className="animate-spin" size={14} /> : <Search size={14} />}
-                                            Verificar Resultado
+                                            {isPending ? <Loader2 className="animate-spin" size={14} /> : <Search size={14} />} Verificar
                                         </button>
                                     )}
 
                                     {verificado && pontos > 0 && !isFinalizada && (
-                                        <div className="flex flex-col items-end">
-                                            <button disabled className="px-5 py-3 rounded-lg bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 text-xs font-bold uppercase flex items-center gap-2 cursor-wait">
-                                                <Loader2 className="animate-spin" size={14} />
-                                                Apuração em Andamento
-                                            </button>
-                                        </div>
+                                        <button disabled className="px-5 py-3 rounded-lg bg-yellow-500/10 text-yellow-500 border border-yellow-500/30 text-xs font-bold uppercase flex items-center gap-2 cursor-wait">
+                                            <Loader2 className="animate-spin" size={14} /> Apuração
+                                        </button>
                                     )}
 
                                     {verificado && pontos > 0 && isFinalizada && !pago && (
@@ -242,20 +234,16 @@ export default function ResultadosPage() {
                                             disabled={isPending || isConfirming}
                                             className={`px-6 py-3 rounded-lg text-sm uppercase flex items-center gap-2 transition-transform hover:scale-105 ${THEME.buttonClaim}`}
                                         >
-                                            <Coins size={16} /> REIVINDICAR PRÊMIO
+                                            <Coins size={16} /> SACAR
                                         </button>
                                     )}
 
                                     {pago && (
-                                        <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-green-500 border border-green-500/30 text-xs font-bold uppercase flex items-center gap-2">
-                                            <CheckCircle size={16} /> Pago na Carteira
-                                        </button>
+                                        <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-green-500 border border-green-500/30 text-xs font-bold uppercase flex items-center gap-2"><CheckCircle size={16} /> Pago</button>
                                     )}
 
                                     {verificado && pontos === 0 && (
-                                        <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">
-                                            Não Premiado
-                                        </button>
+                                        <button disabled className="px-6 py-3 rounded-lg bg-[#0b0c10] text-gray-600 border border-[#2a2d35] text-xs font-bold uppercase cursor-not-allowed">Não Premiado</button>
                                     )}
                                 </div>
                             </div>

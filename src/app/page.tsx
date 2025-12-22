@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, ChevronRight, BarChart3, CalendarClock } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, BarChart3, Gem } from 'lucide-react';
 
 export default function HomePage() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -19,22 +19,19 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-[#0b0c10] font-sans text-slate-100 selection:bg-[#cfb16d] selection:text-black overflow-x-hidden">
       
+      {/* EFEITOS DE FUNDO */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-[#cfb16d]/5 blur-[120px] rounded-full"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#cfb16d]/5 blur-[120px] rounded-full"></div>
       </div>
 
+      {/* NAVBAR */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 border-b ${isScrolled ? 'bg-[#0b0c10]/90 backdrop-blur-md border-[#2a2d35] py-3' : 'bg-transparent border-transparent py-5'}`}>
         <div className="container mx-auto px-4 flex justify-between items-center">
           
           <div className="flex items-center gap-2 md:gap-3 z-50">
             <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden border border-[#2a2d35] shadow-lg shadow-[#cfb16d]/10 bg-[#13151a] flex-shrink-0">
-               <Image 
-                  src="/images/logo.png" 
-                  alt="Logo" 
-                  fill 
-                  className="object-cover p-1"
-               />
+               <Image src="/images/logo.png" alt="Logo" fill className="object-cover p-1" />
             </div>
             <div className="flex flex-col leading-none">
                 <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">Blockchain Bet</span>
@@ -49,16 +46,11 @@ export default function HomePage() {
             <Link href="/inter-bet" className="text-sm font-medium text-[#cfb16d] hover:text-[#b08d55] transition-colors flex items-center gap-1">
                 <Zap size={14} /> Inter-Bet Pro
             </Link>
-            
-            <div className="scale-100">
-               <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="icon" />
-            </div>
+            <div className="scale-100"><ConnectButton showBalance={false} accountStatus="avatar" chainStatus="icon" /></div>
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <div className="scale-75 origin-right">
-                <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="none" />
-            </div>
+            <div className="scale-75 origin-right"><ConnectButton showBalance={false} accountStatus="avatar" chainStatus="none" /></div>
             <button className="text-white p-1" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                 {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -71,21 +63,14 @@ export default function HomePage() {
              <Link href="/resultados" className="text-lg font-medium text-gray-300">Resultados / Saque</Link>
              <Link href="/premiacao" className="text-lg font-medium text-gray-300">Premiação</Link>
              <Link href="/inter-bet" className="text-lg font-bold text-[#cfb16d]">Inter-Bet Pro</Link>
-             <Link href="/apostas">
-                <button className="w-full bg-[#cfb16d] text-black py-3 rounded-lg font-bold mt-2">Acessar App</button>
-             </Link>
+             <Link href="/apostas"><button className="w-full bg-[#cfb16d] text-black py-3 rounded-lg font-bold mt-2">Acessar App</button></Link>
           </div>
         )}
       </nav>
 
       {/* HERO SECTION */}
-      <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6" id="inicio">
+      <section className="relative pt-32 pb-10 md:pt-40 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-6" id="inicio">
         
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#13151a] border border-[#2a2d35] text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#cfb16d] mb-4 animate-fade-in hover:border-[#cfb16d] transition-colors cursor-default">
-          <span className="w-2 h-2 rounded-full bg-[#cfb16d] animate-pulse"></span>
-          Protocolo 100% On-Chain
-        </div>
-
         <h3 className="text-2xl md:text-3xl font-bold text-white tracking-wide animate-fade-in">
             Bem-vindo... <span className="text-[#cfb16d] block md:inline">BBB & Inter-Bet!</span>
         </h3>
@@ -97,7 +82,7 @@ export default function HomePage() {
             </span>
         </h1>
 
-        <div className="max-w-4xl space-y-4">
+        <div className="max-w-4xl space-y-2">
             <h2 className="text-xl md:text-3xl font-bold text-gray-200">
                 Blockchain Bet Brasil - O BBB da Web3.
                 <span className="text-white block mt-1 font-light">Interação e estratégia, sem paredão.</span>
@@ -107,96 +92,58 @@ export default function HomePage() {
             </p>
         </div>
 
-        <p className="text-base md:text-lg text-gray-400 max-w-3xl mx-auto leading-relaxed border-t border-[#2a2d35] pt-6 mt-2">
+        {/* --- CARDS DE VALOR (NOVO) --- */}
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 px-2 md:px-12 mt-8 max-w-6xl">
+            
+            {/* CARD BÁSICO */}
+            <Link href="/apostas" className="group">
+                <div className="h-full bg-gradient-to-br from-blue-900/40 to-[#0b0c10] text-white rounded-3xl shadow-2xl p-8 text-center border-2 border-blue-500/30 backdrop-blur-md transform transition duration-300 group-hover:scale-[1.02] group-hover:border-blue-400 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-20"><Zap size={80} /></div>
+                    
+                    <h1 className="text-2xl md:text-4xl font-black mb-4 uppercase tracking-wide">Prêmio Estimado <br/><span className="text-blue-400">R$ 50.000,00</span></h1>
+                    <p className="text-xl font-semibold mb-6 italic text-blue-200">Com apenas <span className="text-[#cfb16d] font-bold underline">1 ponto</span></p>
+                    
+                    <div className="bg-black/50 rounded-2xl p-4 mb-4 border border-blue-500/30">
+                        <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">Adesão</p>
+                        <p className="text-5xl md:text-6xl font-black text-[#cfb16d] drop-shadow-lg">R$ 5,00</p>
+                        <p className="text-xs text-gray-500 mt-1">~0.00027 ETH</p>
+                    </div>
+                    <p className="text-sm font-medium text-blue-100/80">Limite de 10.000 aplicações. Pote exclusivo.</p>
+                </div>
+            </Link>
+
+            {/* CARD INTER-BET */}
+            <Link href="/inter-bet" className="group">
+                <div className="h-full bg-gradient-to-br from-purple-900/40 to-[#0b0c10] text-white rounded-3xl shadow-2xl p-8 text-center border-2 border-purple-500/30 backdrop-blur-md transform transition duration-300 group-hover:scale-[1.02] group-hover:border-purple-400 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-20"><Gem size={80} /></div>
+                    
+                    <h1 className="text-2xl md:text-4xl font-black mb-4 uppercase tracking-wide">Prêmio Estimado <br/><span className="text-purple-400">R$ 10 Milhões</span></h1>
+                    <p className="text-xl font-semibold mb-6 italic text-purple-200">Com apenas <span className="text-[#cfb16d] font-bold underline">1 ponto</span></p>
+                    
+                    <div className="bg-black/50 rounded-2xl p-4 mb-4 border border-purple-500/30">
+                        <p className="text-sm text-gray-400 uppercase tracking-widest mb-1">Adesão</p>
+                        <p className="text-5xl md:text-6xl font-black text-[#cfb16d] drop-shadow-lg text-nowrap">R$ 1.000</p>
+                        <p className="text-xs text-gray-500 mt-1">~0.0459 ETH</p>
+                    </div>
+                    <p className="text-sm font-medium text-purple-100/80">Alta performance. Pote exclusivo.</p>
+                </div>
+            </Link>
+        </div>
+
+        <p className="text-base text-gray-400 max-w-3xl mx-auto leading-relaxed mt-12">
             Aplicação sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.
         </p>
 
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mt-8 w-full">
-          <Link href="/inter-bet" className="w-full md:w-auto">
-            <button className="w-full md:w-auto bg-[#cfb16d] hover:bg-[#b59a5e] text-black font-bold text-lg px-10 py-4 rounded-xl shadow-[0_0_30px_rgba(207,177,109,0.2)] hover:shadow-[0_0_50px_rgba(207,177,109,0.4)] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-2">
-              Iniciar Adesão <ArrowRight size={20} />
-            </button>
-          </Link>
-          <Link href="/como-funciona" className="w-full md:w-auto">
-            <button className="w-full md:w-auto bg-[#111] text-white border border-[#2a2d35] font-bold text-lg px-10 py-4 rounded-xl hover:bg-[#1a1a1a] hover:border-white/20 transition-all flex items-center justify-center gap-2">
-              Ler Documentação
-            </button>
-          </Link>
-        </div>
-
-        <div className="mt-16 flex flex-wrap justify-center gap-6 md:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 w-full">
+        {/* Badges de Confiança */}
+        <div className="mt-8 flex flex-wrap justify-center gap-6 md:gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500 w-full pb-20">
           <div className="flex items-center gap-2"><Globe size={18} /> <span className="text-sm font-mono">Base Network</span></div>
           <div className="flex items-center gap-2"><Cpu size={18} /> <span className="text-sm font-mono">Chainlink VRF v2.5</span></div>
           <div className="flex items-center gap-2"><Lock size={18} /> <span className="text-sm font-mono">Audited Contract</span></div>
         </div>
       </section>
 
-      {/* FEATURES GRID */}
-      <section className="py-20 bg-[#08090c] border-y border-[#2a2d35]">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-[#13151a] p-8 rounded-3xl border border-[#2a2d35] hover:border-[#cfb16d]/50 transition-colors group">
-              <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] transition-colors">
-                <ShieldCheck className="text-[#cfb16d] group-hover:text-black transition-colors" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Trustless Core</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">
-                O contrato não tem dono. Uma vez iniciado, ninguém pode alterar as regras, pausar saques ou manipular a Matriz. Código é lei.
-              </p>
-            </div>
-            <div className="bg-[#13151a] p-8 rounded-3xl border border-[#2a2d35] hover:border-[#cfb16d]/50 transition-colors group">
-              <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] transition-colors">
-                <BarChart3 className="text-[#cfb16d] group-hover:text-black transition-colors" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Auditoria On-Chain</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">
-                Utilizamos o padrão da indústria (Chainlink VRF) para validar os prognósticos. A entropia é gerada fora e verificada dentro da Blockchain.
-              </p>
-            </div>
-            <div className="bg-[#13151a] p-8 rounded-3xl border border-[#2a2d35] hover:border-[#cfb16d]/50 transition-colors group">
-              <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] transition-colors">
-                <Coins className="text-[#cfb16d] group-hover:text-black transition-colors" size={32} />
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-3">Pagamento Direto</h3>
-              <p className="text-gray-400 leading-relaxed text-sm">
-                O valor arrecadado (90%) fica travado no contrato inteligente. Ao fim da rodada, o rendimento é liberado automaticamente para saque.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA COM AVISO DO SÁBADO */}
-      <section className="py-16 container mx-auto px-4">
-        <div className="bg-gradient-to-r from-[#13151a] to-[#0b0c10] rounded-[32px] p-8 md:p-16 border border-[#2a2d35] relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[#cfb16d]/10 rounded-full blur-[80px] pointer-events-none"></div>
-          <div className="relative z-10 max-w-xl">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Pronto para iniciar sua adesão?</h2>
-            <p className="text-gray-400 mb-8 text-lg">
-              Escolha entre a Adesão Básica ou o Inter-Bet Pro. 
-              Ciclo semanal transparente.
-            </p>
-            <div className="flex gap-8">
-               <div className="flex flex-col">
-                  <span className="text-3xl font-black text-white">90%</span>
-                  <span className="text-xs uppercase text-[#cfb16d] font-bold tracking-wider">Payout</span>
-               </div>
-               <div className="w-px h-12 bg-[#2a2d35]"></div>
-               <div className="flex flex-col">
-                  {/* ALTERADO AQUI PARA SÁBADO */}
-                  <span className="text-3xl font-black text-white">SÁBADO</span>
-                  <span className="text-xs uppercase text-[#cfb16d] font-bold tracking-wider">Apuração</span>
-               </div>
-            </div>
-          </div>
-          <Link href="/inter-bet" className="relative z-10 w-full md:w-auto">
-             <button className="w-full md:w-auto bg-white text-black font-bold py-5 px-10 rounded-xl hover:bg-[#cfb16d] transition-all flex items-center justify-center gap-3 shadow-xl">
-                Acessar DApp <ChevronRight size={20} />
-             </button>
-          </Link>
-        </div>
-      </section>
-
+      {/* RESTO DO CÓDIGO (Features e CTA) - Pode manter o que estava ou remover se achar que ficou muita coisa */}
+      
     </div>
   );
 }
