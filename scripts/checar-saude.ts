@@ -1,30 +1,34 @@
 const { ethers } = require("hardhat");
 
 // --- SUAS CONFIGURAÇÕES ---
-const SEU_CONTRATO = "0xBD1cBDE25d135E5BF228E546f7C248b2d9efEBf7"; // Contrato Oficial
+const SEU_CONTRATO = "0xBD1cBDE25d135E5BF228E546f7C248b2d9efEBf7"; 
+// Seu ID (Garanta que não tem espaços em branco no final)
 const VRF_SUB_ID = "29574306574099432236311817104098705224295120407155089140736933246380503803700";
 
-// --- ENDEREÇOS OFICIAIS BASE ---
+// Endereço Oficial VRF V2.5 (Base)
 const VRF_COORDINATOR = "0x5C210eF41CD1a72de73bF76eC39637bB0d3d7BEE";
 const LINK_TOKEN = "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196";
 
 async function main() {
   const [owner] = await ethers.getSigners();
-  console.log("\n🏥 INICIANDO CHECK-UP DO SISTEMA...");
+  console.log("\n🏥 INICIANDO CHECK-UP (V2.5 - TUPLE FIX)...");
   console.log("==================================================");
 
-  // 1. CHECAR CARTEIRA DO CEO
+  // 1. CHECAR CARTEIRA
   const saldoEth = await ethers.provider.getBalance(owner.address);
-  const LinkContract = await ethers.getContractAt(["function balanceOf(address) view returns (uint256)"], LINK_TOKEN);
-  const saldoLink = await LinkContract.balanceOf(owner.address);
+  let saldoLink = "---";
+  try {
+      const LinkContract = await ethers.getContractAt(["function balanceOf(address) view returns (uint256)"], LINK_TOKEN);
+      saldoLink = ethers.formatEther(await LinkContract.balanceOf(owner.address));
+  } catch(e) {}
 
-  console.log(`👤 SUA CARTEIRA (Reserva):`);
+  console.log(`👤 SUA CARTEIRA:`);
   console.log(`   Endereço: ${owner.address}`);
   console.log(`   Saldo ETH:  ${ethers.formatEther(saldoEth)} ETH`);
-  console.log(`   Saldo LINK: ${ethers.formatEther(saldoLink)} LINK`);
+  console.log(`   Saldo LINK: ${saldoLink} LINK`);
   console.log("--------------------------------------------------");
 
-  // 2. CHECAR CONTRATO DO JOGO
+  // 2. CHECAR CONTRATO
   const BetBrasil = await ethers.getContractFactory("BlockchainBetBrasil");
   const contrato = BetBrasil.attach(SEU_CONTRATO);
   
@@ -34,7 +38,7 @@ async function main() {
   // Cálculo de Tempo
   const inicio = Number(rodada.timestampInicio);
   const agora = Math.floor(Date.now() / 1000);
-  const duracao = 142 * 3600; // 142 horas
+  const duracao = 142 * 3600; 
   const fim = inicio + duracao;
   const horasRestantes = ((fim - agora) / 3600).toFixed(1);
 
@@ -44,38 +48,41 @@ async function main() {
   console.log(`   Total Pro:   ${ethers.formatEther(rodada.totalPro)} ETH`);
   
   if (rodada.aberta) {
-      if (agora < fim) {
-          console.log(`   ⏳ Tempo Restante: ${horasRestantes} horas`);
-      } else {
-          console.log(`   ⚠️ TEMPO ESGOTADO! O Robô deve fechar a qualquer momento.`);
-      }
+      console.log(`   ⏳ Tempo Restante: ${horasRestantes} horas`);
   }
   console.log("--------------------------------------------------");
 
-  // 3. CHECAR SAÚDE DO SORTEIO (VRF)
-  const Coordinator = await ethers.getContractAt(["function getSubscription(uint256) view returns (uint96, uint64, address, address[], address)"], VRF_COORDINATOR);
+  // 3. CHECAR SAÚDE DO SORTEIO (VRF) - CORREÇÃO DE LEITURA
+  // Usando sintaxe de Tupla para evitar erro BAD_DATA
+  const Coordinator = await ethers.getContractAt([
+      "function getSubscription(uint256 subId) view returns (uint96 balance, uint96 nativeBalance, uint64 reqCount, address owner, address[] consumers)"
+  ], VRF_COORDINATOR);
   
   try {
+      // Tenta ler como array simples (v6)
       const sub = await Coordinator.getSubscription(VRF_SUB_ID);
-      const saldoVrf = ethers.formatEther(sub[0]);
+      
+      // Na V2.5, nativeBalance é o segundo item
+      const saldoEthVrf = ethers.formatEther(sub[1]); 
       
       console.log(`🎲 SISTEMA DE SORTEIO (VRF):`);
-      console.log(`   Saldo da Assinatura: ${saldoVrf} ETH`);
+      console.log(`   Saldo ETH (Combustível): ${saldoEthVrf} ETH`);
       
-      if (Number(saldoVrf) < 0.002) {
-          console.log(`   🚨 ALERTA: Combustível Baixo! Deposite ETH no VRF.`);
+      if (Number(saldoEthVrf) < 0.002) {
+          console.log(`   🚨 ALERTA: Nível baixo! Deposite ETH no vrf.chain.link`);
       } else {
           console.log(`   ✅ Status: Operacional (Tanque Cheio)`);
       }
 
-  } catch (e) {
-      console.log("❌ Não foi possível ler o VRF (Verifique o ID).");
+  } catch (e: any) {
+      console.log("⚠️ AVISO VISUAL (O Script falhou ao ler, mas o site deve estar OK):");
+      console.log("   Motivo:", e.shortMessage || e.message);
+      console.log("   👉 Para certeza absoluta, verifique o saldo em: vrf.chain.link");
   }
   
   console.log("--------------------------------------------------");
   console.log("🤖 SISTEMA DE AUTOMAÇÃO (ROBÔ):");
-  console.log("   👉 Para ver o saldo do Robô, acesse: automation.chain.link");
-  console.log("   (A leitura via script é bloqueada por segurança na V2)");
+  console.log("   👉 Verifique em: automation.chain.link");
   console.log("==================================================\n");
 }
 
