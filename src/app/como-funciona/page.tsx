@@ -77,7 +77,7 @@ export default function ComoFunciona() {
             </div>
         </div>
 
-        {/* --- REGRAS RÁPIDAS (Atualizadas) --- */}
+        {/* --- REGRAS RÁPIDAS (Dias Corrigidos) --- */}
         <div className="grid md:grid-cols-3 gap-6 mb-20 max-w-5xl mx-auto">
             
             <div className="p-6 bg-[#13151a] border border-[#2a2d35] rounded-xl hover:border-[#cfb16d]/50 transition-colors group">
@@ -96,7 +96,7 @@ export default function ComoFunciona() {
                 </div>
                 <h4 className="text-white font-bold mb-2 text-lg">2. Ciclo Semanal</h4>
                 <p className="text-sm text-gray-400">
-                    A rodada fecha na Sexta-feira. A Chainlink VRF audita e insere os resultados on-chain para garantir entropia real.
+                    A rodada fecha no <strong>Sábado</strong>. A Chainlink VRF audita e insere os resultados on-chain para garantir entropia real.
                 </p>
             </div>
 
@@ -104,9 +104,9 @@ export default function ComoFunciona() {
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
                     <Coins size={24} />
                 </div>
-                <h4 className="text-white font-bold mb-2 text-lg">3. Apuração aos Sábados</h4>
+                <h4 className="text-white font-bold mb-2 text-lg">3. Apuração aos Domingos</h4>
                 <p className="text-sm text-gray-400">
-                    Após o sorteio de sexta, o cálculo da cascata ocorre e os vencedores reivindicam seus rendimentos aos <strong>Sábados</strong>.
+                    Após o sorteio de sábado, o cálculo da cascata ocorre e os vencedores reivindicam seus rendimentos aos <strong>Domingos</strong>.
                 </p>
             </div>
         </div>
