@@ -1,7 +1,7 @@
 const { ethers } = require("hardhat");
 
 // SEU CONTRATO NOVO (DEPLOY DE SÁBADO)
-const CONTRACT_ADDRESS = "0x0B65F76D58cA4319714D0eAa15D70c484696f2f0";
+const CONTRACT_ADDRESS = "0xDE71dFe53E98c8a032448F077c1FEB253313C45c";
 
 async function main() {
   const BetBrasil = await ethers.getContractFactory("BlockchainBetBrasil");
