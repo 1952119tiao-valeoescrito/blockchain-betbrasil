@@ -4,6 +4,7 @@ import Navbar from "../../components/Navbar";
 import { CheckCircle2, Cpu, Coins, Search, FileText, Eye, ExternalLink, ShieldCheck } from "lucide-react";
 
 export default function ComoFunciona() {
+  // Gera os números de 1 a 25 para montar a matriz
   const nums = Array.from({ length: 25 }, (_, i) => i + 1);
 
   return (
@@ -11,8 +12,6 @@ export default function ComoFunciona() {
       <Navbar />
       
       <div className="container mx-auto px-4 pt-32 pb-20">
-        
-        {/* ... (Matriz e Tabela permanecem iguais) ... */}
         
         {/* CABEÇALHO */}
         <div className="text-center mb-12">
@@ -35,6 +34,7 @@ export default function ComoFunciona() {
                 </div>
             </div>
 
+            {/* A TABELA DE 625 ITENS */}
             <div className="overflow-x-auto overflow-y-auto max-h-[500px] border border-[#2a2d35] rounded-lg scrollbar-thin scrollbar-thumb-[#cfb16d] scrollbar-track-[#0b0c10]">
                 <table className="w-full text-center border-collapse">
                     <thead className="bg-[#1a1c22] sticky top-0 z-10">
@@ -65,6 +65,9 @@ export default function ComoFunciona() {
             </div>
 
             <div className="mt-6 text-center">
+                <p className="text-sm text-gray-400 mb-4">
+                    A cada rodada, 5 prognósticos são validados pela Chainlink. A probabilidade é imutável e verificável na Blockchain.
+                </p>
                 <a 
                     href="/apostas" 
                     className="inline-block px-8 py-3 bg-[#cfb16d] text-black font-bold rounded-lg hover:bg-[#b59a5e] transition-all shadow-[0_0_20px_rgba(207,177,109,0.2)]"
@@ -74,7 +77,9 @@ export default function ComoFunciona() {
             </div>
         </div>
 
+        {/* --- REGRAS RÁPIDAS (Atualizadas) --- */}
         <div className="grid md:grid-cols-3 gap-6 mb-20 max-w-5xl mx-auto">
+            
             <div className="p-6 bg-[#13151a] border border-[#2a2d35] rounded-xl hover:border-[#cfb16d]/50 transition-colors group">
                 <div className="mb-4 text-[#cfb16d] bg-[#cfb16d]/10 w-fit p-3 rounded-lg group-hover:scale-110 transition-transform">
                     <CheckCircle2 size={24} />
@@ -106,8 +111,7 @@ export default function ComoFunciona() {
             </div>
         </div>
 
-        {/* ... (Tutorial de Auditoria continua igual) ... */}
-        
+        {/* --- TUTORIAL DE AUDITORIA --- */}
         <div className="max-w-4xl mx-auto bg-[#0f1014] border border-[#2a2d35] rounded-3xl p-8 md:p-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#cfb16d]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -168,7 +172,6 @@ export default function ComoFunciona() {
                         </p>
                     </div>
                 </div>
-
             </div>
         </div>
 

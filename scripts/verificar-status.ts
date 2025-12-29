@@ -1,6 +1,6 @@
 const { ethers } = require("hardhat");
 
-// SEU CONTRATO NOVO (DEPLOY DE SÁBADO)
+// ENDEREÇO DO DEPLOY FINAL (DOMINGO)
 const CONTRACT_ADDRESS = "0xDE71dFe53E98c8a032448F077c1FEB253313C45c";
 
 async function main() {
@@ -17,21 +17,29 @@ async function main() {
   const inicioTimestamp = Number(rodada.timestampInicio);
   const dataInicio = new Date(inicioTimestamp * 1000);
   
-  // Calcula o final (142 horas depois)
+  // Calcula o fechamento (142 horas depois)
   const fimTimestamp = inicioTimestamp + (142 * 3600);
   const dataFim = new Date(fimTimestamp * 1000);
 
-  // Calcula o reinício (168 horas depois)
+  // Calcula o reinício (168 horas depois - Ciclo Semanal)
   const reinicioTimestamp = inicioTimestamp + (168 * 3600);
   const dataReinicio = new Date(reinicioTimestamp * 1000);
 
-  console.log(`🟢 INÍCIO REAL (Deploy):   ${dataInicio.toLocaleString("pt-BR")}`);
-  console.log(`🔴 FECHAMENTO PREVISTO:    ${dataFim.toLocaleString("pt-BR")} (Sexta)`);
-  console.log(`🔄 PRÓXIMA RODADA (Auto):  ${dataReinicio.toLocaleString("pt-BR")} (Sábado)`);
+  console.log(`🟢 INÍCIO REAL:          ${dataInicio.toLocaleString("pt-BR")}`);
+  console.log(`🔴 FECHAMENTO (Sorteio): ${dataFim.toLocaleString("pt-BR")}`);
+  console.log(`🔄 REINÍCIO (Auto):      ${dataReinicio.toLocaleString("pt-BR")}`);
   console.log("-----------------------------------");
-  console.log("STATUS ATUAL:");
+  
+  console.log("📊 STATUS FINANCEIRO:");
+  // Agora mostramos os dois potes separados
+  console.log(`💰 Pote Básico: ${ethers.formatEther(rodada.totalBasic)} ETH`);
+  console.log(`💎 Pote Pro:    ${ethers.formatEther(rodada.totalPro)} ETH`);
+  
+  console.log("-----------------------------------");
+  console.log("ESTADO TÉCNICO:");
   console.log(`- Aberta: ${rodada.aberta ? "SIM ✅" : "NÃO ❌"}`);
-  console.log(`- Total no Pote: ${ethers.formatEther(rodada.totalArrecadado)} ETH`);
+  console.log(`- Sorteada: ${rodada.sorteada ? "SIM ✅" : "NÃO ❌"}`);
+  console.log(`- Finalizada: ${rodada.finalizada ? "SIM ✅" : "NÃO ❌"}`);
 }
 
 main().catch((error) => {

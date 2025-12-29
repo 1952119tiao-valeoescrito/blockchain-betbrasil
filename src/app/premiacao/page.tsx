@@ -1,7 +1,7 @@
 "use client";
 
 import Navbar from "../../components/Navbar";
-import { Trophy, ArrowDown, ShieldCheck, PieChart } from "lucide-react";
+import { Trophy, ArrowDown, ShieldCheck, PieChart, Users } from "lucide-react";
 
 export default function Premiacao() {
   return (
@@ -28,9 +28,12 @@ export default function Premiacao() {
                     <PieChart size={100} className="text-[#cfb16d]" />
                 </div>
                 
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
                     <Trophy className="text-[#cfb16d]" /> Distribuição do Pote
                 </h2>
+                <p className="text-sm text-gray-400 mb-6 flex items-center gap-2">
+                    <Users size={14} /> O valor destinado a cada faixa é dividido igualmente entre todos os acertadores.
+                </p>
 
                 <div className="space-y-4">
                     {/* Faixa 1 (5 Pontos) */}
@@ -38,7 +41,7 @@ export default function Premiacao() {
                         <div className="w-12 h-12 rounded-full bg-[#cfb16d] text-black flex items-center justify-center font-bold text-xl">5</div>
                         <div className="flex-1">
                             <h3 className="text-white font-bold">Acertar 5 Pares</h3>
-                            <p className="text-xs text-gray-500">Pontuação Máxima</p>
+                            <p className="text-xs text-gray-500">Rateio entre vencedores</p>
                         </div>
                         <div className="text-[#cfb16d] font-bold text-2xl">50%</div>
                     </div>
@@ -48,6 +51,7 @@ export default function Premiacao() {
                         <div className="w-12 h-12 rounded-full bg-[#1a1c22] text-gray-400 flex items-center justify-center font-bold text-xl">4</div>
                         <div className="flex-1">
                             <h3 className="text-gray-300 font-bold">Acertar 4 Pares</h3>
+                            <p className="text-xs text-gray-600">Rateio entre vencedores</p>
                         </div>
                         <div className="text-gray-400 font-bold text-xl">20%</div>
                     </div>
@@ -57,6 +61,7 @@ export default function Premiacao() {
                         <div className="w-12 h-12 rounded-full bg-[#1a1c22] text-gray-400 flex items-center justify-center font-bold text-xl">3</div>
                         <div className="flex-1">
                             <h3 className="text-gray-300 font-bold">Acertar 3 Pares</h3>
+                            <p className="text-xs text-gray-600">Rateio entre vencedores</p>
                         </div>
                         <div className="text-gray-400 font-bold text-xl">15%</div>
                     </div>
@@ -66,6 +71,7 @@ export default function Premiacao() {
                         <div className="w-12 h-12 rounded-full bg-[#1a1c22] text-gray-400 flex items-center justify-center font-bold text-xl">2</div>
                         <div className="flex-1">
                             <h3 className="text-gray-300 font-bold">Acertar 2 Pares</h3>
+                            <p className="text-xs text-gray-600">Rateio entre vencedores</p>
                         </div>
                         <div className="text-gray-400 font-bold text-xl">10%</div>
                     </div>
@@ -75,6 +81,7 @@ export default function Premiacao() {
                         <div className="w-12 h-12 rounded-full bg-[#1a1c22] text-gray-400 flex items-center justify-center font-bold text-xl">1</div>
                         <div className="flex-1">
                             <h3 className="text-gray-300 font-bold">Acertar 1 Par</h3>
+                            <p className="text-xs text-gray-600">Rateio entre vencedores</p>
                         </div>
                         <div className="text-gray-400 font-bold text-xl">5%</div>
                     </div>

@@ -1,6 +1,6 @@
 const { ethers } = require("hardhat");
 
-// ENDEREÇO NOVO (COM NATIVE PAYMENT)
+// ENDEREÇO DO DEPLOY FINAL (DOMINGO)
 const CONTRACT_ADDRESS = "0xDE71dFe53E98c8a032448F077c1FEB253313C45c";
 
 async function main() {
@@ -13,29 +13,48 @@ async function main() {
   console.log("⚡ TENTANDO FORÇAR O SORTEIO (AÇÃO 1)...");
 
   try {
-    // Código 1 = Encerrar Rodada
+    // Código 1 = Encerrar Rodada e Pedir Sorteio
     const performDataSorteio = ethers.AbiCoder.defaultAbiCoder().encode(["uint8"], [1]);
-    const tx = await contrato.performUpkeep(performDataSorteio);
     
+    // Simula a chamada antes de enviar (para evitar gastar gás se der erro)
+    await contrato.performUpkeep.staticCall(performDataSorteio);
+    
+    const tx = await contrato.performUpkeep(performDataSorteio);
     console.log("⏳ Transação enviada! Hash:", tx.hash);
     await tx.wait();
     console.log("✅ SUCESSO! Rodada encerrada e Sorteio solicitado.");
 
   } catch (error: any) {
-    console.log("❌ Sorteio não executado (Talvez já tenha sido pedido).");
+    console.log("❌ Sorteio não executado (Motivo: Rodada ainda aberta ou já sorteada).");
     
     console.log("\n⚡ TENTANDO FORÇAR O PAGAMENTO/CASCATA (AÇÃO 2)...");
     try {
         // Código 2 = Pagar Cascata
         const performDataCascata = ethers.AbiCoder.defaultAbiCoder().encode(["uint8"], [2]);
+        await contrato.performUpkeep.staticCall(performDataCascata); // Simulação
+        
         const tx2 = await contrato.performUpkeep(performDataCascata);
         console.log("⏳ Transação de Pagamento enviada! Hash:", tx2.hash);
         await tx2.wait();
         console.log("✅ SUCESSO! Cascata calculada e pagamento liberado.");
     } catch (e: any) {
-        console.log("❌ Nenhuma ação pendente ou erro na execução.");
+        console.log("❌ Nenhuma ação pendente. O contrato está aguardando o tempo certo.");
     }
   }
+  
+  console.log("\n⚡ TENTANDO FORÇAR ABERTURA DA PRÓXIMA (AÇÃO 3)...");
+   try {
+        // Código 3 = Abrir Nova Rodada
+        const performDataNova = ethers.AbiCoder.defaultAbiCoder().encode(["uint8"], [3]);
+        await contrato.performUpkeep.staticCall(performDataNova); // Simulação
+        
+        const tx3 = await contrato.performUpkeep(performDataNova);
+        console.log("⏳ Transação de Abertura enviada! Hash:", tx3.hash);
+        await tx3.wait();
+        console.log("✅ SUCESSO! Nova rodada iniciada.");
+    } catch (e: any) {
+        console.log("❌ Não é hora de abrir nova rodada ainda.");
+    }
 }
 
 main().catch((error) => {

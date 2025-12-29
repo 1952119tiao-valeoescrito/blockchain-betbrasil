@@ -775,4 +775,4 @@ export const CONTRACT_ABI = [
       "stateMutability": "payable",
       "type": "receive"
     }
-  ] as const;
+ ] as const;
