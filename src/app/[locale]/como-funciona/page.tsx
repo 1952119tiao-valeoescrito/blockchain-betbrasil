@@ -1,6 +1,7 @@
 "use client";
+import { useTranslations } from 'next-intl';
 
-import Navbar from "../../components/Navbar";
+import Navbar from "../../../components/Navbar";
 import { CheckCircle2, Cpu, Coins, Search, FileText, Eye, ExternalLink, ShieldCheck } from "lucide-react";
 
 export default function ComoFunciona() {
@@ -77,7 +78,7 @@ export default function ComoFunciona() {
             </div>
         </div>
 
-        {/* --- REGRAS RÁPIDAS (Dias Corrigidos) --- */}
+        {/* --- REGRAS RÁPIDAS (Dias Corrigidos: Sábado/Domingo) --- */}
         <div className="grid md:grid-cols-3 gap-6 mb-20 max-w-5xl mx-auto">
             
             <div className="p-6 bg-[#13151a] border border-[#2a2d35] rounded-xl hover:border-[#cfb16d]/50 transition-colors group">

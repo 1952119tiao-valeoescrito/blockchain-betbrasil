@@ -1,20 +1,25 @@
+// src/components/Navbar.tsx
+
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Menu, X, Zap } from "lucide-react";
+// 1. Importações de Tradução e Navegação
+import { useTranslations } from 'next-intl';
+import { Link } from '../navigation'; // Certifique-se que navigation.ts está na pasta src/
 
 export default function Navbar() {
+  const t = useTranslations('Navbar'); // Carrega as traduções do grupo 'Navbar'
   const [isOpen, setIsOpen] = useState(false);
 
-  // 👇 AQUI ESTAVA O ERRO: Adicionei de volta o link de Resultados
-  const links = [
-    { name: "Início", href: "/" },
-    { name: "Como Funciona", href: "/como-funciona" },
-    { name: "Resultados / Saque", href: "/resultados" }, // <--- VOLTOU!
-    { name: "Premiação", href: "/premiacao" },
+  // Mapeamento dos Links com as chaves de tradução
+  const navLinks = [
+    { key: "home", href: "/" },
+    { key: "how", href: "/como-funciona" },
+    { key: "results", href: "/resultados" },
+    { key: "prizes", href: "/premiacao" },
   ];
 
   return (
@@ -24,8 +29,6 @@ export default function Navbar() {
           
           {/* --- LOGO + NOME --- */}
           <Link href="/" className="flex items-center space-x-2 md:space-x-3 hover:opacity-80 transition group z-50">
-            
-            {/* Logo Imagem */}
             <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-lg overflow-hidden border border-[#2a2d35] group-hover:border-[#cfb16d] transition-colors bg-[#13151a] flex-shrink-0">
                 <Image 
                   src="/images/logo.png" 
@@ -35,27 +38,25 @@ export default function Navbar() {
                   priority
                 />
             </div>
-
-            {/* Texto (Visível no Mobile e Desktop) */}
             <div className="flex flex-col leading-none">
                 <span className="font-bold text-white tracking-tight text-xs md:text-sm uppercase">
                   Blockchain Bet
                 </span>
                 <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">
-                  Brasil
+                  {t('subtitle')} {/* Traduz 'BRASIL' ou 'GLOBAL' */}
                 </span>
             </div>
           </Link>
 
           {/* --- MENU DESKTOP --- */}
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <Link
-                key={link.name}
+                key={link.key}
                 href={link.href}
                 className="text-sm font-medium text-gray-400 hover:text-white transition-colors whitespace-nowrap"
               >
-                {link.name}
+                {t(link.key)} {/* Traduz o nome do link */}
               </Link>
             ))}
             
@@ -70,23 +71,21 @@ export default function Navbar() {
 
           {/* --- BOTÕES (Carteira + Mobile) --- */}
           <div className="flex items-center gap-2 md:gap-4">
-            
-            {/* Botão da Carteira (RainbowKit) */}
             <div className="scale-75 md:scale-100 origin-right">
                <ConnectButton 
                  showBalance={false} 
                  accountStatus="avatar"
                  chainStatus="none"
+                 label={t('connect')} // Traduz 'Conectar Carteira'
                />
             </div>
 
-            {/* Botão Hamburguer Mobile */}
             <div className="flex md:hidden">
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="text-gray-300 hover:text-white p-2"
               >
-                <span className="sr-only">Abrir menu</span>
+                <span className="sr-only">Menu</span>
                 {isOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
             </div>
@@ -98,14 +97,14 @@ export default function Navbar() {
       {isOpen && (
         <div className="md:hidden bg-[#0b0c10] border-b border-[#2a2d35] shadow-2xl animate-in slide-in-from-top-5 absolute top-20 left-0 w-full z-40">
           <div className="px-6 py-6 space-y-4 flex flex-col">
-            {links.map((link) => (
+            {navLinks.map((link) => (
               <Link
-                key={link.name}
+                key={link.key}
                 href={link.href}
                 onClick={() => setIsOpen(false)}
                 className="text-lg font-medium text-gray-300 hover:text-white hover:pl-2 transition-all border-l-2 border-transparent hover:border-[#cfb16d]"
               >
-                {link.name}
+                {t(link.key)}
               </Link>
             ))}
             <Link
@@ -117,7 +116,7 @@ export default function Navbar() {
             </Link>
             <Link href="/apostas" onClick={() => setIsOpen(false)}>
                 <button className="w-full bg-white text-black font-bold py-3 rounded-lg mt-4 hover:bg-gray-200">
-                    Acessar DApp
+                    {t('access')} {/* Traduz 'Acessar App' */}
                 </button>
             </Link>
           </div>

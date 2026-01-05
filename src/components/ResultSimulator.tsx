@@ -1,38 +1,21 @@
 "use client";
 
-import { useState } from 'react';
-import { Calculator, RefreshCw, Cpu, Dna } from 'lucide-react';
+import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Calculator, Trophy, Info, ArrowRight } from 'lucide-react';
 
-interface ResultSimulatorProps {
-  blockchainData?: {
-    resultado: number[];
-    timestamp?: bigint;
-  } | null;
-}
+const ResultSimulator = () => {
+  const t = useTranslations('Home'); // Usa o bloco Home ou Resultados conforme seu JSON
+  const [acertos, setAcertos] = useState(0);
 
-export default function ResultSimulator({ blockchainData }: ResultSimulatorProps) {
-  
-  const [simulatedResult, setSimulatedResult] = useState<number[] | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
-
-  // Prioriza dados reais da blockchain se existirem, senão mostra a simulação
-  const displayResult = blockchainData?.resultado && blockchainData.resultado.length > 0 
-    ? blockchainData.resultado 
-    : simulatedResult;
-
-  const isOfficial = !!(blockchainData?.resultado && blockchainData.resultado.length > 0);
-
-  // Simula a lógica da Matriz (1 a 25, PERMITINDO repetição)
-  const handleSimulateVRF = () => {
-    setIsAnimating(true);
-    setSimulatedResult(null);
-
-    setTimeout(() => {
-      // Gera 10 números, cada um independente (pode repetir, igual à Matriz X/Y)
-      const nums = Array.from({ length: 10 }, () => Math.floor(Math.random() * 25) + 1);
-      setSimulatedResult(nums);
-      setIsAnimating(false);
-    }, 800);
+  // Simulação básica de prêmios baseada no seu JSON
+  const premiosEstimados = {
+    5: "R$ 1.000.000,00+",
+    4: "R$ 50.000,00",
+    3: "R$ 5.000,00",
+    2: "R$ 500,00",
+    1: "R$ 50,00",
+    0: "R$ 0,00"
   };
 
   return (
@@ -40,81 +23,66 @@ export default function ResultSimulator({ blockchainData }: ResultSimulatorProps
       
       {/* HEADER */}
       <div className="flex flex-col items-center justify-center gap-3 mb-6">
-         {isOfficial ? (
-            <span className="bg-green-900/20 text-green-400 text-[10px] font-bold px-3 py-1 rounded-full border border-green-500/30 flex items-center gap-2 animate-pulse">
-               <Cpu size={12} /> AUDITORIA ON-CHAIN (OFICIAL)
-            </span>
-         ) : (
-            <span className="bg-[#cfb16d]/10 text-[#cfb16d] text-[10px] font-bold px-3 py-1 rounded-full border border-[#cfb16d]/30 flex items-center gap-2">
-               <Dna size={12} /> SIMULADOR DE PROGNÓSTICO
-            </span>
-         )}
-         
-         <h2 className="text-xl font-bold text-white uppercase tracking-wide">
-            {isOfficial ? 'Prognósticos da Rodada' : 'Testar Aleatoriedade'}
-         </h2>
-         
-         <p className="text-center text-gray-500 text-xs px-4 max-w-md">
-            {isOfficial 
-              ? 'Estes resultados foram gerados pelo Chainlink VRF e são imutáveis.' 
-              : 'Clique para simular como a Matriz gera 5 pares (10 números) aleatórios.'}
-         </p>
+        <div className="p-3 bg-yellow-500/10 rounded-full">
+          <Calculator className="w-6 h-6 text-yellow-500" />
+        </div>
+        <h2 className="text-xl font-bold text-white uppercase tracking-wider">
+          Simulador de Prêmios
+        </h2>
+        <div className="h-1 w-20 bg-yellow-500 rounded-full"></div>
       </div>
 
-      {/* RESULTADO (BOLAS) */}
-      {(displayResult || isAnimating) && (
-        <div className="my-8">
-            {isAnimating ? (
-                <div className="flex flex-col items-center gap-2 text-gray-500">
-                    <RefreshCw className="animate-spin text-[#cfb16d]" size={32} />
-                    <span className="text-xs">Calculando Entropia...</span>
-                </div>
-            ) : (
-                <div className="grid grid-cols-5 gap-3 max-w-sm mx-auto">
-                    {displayResult?.map((num, idx) => (
-                        <div key={idx} className={`aspect-square flex items-center justify-center rounded-lg border text-lg font-bold font-mono shadow-inner ${
-                            isOfficial 
-                            ? 'bg-green-900/10 border-green-500/30 text-green-400' 
-                            : 'bg-[#0b0c10] border-[#cfb16d] text-[#cfb16d] shadow-[#cfb16d]/10'
-                        }`}>
-                            {num}
-                        </div>
-                    ))}
-                </div>
-            )}
-            
-            {displayResult && !isAnimating && (
-                <div className="text-center mt-4">
-                    <p className="text-[10px] text-gray-600 uppercase tracking-widest">
-                        {isOfficial ? 'Hash Validado na Base' : 'Resultado Simulado (Demo)'}
-                    </p>
-                </div>
-            )}
-        </div>
-      )}
-
-      {/* BOTÃO */}
-      {!isOfficial && (
-        <div className="mt-6">
-          <button 
-            onClick={handleSimulateVRF} 
-            disabled={isAnimating}
-            className="w-full bg-[#0b0c10] hover:bg-[#1a1c22] border border-[#2a2d35] hover:border-[#cfb16d] text-white font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group uppercase text-xs tracking-wider"
-          >
-            <Calculator size={16} className="group-hover:text-[#cfb16d] transition-colors" /> 
-            {simulatedResult ? 'Simular Novamente' : 'Gerar Simulação'}
-          </button>
-        </div>
-      )}
-
-      {/* RODAPÉ */}
-      <div className="mt-6 pt-4 border-t border-[#2a2d35] text-center">
-          <p className="text-[10px] text-gray-600">
-              O sistema utiliza <strong>Verifiable Random Function (VRF)</strong>. 
-              Resultados 100% auditáveis.
+      {/* CONTEÚDO */}
+      <div className="space-y-6">
+        <div className="text-center">
+          <p className="text-gray-400 text-sm mb-4">
+            Quantos pares você acha que vai acertar na matriz?
           </p>
-      </div>
+          
+          <div className="flex justify-center gap-2">
+            {[1, 2, 3, 4, 5].map((num) => (
+              <button
+                key={num}
+                onClick={() => setAcertos(num)}
+                className={`w-10 h-10 rounded-lg font-bold transition-all ${
+                  acertos === num 
+                    ? 'bg-yellow-500 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)]' 
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 border border-white/10'
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+        </div>
 
+        {/* RESULTADO DA SIMULAÇÃO */}
+        <div className="bg-black/40 rounded-xl p-5 border border-white/5">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-xs text-gray-500 uppercase font-bold tracking-widest">Estimativa de Ganho</span>
+            <Trophy className="w-4 h-4 text-yellow-500 opacity-50" />
+          </div>
+          <div className="text-3xl font-mono font-bold text-white">
+            {premiosEstimados[acertos as keyof typeof premiosEstimados]}
+          </div>
+          <p className="text-[10px] text-gray-500 mt-2 italic">
+            * Valores baseados na média de arrecadação do protocolo.
+          </p>
+        </div>
+
+        <button className="w-full py-4 bg-gradient-to-r from-yellow-500 to-yellow-600 text-black font-black rounded-xl flex items-center justify-center gap-2 hover:brightness-110 transition-all active:scale-95">
+          REALIZAR ADHESIÓN <ArrowRight className="w-4 h-4" />
+        </button>
+
+        <div className="flex items-start gap-2 text-left bg-blue-500/5 p-3 rounded-lg border border-blue-500/10">
+          <Info className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+          <p className="text-[10px] text-blue-200/60 leading-relaxed">
+            O prêmio é distribuído via Smart Contract em ETH na rede Base.
+          </p>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default ResultSimulator;

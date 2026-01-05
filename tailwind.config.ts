@@ -10,10 +10,10 @@ const config: Config = {
     extend: {
       colors: {
         background: "#0b0c10", // Preto Profundo Oficial
-        foreground: "#ededed", // Texto claro suave
+        foreground: "#ededed",
         gold: {
-          DEFAULT: "#cfb16d", // Seu Dourado Oficial
-          hover: "#b59a5e",   // Dourado mais escuro para hover
+          DEFAULT: "#cfb16d", // Seu Dourado
+          hover: "#b59a5e",
         }
       },
       backgroundImage: {

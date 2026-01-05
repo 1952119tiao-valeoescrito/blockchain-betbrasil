@@ -1,18 +1,22 @@
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  webpack: (config) => {
-    // Corrige erros de módulos não encontrados comuns em libs Web3 (fs, net, tls)
-    config.resolve.fallback = { fs: false, net: false, tls: false };
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        "@react-native-async-storage/async-storage": false,
+        "fs": false,
+        "net": false,
+        "tls": false,
+      };
+    }
     return config;
-  },
-  // 👇 ADICIONE ISSO PARA FORÇAR O DEPLOY MESMO COM ERROS PEQUENOS
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
