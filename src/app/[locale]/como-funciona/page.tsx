@@ -1,13 +1,11 @@
-"use client";
-
 import React from 'react';
 import { useTranslations } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import Navbar from "@/components/Navbar";
-import { CheckCircle2, Cpu, Coins, Search, FileText, Eye, ExternalLink, ShieldCheck } from "lucide-react";
+import { Cpu, Coins, ShieldCheck } from "lucide-react";
 
 export default function ComoFuncionaPage({ params: { locale } }: { params: { locale: string } }) {
-  // Mantém a tradução funcionando
+  // Agora sim, no servidor, isso funciona perfeitamente!
   unstable_setRequestLocale(locale);
   const t = useTranslations('ComoFunciona');
 
@@ -15,7 +13,6 @@ export default function ComoFuncionaPage({ params: { locale } }: { params: { loc
     <div className="min-h-screen bg-[#0b0c10] pb-20">
       <Navbar />
 
-      {/* Ajuste de altura: pt-24 faz o conteúdo começar logo abaixo do Navbar */}
       <main className="max-w-6xl mx-auto px-4 pt-24">
         
         {/* CABEÇALHO */}
@@ -55,10 +52,10 @@ export default function ComoFuncionaPage({ params: { locale } }: { params: { loc
                 </div>
             </div>
             
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-4 overflow-x-auto">
-                {/* Aqui viria a renderização da sua matriz visual */}
-                <div className="min-w-[600px] h-64 flex items-center justify-center text-gray-600 italic">
-                    [ Renderização da Matriz de Pares X/Y ]
+            <div className="bg-white/5 border border-white/10 rounded-3xl p-12 flex items-center justify-center">
+                {/* Espaço reservado para a Tabela */}
+                <div className="text-gray-500 italic text-center">
+                   {t('tableTitle')} - [Matriz Visual]
                 </div>
             </div>
         </section>
