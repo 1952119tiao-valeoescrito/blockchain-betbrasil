@@ -2,12 +2,14 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import Navbar from "@/components/Navbar";
-import { Cpu, Coins, ShieldCheck } from "lucide-react";
+import { Cpu, Coins, ShieldCheck, Grid3X3 } from "lucide-react";
 
 export default function ComoFuncionaPage({ params: { locale } }: { params: { locale: string } }) {
-  // Agora sim, no servidor, isso funciona perfeitamente!
   unstable_setRequestLocale(locale);
   const t = useTranslations('ComoFunciona');
+
+  // Gera os números de 1 a 25 para os eixos X e Y
+  const range = Array.from({ length: 25 }, (_, i) => i + 1);
 
   return (
     <div className="min-h-screen bg-[#0b0c10] pb-20">
@@ -40,22 +42,61 @@ export default function ComoFuncionaPage({ params: { locale } }: { params: { loc
           ))}
         </div>
 
-        {/* SEÇÃO DA MATRIZ (TABELA) */}
+        {/* SEÇÃO DA MATRIZ REAL 25x25 */}
         <section className="mb-20">
             <div className="flex items-center justify-between mb-8">
-                <div>
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-yellow-500 rounded-lg">
+                        <Grid3X3 className="text-black w-5 h-5" />
+                    </div>
                     <h2 className="text-2xl font-bold text-white">{t('tableTitle')}</h2>
-                    <p className="text-sm text-gray-500">{t('scroll')}</p>
                 </div>
-                <div className="hidden md:block px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-xs font-bold text-yellow-500 uppercase tracking-widest">
-                    625 Prognósticos
+                <div className="px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-xs font-bold text-yellow-500 uppercase tracking-widest">
+                    625 {t('matrixTitle').split(' ')[0]} {/* Pega "Prognósticos" ou similar */}
                 </div>
             </div>
             
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-12 flex items-center justify-center">
-                {/* Espaço reservado para a Tabela */}
-                <div className="text-gray-500 italic text-center">
-                   {t('tableTitle')} - [Matriz Visual]
+            <div className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+                {/* Scroll Horizontal para Mobile/Telas menores */}
+                <div className="overflow-x-auto p-4 md:p-8 custom-scrollbar">
+                    <table className="border-collapse mx-auto">
+                        <thead>
+                            <tr>
+                                <th className="p-2 text-[10px] text-gray-600 border border-white/5">Y \ X</th>
+                                {range.map(x => (
+                                    <th key={x} className="p-2 min-w-[40px] text-[10px] font-bold text-yellow-500/50 border border-white/5 bg-white/5">
+                                        {x}
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {range.map(y => (
+                                <tr key={y}>
+                                    <td className="p-2 text-[10px] font-bold text-yellow-500/50 border border-white/5 bg-white/5 text-center">
+                                        {y}
+                                    </td>
+                                    {range.map(x => (
+                                        <td 
+                                            key={`${x}-${y}`} 
+                                            className="p-1 border border-white/5 text-center transition-colors hover:bg-yellow-500/20 group"
+                                        >
+                                            <div className="text-[9px] text-gray-500 group-hover:text-yellow-500 font-mono">
+                                                {x}/{y}
+                                            </div>
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                
+                {/* Legenda de Scroll */}
+                <div className="bg-black/40 p-3 text-center border-t border-white/5">
+                    <p className="text-[10px] text-gray-500 flex items-center justify-center gap-2">
+                         {t('scroll')}
+                    </p>
                 </div>
             </div>
         </section>
