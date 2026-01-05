@@ -2,19 +2,16 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import Navbar from "@/components/Navbar";
-import { Cpu, Coins, ShieldCheck, Grid3X3 } from "lucide-react";
+import { Cpu, Coins, ShieldCheck, Grid3X3, ArrowRight } from "lucide-react";
 
-export default function ComoFuncionaPage({ params }: { params: { locale: string } }) {
-  // 1. Pega o locale dos parâmetros
-  const locale = params.locale;
-  
-  // 2. Registra o locale para o servidor (Padrão next-intl)
+export default function ComoFuncionaPage({ params: { locale } }: { params: { locale: string } }) {
+  // 1. Registra o locale para o servidor
   unstable_setRequestLocale(locale);
   
-  // 3. Carrega as traduções
+  // 2. Carrega as traduções (Certifique-se que o bloco 'ComoFunciona' existe nos JSONs)
   const t = useTranslations('ComoFunciona');
 
-  // 4. Gera o array para a matriz 25x25
+  // 3. Gera o array para a matriz 25x25
   const range = Array.from({ length: 25 }, (_, i) => i + 1);
 
   return (
@@ -33,7 +30,7 @@ export default function ComoFuncionaPage({ params }: { params: { locale: string 
           </p>
         </section>
 
-        {/* MATRIZ 25x25 (POSIÇÃO SOLICITADA) */}
+        {/* MATRIZ 25x25 */}
         <section className="mb-16">
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="p-1.5 bg-yellow-500 rounded-lg">
@@ -45,6 +42,7 @@ export default function ComoFuncionaPage({ params }: { params: { locale: string 
           </div>
           
           <div className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden shadow-2xl">
+            {/* Scroll Horizontal */}
             <div className="overflow-x-auto p-4 md:p-6 custom-scrollbar bg-[#0d0e12]">
               <table className="border-collapse mx-auto">
                 <thead>
@@ -66,7 +64,7 @@ export default function ComoFuncionaPage({ params }: { params: { locale: string 
                       {range.map((x) => (
                         <td 
                           key={`cell-${x}-${y}`} 
-                          className="p-1 border border-white/5 text-center transition-all hover:bg-yellow-500/20 hover:scale-110 group cursor-default"
+                          className="p-1 border border-white/5 text-center transition-all hover:bg-yellow-500/20 group cursor-default"
                         >
                           <div className="text-[9px] text-gray-500 group-hover:text-yellow-400 font-mono">
                             {x}/{y}
@@ -89,43 +87,54 @@ export default function ComoFuncionaPage({ params }: { params: { locale: string 
 
         {/* CARDS DE PASSO A PASSO */}
         <div className="grid md:grid-cols-3 gap-6 mb-20">
-          {[1, 2, 3].map((num) => (
-            <div key={`card-${num}`} className="bg-white/5 border border-white/10 p-8 rounded-3xl hover:border-yellow-500/30 transition-colors group">
-              <div className="w-12 h-12 bg-yellow-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                {num === 1 && <Coins className="text-yellow-500" />}
-                {num === 2 && <Cpu className="text-yellow-500" />}
-                {num === 3 && <ShieldCheck className="text-yellow-500" />}
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">{t(`card${num}Title`)}</h3>
-              <p className="text-sm text-gray-400 leading-relaxed">{t(`card${num}Desc`)}</p>
-            </div>
-          ))}
+          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl group">
+             <Coins className="text-yellow-500 mb-6" />
+             <h3 className="text-xl font-bold text-white mb-3">{t('card1Title')}</h3>
+             <p className="text-sm text-gray-400 leading-relaxed">{t('card1Desc')}</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl group">
+             <Cpu className="text-yellow-500 mb-6" />
+             <h3 className="text-xl font-bold text-white mb-3">{t('card2Title')}</h3>
+             <p className="text-sm text-gray-400 leading-relaxed">{t('card2Desc')}</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 p-8 rounded-3xl group">
+             <ShieldCheck className="text-yellow-500 mb-6" />
+             <h3 className="text-xl font-bold text-white mb-3">{t('card3Title')}</h3>
+             <p className="text-sm text-gray-400 leading-relaxed">{t('card3Desc')}</p>
+          </div>
         </div>
 
-        {/* SEÇÃO DE AUDITORIA */}
+        {/* AUDITORIA */}
         <section className="bg-gradient-to-b from-white/5 to-transparent border border-white/10 rounded-[40px] p-8 md:p-16">
           <div className="max-w-3xl mx-auto">
-            <h2 className="text-3xl font-bold text-white mb-4 text-center md:text-left">
-              {t('auditTitle')}
-            </h2>
-            <div className="h-1 w-20 bg-yellow-500 rounded-full mb-12 mx-auto md:mx-0"></div>
+            <h2 className="text-3xl font-bold text-white mb-4">{t('auditTitle')}</h2>
+            <div className="h-1 w-20 bg-yellow-500 rounded-full mb-12"></div>
             
             <div className="space-y-12">
-              {[1, 2, 3].map((step) => (
-                <div key={`step-${step}`} className="flex flex-col md:flex-row gap-6">
-                  <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white font-bold border border-white/20 mx-auto md:mx-0">
-                    {step}
+               <div className="flex gap-6">
+                  <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white font-bold">1</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-white mb-2">{t('step1Title')}</h4>
+                    <p className="text-gray-400">{t('step1Desc')}</p>
                   </div>
-                  <div className="text-center md:text-left">
-                    <h4 className="text-xl font-bold text-white mb-2">{t(`step${step}Title`)}</h4>
-                    <p className="text-gray-400 leading-relaxed">{t(`step${step}Desc`)}</p>
+               </div>
+               <div className="flex gap-6">
+                  <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white font-bold">2</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-white mb-2">{t('step2Title')}</h4>
+                    <p className="text-gray-400">{t('step2Desc')}</p>
                   </div>
-                </div>
-              ))}
+               </div>
+               <div className="flex gap-6">
+                  <div className="flex-shrink-0 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white font-bold">3</div>
+                  <div>
+                    <h4 className="text-xl font-bold text-white mb-2">{t('step3Title')}</h4>
+                    <p className="text-gray-400">{t('step3Desc')}</p>
+                  </div>
+               </div>
             </div>
           </div>
         </section>
-
       </main>
     </div>
   );

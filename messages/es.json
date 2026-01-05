@@ -49,6 +49,25 @@
     "proCardEth": "~0.0459 ETH",
     "proCardFooter": "Alto rendimiento. Pote exclusivo."
   },
+  "ComoFunciona": {
+    "title": "Matriz de Referencia",
+    "desc": "Entienda la matemática del sistema. La adhesión consiste en la selección estratégica de pares (X/Y). Existen exactos 625 pronósticos posibles auditables vía Smart Contract.",
+    "tableTitle": "Tabla de Pronósticos (X/Y)",
+    "scroll": "Desplaza para ver ↕",
+    "card1Title": "1. Selección de Pronósticos",
+    "card1Desc": "Elige 5 coordenadas de la Matriz (ej: 10/5, 25/25). El orden de inserción define la franja de puntuación (1 a 5 puntos).",
+    "card2Title": "2. Ciclo Semanal",
+    "card2Desc": "La ronda cierra el Sábado. Chainlink VRF audita e inserta los resultados on-chain para garantizar entropía real.",
+    "card3Title": "3. Cálculo los Domingos",
+    "card3Desc": "Tras el sorteo del sábado, ocurre el cálculo de la cascada y los ganadores reclaman sus rendimientos los Domingos.",
+    "auditTitle": "¿Cómo Auditar tu Aplicación?",
+    "step1Title": "Accede al Comprobante (BaseScan)",
+    "step1Desc": "Al confirmar tu aplicación, recibirás un enlace a BaseScan. También puedes encontrarlo en el historial de tu billetera.",
+    "step2Title": "Decodifica los Datos",
+    "step2Desc": "En BaseScan, ve a la pestaña Overview y haz clic en Decode Input Data. Esto traduce el código de la blockchain a números legíveis.",
+    "step3Title": "Confirmación Inmutable",
+    "step3Desc": "Una vez confirmado el bloque, nadie (ni los desarrolladores) puede alterar tus números. Tus pronósticos están matemáticamente seguros."
+  },
   "Premiacao": {
     "title": "Estructura de Premiación",
     "desc": "El protocolo distribuye el 90% de todo lo recaudado directamente a los participantes. Sin intermediarios, regido por Contratos Inteligentes.",
@@ -64,6 +83,16 @@
     "cascadeDesc1": "Si no hay ganadores en la franja de 5 puntos, el valor del 50% 'baja' integralmente a la franja de 4 puntos.",
     "rolloverTitle": "Rollover (Pozo Acumulado)",
     "rolloverDesc1": "Si nadie acierta siquiera 1 punto, el monto total queda retenido para la próxima ronda (Jackpot)."
+  },
+  "Resultados": {
+    "title": "Centro de Resultados",
+    "banner": "Resultados divulgados siempre los Sábados",
+    "connectWallet": "Conecta tu billetera para verificar tus resultados.",
+    "ticket": "Ticket",
+    "statusCalculating": "Calculando...",
+    "statusVerify": "Verificar",
+    "statusClaim": "Retirar",
+    "waitingAudit": "A espera de la auditoría de la red."
   },
   "Footer": {
     "allRightsReserved": "Todos los derechos reservados. Protocolo Descentralizado."
