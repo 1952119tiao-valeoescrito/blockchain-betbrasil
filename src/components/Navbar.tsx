@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { Link } from '@/navigation';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from 'next/image';
 
 const Navbar = () => {
   const t = useTranslations('Navbar');
-  const locale = useLocale();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-white/5">
@@ -33,7 +32,7 @@ const Navbar = () => {
           </div>
         </Link>
 
-        {/* LINKS - Usando o Link do next-intl para gerenciar o locale automaticamente */}
+        {/* LINKS - Note a barra "/" antes do nome da página */}
         <div className="hidden md:flex items-center gap-8">
           <Link href="/como-funciona" className="text-sm text-gray-400 hover:text-white transition-colors">
             {t('how')}
@@ -45,14 +44,6 @@ const Navbar = () => {
             {t('prizes')}
           </Link>
           
-          <div className="flex items-center gap-2 text-yellow-500 font-bold text-xs bg-yellow-500/10 px-3 py-1.5 rounded-full border border-yellow-500/20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-500"></span>
-            </span>
-            Inter-Bet Pro
-          </div>
-
           <ConnectButton showBalance={false} chainStatus="none" />
         </div>
       </div>
