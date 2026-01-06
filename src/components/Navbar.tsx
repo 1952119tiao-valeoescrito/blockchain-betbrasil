@@ -1,105 +1,53 @@
 "use client";
-
 import React, { useState } from 'react';
 import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from 'next/image';
-import { Menu, X } from 'lucide-react'; // Ícones para o menu mobile
+import { Menu, X, Zap } from 'lucide-react';
 
 const Navbar = () => {
   const t = useTranslations('Navbar');
-  const [isOpen, setIsOpen] = useState(false); // Estado para controlar o menu mobile
-
-  const toggleMenu = () => setIsOpen(!isOpen);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[100] bg-black/80 backdrop-blur-xl border-b border-white/5">
-      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between text-center">
         
-        {/* LOGO */}
-        <Link href="/" className="flex items-center gap-3 group shrink-0">
-          <div className="relative w-10 h-10 overflow-hidden rounded-lg border border-white/10 group-hover:border-yellow-500/50 transition-colors">
-            <Image 
-              src="/images/logo.png" 
-              alt="Logo"
-              fill
-              className="object-cover"
-            />
+        <Link href="/" className="flex items-center gap-3 shrink-0">
+          <div className="relative w-10 h-10 overflow-hidden rounded-lg border border-white/10 shrink-0">
+            <Image src="/images/logo.png" alt="Logo" fill className="object-cover" />
           </div>
-          <div className="flex flex-col">
-            <span className="text-white font-bold tracking-tighter leading-none text-base md:text-lg">
-              BLOCKCHAIN <span className="text-yellow-500">BET</span>
-            </span>
-            <span className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">
-              {t('subtitle')}
-            </span>
+          <div className="flex flex-col text-left">
+            <span className="text-white font-bold tracking-tighter leading-none text-base">BLOCKCHAIN <span className="text-yellow-500">BET</span></span>
+            <span className="text-[10px] text-gray-400 font-bold tracking-[0.2em] uppercase">{t('subtitle')}</span>
           </div>
         </Link>
 
-        {/* DESKTOP LINKS */}
-        <div className="hidden md:flex items-center gap-8">
-          <Link href="/como-funciona" className="text-sm text-gray-400 hover:text-white transition-colors">
-            {t('how')}
+        {/* Links Unificados em todas as páginas */}
+        <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <Link href="/como-funciona" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">{t('how')}</Link>
+          <Link href="/resultados" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">{t('results')}</Link>
+          <Link href="/premiacao" className="text-sm font-medium text-gray-400 hover:text-white transition-colors">{t('prizes')}</Link>
+          <Link href="/inter-bet" className="text-sm font-bold text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-1">
+            <Zap size={14} /> {t('interbet')}
           </Link>
-          <Link href="/resultados" className="text-sm text-gray-400 hover:text-white transition-colors">
-            {t('results')}
-          </Link>
-          <Link href="/premiacao" className="text-sm text-gray-400 hover:text-white transition-colors">
-            {t('prizes')}
-          </Link>
-          
-          <ConnectButton showBalance={false} chainStatus="none" />
+          <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="icon" />
         </div>
 
-        {/* MOBILE CONTROLS (Wallet + Hamburger) */}
         <div className="flex md:hidden items-center gap-3">
-          {/* Botão de Connect reduzido para mobile via CSS do RainbowKit ou apenas visível */}
-          <div className="scale-90 origin-right">
-             <ConnectButton showBalance={false} chainStatus="none" accountStatus="avatar" />
-          </div>
-          
-          <button 
-            onClick={toggleMenu}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
-          >
-            {isOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
+          <div className="scale-90 origin-right"><ConnectButton showBalance={false} accountStatus="avatar" chainStatus="none" /></div>
+          <button onClick={() => setIsOpen(!isOpen)} className="text-gray-400">{isOpen ? <X size={28} /> : <Menu size={28} />}</button>
         </div>
       </div>
 
-      {/* MOBILE MENU OVERLAY */}
-      <div className={`
-        fixed inset-0 top-20 bg-black/95 backdrop-blur-2xl z-40 transition-all duration-300 md:hidden
-        ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}
-      `}>
+      {/* Menu Mobile */}
+      <div className={`fixed inset-0 top-20 bg-black/95 backdrop-blur-2xl z-[90] transition-all md:hidden ${isOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
         <div className="flex flex-col p-8 gap-6 text-center">
-          <Link 
-            href="/como-funciona" 
-            onClick={toggleMenu}
-            className="text-xl font-medium text-gray-300 hover:text-yellow-500 transition-colors border-b border-white/5 pb-4"
-          >
-            {t('how')}
-          </Link>
-          <Link 
-            href="/resultados" 
-            onClick={toggleMenu}
-            className="text-xl font-medium text-gray-300 hover:text-yellow-500 transition-colors border-b border-white/5 pb-4"
-          >
-            {t('results')}
-          </Link>
-          <Link 
-            href="/premiacao" 
-            onClick={toggleMenu}
-            className="text-xl font-medium text-gray-300 hover:text-yellow-500 transition-colors border-b border-white/5 pb-4"
-          >
-            {t('prizes')}
-          </Link>
-          
-          <div className="pt-4 flex justify-center">
-             {/* ConnectButton duplicado aqui se quiser destaque, ou apenas mantê-lo na barra fixa */}
-             <span className="text-[10px] text-gray-600 uppercase tracking-widest">Protocolo Descentralizado</span>
-          </div>
+          <Link href="/como-funciona" onClick={() => setIsOpen(false)} className="text-xl text-gray-300 border-b border-white/5 pb-4">{t('how')}</Link>
+          <Link href="/resultados" onClick={() => setIsOpen(false)} className="text-xl text-gray-300 border-b border-white/5 pb-4">{t('results')}</Link>
+          <Link href="/premiacao" onClick={() => setIsOpen(false)} className="text-xl text-gray-300 border-b border-white/5 pb-4">{t('prizes')}</Link>
+          <Link href="/inter-bet" onClick={() => setIsOpen(false)} className="text-xl font-bold text-yellow-500">{t('interbet')}</Link>
         </div>
       </div>
     </nav>
