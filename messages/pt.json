@@ -1,6 +1,6 @@
 {
   "Metadata": {
-    "title": "Blockchain Bet Brasil | Aliança dos 625",
+    "title": "Blockchain Bet Brasil | O BBB da WEB3",
     "description": "O Último Segredo das Loterias Revelado. Protocolo Descentralizado na Rede Base."
   },
   "Navbar": {
@@ -17,10 +17,10 @@
     "brand": "BBB & Inter-Bet",
     "heroTitle": "A SORTE AGORA É",
     "heroHighlight": "ESTRATÉGIA.",
-    "subtitle": "Blockchain Bet Brasil - A Aliança dos 625.",
-    "subtext": "Reescrevendo destinos através da matemática. Sem muros, sem donos.",
-    "pulseText": "O prêmio SEMPRE tem dono. Ganhe com 5, 4, 3, 2 ou 1 ponto!",
-    "description": "O primeiro sistema de distribuição onde 90% de tudo que é arrecadado volta para os jogadores. Operado por Smart Contracts e Chainlink VRF na rede Base.",
+    "subtitle": "Blockchain Bet Brasil - O BBB da WEB3.",
+    "subtext": "Reescrevendo destinos através da matemática. Sem paredão, sem mi, mi, mi.",
+    "pulseText": "O prêmio SEMPRE tem dono. Ganhe com 5, 4, 3, 2 ou 1 ponto apenas!",
+    "description": "Aplicação sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.",
     "btnStart": "Entrar para a Aliança",
     "btnDocs": "Ler o Manifesto",
     "trust1": "Base L2 Segura",
@@ -32,14 +32,14 @@
     "card2Desc": "Usamos Chainlink VRF para garantir aleatoriedade absoluta. Cada resultado é gerado fora da rede e validado on-chain.",
     "card3Title": "O Pacto dos 90%",
     "card3Desc": "90% do total arrecadado por rodada é travado para distribuição imediata. Jogamos do seu lado.",
-    "basicCardTitle": "Prêmio Estimado",
+    "basicCardTitle": "PRÊMIO ESTIMADO",
     "basicCardValue": "R$ 50.000,00",
     "basicCardSub": "Com apenas",
     "basicCardPoint": "1 ponto",
     "basicCardEntry": "Adesão",
     "basicCardPrice": "R$ 5,00",
     "basicCardEth": "~0.00027 ETH",
-    "basicCardFooter": "Pote da Aliança - Vagas Limitadas."
+    "basicCardFooter": "POTE DA ALIANÇA - VAGAS LIMITADAS."
   },
   "InterBet": {
     "title": "Escolha seu",
@@ -133,6 +133,6 @@
     "waitingAudit": "Verificando Entropia da Rede..."
   },
   "Footer": {
-    "allRightsReserved": "Protocolo Descentralizado da Aliança. Todos os direitos reservados."
+    "allRightsReserved": "Todos os direitos reservados. Protocolo Descentralizado."
   }
 }

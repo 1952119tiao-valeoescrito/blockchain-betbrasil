@@ -9,6 +9,7 @@ import Image from 'next/image';
 export default function HomePage() {
   const t = useTranslations('Home');
   const tn = useTranslations('Navbar');
+  const tp = useTranslations('InterBet'); // Para as chaves do PRO
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -34,7 +35,7 @@ export default function HomePage() {
             <div className="relative w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden border border-[#2a2d35] bg-[#13151a] shrink-0">
                <Image src="/images/logo.png" alt="Logo" fill className="object-cover p-1" />
             </div>
-            <div className="flex flex-col leading-none">
+            <div className="flex flex-col leading-none text-left">
                 <span className="font-bold text-white tracking-tight text-[10px] md:text-sm uppercase">Blockchain Bet</span>
                 <span className="text-[#cfb16d] font-bold text-xs md:text-base uppercase tracking-wide">{tn('subtitle')}</span>
             </div>
@@ -96,7 +97,8 @@ export default function HomePage() {
             <h2 className="text-lg md:text-3xl font-bold text-gray-200 px-4">
                 {t('subtitle')} <span className="text-white block mt-2 font-light text-base md:text-2xl">{t('subtext')}</span>
             </h2>
-            <p className="text-xl md:text-3xl font-black text-[#cfb16d] animate-pulse drop-shadow-[0_0_15px_rgba(207,177,109,0.3)] py-4 uppercase">
+            {/* PULSE TEXT - AJUSTADO PARA CABER EM UMA LINHA */}
+            <p className="text-[10px] sm:text-xs md:text-base lg:text-xl font-black text-[#cfb16d] animate-pulse drop-shadow-[0_0_15px_rgba(207,177,109,0.3)] py-4 uppercase whitespace-nowrap overflow-hidden">
                 {t('pulseText')}
             </p>
         </div>
@@ -141,14 +143,14 @@ export default function HomePage() {
                       <span className="text-blue-400 text-3xl md:text-5xl">{t('basicCardValue')}</span>
                     </h1>
                     
-                    <p className="text-lg font-medium mb-8 italic text-blue-200/70">
+                    <p className="text-lg font-medium mb-8 italic text-blue-200/70 text-left">
                       {t('basicCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('basicCardPoint')}</span>
                     </p>
 
                     <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-blue-500/20 shadow-inner">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('basicCardEntry')}</p>
-                        <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">{t('basicCardPrice')}</p>
-                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('basicCardEth')}</p>
+                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2 text-center">{t('basicCardEntry')}</p>
+                        <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter text-center">{t('basicCardPrice')}</p>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest text-center">{t('basicCardEth')}</p>
                     </div>
                     
                     <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-bold text-blue-100/60 uppercase tracking-widest">
@@ -158,40 +160,38 @@ export default function HomePage() {
                 </div>
             </Link>
 
-            {/* PRO CARD */}
+            {/* PRO CARD - CORRIGIDO AS CHAVES PARA PEGAR DO JSON */}
             <Link href="/inter-bet" className="group">
                 <div className="h-full bg-gradient-to-br from-purple-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-purple-500/20 backdrop-blur-md transform transition duration-500 hover:scale-[1.02] hover:border-purple-400 relative overflow-hidden shadow-2xl">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><Gem size={100} /></div>
                     
                     <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
-                      {t('proCardTitle')} <br/>
+                      {tp('proTitle')} <br/>
                       <span className="text-purple-400 text-3xl md:text-5xl">{t('proCardValue')}</span>
                     </h1>
                     
-                    <p className="text-lg font-medium mb-8 italic text-purple-200/70">
+                    <p className="text-lg font-medium mb-8 italic text-purple-200/70 text-left">
                       {t('proCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('proCardPoint')}</span>
                     </p>
 
                     <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-purple-500/20 shadow-inner text-center">
                         <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('proCardEntry')}</p>
                         <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">
-                          {t('proCardPrice')}
+                          {tp('proPrice')}
                         </p>
-                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('proCardEth')}</p>
+                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{tp('proEth')}</p>
                     </div>
 
                     <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-bold text-purple-100/60 uppercase tracking-widest">
                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
-                       {t('proCardFooter')}
+                       POTE EXCLUSIVO - ALTA PERFORMANCE
                     </div>
                 </div>
             </Link>
           </div>
 
-          {/* FEATURES GRID (Artigo 1, 2 e 3) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto">
-            
-            {/* CARD 1 */}
+          {/* FEATURES GRID */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 max-w-7xl mx-auto text-left">
             <div className="bg-[#13151a]/50 p-8 rounded-[2rem] border border-[#2a2d35] hover:border-[#cfb16d]/40 transition-all group">
               <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] group-hover:scale-110 transition-all duration-300">
                 <ShieldCheck className="text-[#cfb16d] group-hover:text-black" size={32} />
@@ -199,8 +199,6 @@ export default function HomePage() {
               <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-tight">{t('card1Title')}</h3>
               <p className="text-gray-400 leading-relaxed text-sm md:text-base">{t('card1Desc')}</p>
             </div>
-
-            {/* CARD 2 */}
             <div className="bg-[#13151a]/50 p-8 rounded-[2rem] border border-[#2a2d35] hover:border-[#cfb16d]/40 transition-all group">
               <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] group-hover:scale-110 transition-all duration-300">
                 <BarChart3 className="text-[#cfb16d] group-hover:text-black" size={32} />
@@ -208,8 +206,6 @@ export default function HomePage() {
               <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-tight">{t('card2Title')}</h3>
               <p className="text-gray-400 leading-relaxed text-sm md:text-base">{t('card2Desc')}</p>
             </div>
-
-            {/* CARD 3 */}
             <div className="bg-[#13151a]/50 p-8 rounded-[2rem] border border-[#2a2d35] hover:border-[#cfb16d]/40 transition-all group">
               <div className="w-14 h-14 bg-[#1a1c22] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#cfb16d] group-hover:scale-110 transition-all duration-300">
                 <Coins className="text-[#cfb16d] group-hover:text-black" size={32} />
@@ -217,12 +213,11 @@ export default function HomePage() {
               <h3 className="text-xl md:text-2xl font-bold text-white mb-4 uppercase tracking-tight">{t('card3Title')}</h3>
               <p className="text-gray-400 leading-relaxed text-sm md:text-base">{t('card3Desc')}</p>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* FOOTER SIMPLIFICADO */}
+      {/* FOOTER */}
       <footer className="py-12 border-t border-[#2a2d35] text-center">
          <div className="container mx-auto px-4">
             <p className="text-xs md:text-sm text-gray-500 uppercase tracking-[0.4em] font-medium">
