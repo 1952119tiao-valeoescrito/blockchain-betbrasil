@@ -23,8 +23,8 @@ export default function HomePage() {
       
       {/* BACKGROUND GLOWS */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[300 md:w-[500px] h-[300 md:h-[500px] bg-[#cfb16d]/5 blur-[80px] md:blur-[120px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[300 md:w-[500px] h-[300 md:h-[500px] bg-[#cfb16d]/5 blur-[80px] md:blur-[120px] rounded-full"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-[#cfb16d]/5 blur-[80px] md:blur-[120px] rounded-full"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-[#cfb16d]/5 blur-[80px] md:blur-[120px] rounded-full"></div>
       </div>
 
       {/* NAVBAR */}
@@ -65,7 +65,7 @@ export default function HomePage() {
              <Link href="/como-funciona" onClick={() => setMobileMenuOpen(false)} className="text-xl font-medium text-gray-300 border-b border-white/5 pb-2">{tn('how')}</Link>
              <Link href="/resultados" onClick={() => setMobileMenuOpen(false)} className="text-xl font-medium text-gray-300 border-b border-white/5 pb-2">{tn('results')}</Link>
              <Link href="/premiacao" onClick={() => setMobileMenuOpen(false)} className="text-xl font-medium text-gray-300 border-b border-white/5 pb-2">{tn('prizes')}</Link>
-             <Link href="/inter-bet" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-[#cfb16d]">{t('brand')}</Link>
+             <Link href="/inter-bet" onClick={() => setMobileMenuOpen(false)} className="text-xl font-bold text-[#cfb16d]">Inter-Bet Pro</Link>
              <Link href="/apostas" onClick={() => setMobileMenuOpen(false)}>
                 <button className="w-full bg-[#cfb16d] text-black py-4 rounded-xl font-black uppercase tracking-widest text-sm shadow-lg shadow-[#cfb16d]/20">
                   {tn('access')}
@@ -127,9 +127,6 @@ export default function HomePage() {
       </section>
 
       {/* PRICING CARDS SECTION */}
-      <section className="py-20 bg-[#08090c] border-y border-[#2a2d35]">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md: {/* PRICING CARDS SECTION (Continuação) */}
       <section className="py-20 bg-[#08090c] border-y border-[#2a2d35]">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-20">
@@ -231,11 +228,6 @@ export default function HomePage() {
             <p className="text-xs md:text-sm text-gray-500 uppercase tracking-[0.4em] font-medium">
               © {new Date().getFullYear()} Blockchain Bet Brasil | Protocolo Descentralizado
             </p>
-            <div className="flex justify-center gap-6 mt-6 opacity-30">
-               <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20"></div>
-               <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20"></div>
-               <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20"></div>
-            </div>
          </div>
       </footer>
     </div>
