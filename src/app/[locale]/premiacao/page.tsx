@@ -2,45 +2,123 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import { unstable_setRequestLocale } from 'next-intl/server';
 import Navbar from "@/components/Navbar";
+import { ShieldCheck, TrendingUp, Zap, Target, Info, Award } from 'lucide-react';
 
 export default function PremiacaoPage({ params: { locale } }: { params: { locale: string } }) {
   unstable_setRequestLocale(locale);
   const t = useTranslations('Premiacao');
 
-  return (
-    <div className="min-h-screen bg-[#0b0c10] pt-32 pb-20">
-      <Navbar />
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-4xl md:text-5xl font-black text-white mb-6 text-center">
-          {t('title')}
-        </h1>
-        <p className="text-xl text-gray-300 text-center mb-16">
-          {t('desc')}
-        </p>
+  // Dados das faixas para o mapeamento da tabela
+  const faixas = [
+    { pt: 5, std: "50%", casc: "70%", turb: "110%" },
+    { pt: 4, std: "20%", casc: "40%", turb: "80%" },
+    { pt: 3, std: "15%", casc: "35%", turb: "75%" },
+    { pt: 2, std: "10%", casc: "30%", turb: "70%" },
+    { pt: 1, std: "5%",  casc: "25%", turb: "65%" },
+  ];
 
-        <div className="bg-gradient-to-br from-yellow-500/10 to-transparent border border-yellow-500/20 p-10 rounded-3xl mb-10">
-          <h2 className="text-2xl font-bold text-white mb-4">{t('distributionTitle')}</h2>
-          <p className="text-gray-400 mb-8">{t('distributionDesc')}</p>
+  return (
+    <div className="min-h-screen bg-[#020617] pt-32 pb-20 text-slate-100">
+      <Navbar />
+      
+      <div className="max-w-5xl mx-auto px-4">
+        {/* Header de Impacto */}
+        <header className="text-center mb-16">
+          <div className="inline-block px-4 py-1 border border-green-500/50 bg-green-500/10 text-green-400 rounded-full text-xs font-bold mb-6 animate-pulse uppercase tracking-widest">
+            {t('badge90')} {/* Adicione "90% de Retorno Garantido" no seu JSON */}
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-600 mb-6 tracking-tighter uppercase">
+            {t('title')}
+          </h1>
+          <p className="text-xl text-gray-400 max-w-2xl mx-auto italic">
+            {t('desc')}
+          </p>
+        </header>
+
+        {/* Grid de Estratégia */}
+        <div className="grid md:grid-cols-3 gap-6 mb-16">
+          <div className="bg-slate-900/50 border border-white/5 p-8 rounded-3xl hover:border-yellow-500/30 transition-all">
+            <Target className="text-yellow-500 mb-4" size={32} />
+            <h3 className="text-white font-bold text-xl mb-2 uppercase">{t('matrixTitle')}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">{t('matrixDesc')}</p>
+          </div>
           
-          <div className="space-y-4">
-            {[5, 4, 3, 2, 1].map((hit) => (
-              <div key={hit} className="flex justify-between items-center border-b border-white/5 pb-4">
-                <span className="text-gray-200">{t(`hit${hit}`)}</span>
-                <span className="text-yellow-500 font-mono font-bold">{t('share')}</span>
-              </div>
-            ))}
+          <div className="bg-slate-900/50 border border-white/5 p-8 rounded-3xl hover:border-green-500/30 transition-all">
+            <TrendingUp className="text-green-500 mb-4" size={32} />
+            <h3 className="text-white font-bold text-xl mb-2 uppercase">{t('payoutTitle')}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">{t('payoutDesc')}</p>
+          </div>
+
+          <div className="bg-slate-900/50 border border-white/5 p-8 rounded-3xl hover:border-orange-500/30 transition-all">
+            <Zap className="text-orange-500 mb-4" size={32} />
+            <h3 className="text-white font-bold text-xl mb-2 uppercase">{t('cascadeTitle')}</h3>
+            <p className="text-sm text-gray-400 leading-relaxed">{t('cascadeDesc1')}</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
-            <h3 className="text-white font-bold mb-3">{t('cascadeTitle')}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{t('cascadeDesc1')}</p>
+        {/* Tabela do Código da Aliança */}
+        <div className="bg-slate-900 rounded-[2.5rem] border border-white/10 overflow-hidden shadow-2xl mb-16">
+          <div className="p-8 border-b border-white/5 flex justify-between items-center bg-slate-900/80">
+            <div>
+              <h2 className="text-2xl font-bold uppercase tracking-tight text-white">{t('distributionTitle')}</h2>
+              <p className="text-slate-400 text-sm">{t('distributionDesc')}</p>
+            </div>
+            <Info className="text-slate-600 hidden md:block" />
           </div>
-          <div className="bg-white/5 p-8 rounded-3xl border border-white/10">
-            <h3 className="text-white font-bold mb-3">{t('rolloverTitle')}</h3>
-            <p className="text-sm text-gray-400 leading-relaxed">{t('rolloverDesc1')}</p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-center border-collapse">
+              <thead>
+                <tr className="bg-black/20 text-slate-500 text-xs uppercase tracking-widest">
+                  <th className="py-6 px-4 text-left pl-10">{t('tableRank')}</th>
+                  <th className="py-6 px-4">{t('tableStandard')}</th>
+                  <th className="py-6 px-4 text-orange-400">{t('tableCascade')}</th>
+                  <th className="py-6 px-4 bg-orange-600/20 text-orange-500 font-bold">{t('tableTurbo')}</th>
+                </tr>
+              </thead>
+              <tbody className="text-slate-200 divide-y divide-white/5">
+                {faixas.map((row) => (
+                  <tr key={row.pt} className="hover:bg-white/5 transition-colors group">
+                    <td className="py-5 px-6 text-left pl-10 font-bold text-yellow-500">
+                      {row.pt} {t('points')}
+                    </td>
+                    <td className="py-5 px-4 font-mono">{row.std}</td>
+                    <td className="py-5 px-4 text-orange-400 font-bold font-mono">{row.casc}</td>
+                    <td className="py-5 px-4 bg-orange-600/10 text-orange-500 font-black font-mono">{row.turb}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+          
+          <div className="p-6 bg-black/40 text-center border-t border-white/5">
+  <p className="text-xs md:text-sm text-slate-400 leading-relaxed max-w-3xl mx-auto italic">
+    <strong>Nota de Transparência:</strong> {t('distributionNote')}
+  </p>
+</div>
+        </div>
+
+        {/* Seção de Regra Especial (Artigo 7º) */}
+        <div className="bg-gradient-to-br from-orange-600 to-red-800 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-black text-white mb-4 uppercase italic tracking-tighter">
+              {t('rolloverTitle')}
+            </h2>
+            <p className="text-white/90 text-lg leading-relaxed max-w-3xl">
+              {t('rolloverDesc1')}
+            </p>
+          </div>
+          <Award className="absolute right-[-20px] bottom-[-20px] text-white/10" size={180} />
+        </div>
+
+        {/* Footer CTA */}
+        <div className="mt-20 text-center">
+          <a 
+            href="/play" 
+            className="inline-block px-12 py-5 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-full transition-all transform hover:scale-105 shadow-[0_0_40px_rgba(234,179,8,0.4)] uppercase tracking-[0.2em]"
+          >
+            {t('playNow')}
+          </a>
         </div>
       </div>
     </div>
