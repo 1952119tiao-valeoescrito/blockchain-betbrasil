@@ -1,5 +1,10 @@
 {
+  "Metadata": {
+    "title": "Blockchain Bet Brasil | O BBB da WEB3",
+    "description": "O Último Segredo das Loterias Revelado. Protocolo Descentralizado na Rede Base."
+  },
   "Navbar": {
+    "home": "Início",
     "how": "O Código",
     "results": "Resultados",
     "prizes": "Regras da Aliança",
@@ -42,5 +47,29 @@
     "proCardPrice": "R$ 1.000,00",
     "proCardEth": "(~0.0459 ETH)",
     "proCardFooter": "POTE EXCLUSIVO - ALTA PERFORMANCE"
+  },
+  "InterBet": {
+    "title": "Escolha sua",
+    "highlight": "Modalidade",
+    "desc": "Dois caminhos, a mesma tecnologia Trustless. Defina sua participação no rateio global.",
+    "basicTitle": "Adesão Básica",
+    "basicDesc": "Para quem busca explorar a Web3 com baixo custo e segurança total.",
+    "basicPrice": "R$ 5,00",
+    "basicEth": "(~0.00027 ETH)",
+    "basicFeat1": "Matriz Segura 25x25",
+    "basicFeat2": "Elegível ao Pote e Cascata",
+    "basicBtn": "Selecionar Básico",
+    "proTitle": "Inter-Bet PRO",
+    "proDesc": "Para jogadores focados em multiplicadores agressivos e alto volume.",
+    "proPrice": "R$ 1.000,00",
+    "proEth": "(~0.0459 ETH)",
+    "proFeat1": "Pote Exclusivo de Alto Volume",
+    "proFeat2": "Prioridade em Rendimentos",
+    "proBtn": "Acessar PRO"
+  },
+  "Premiacao": {
+    "title": "O Código da Aliança",
+    "desc": "Um protocolo justo: 90% de cada rodada volta para a comunidade.",
+    "distributionNote": "O prêmio bruto é o equivalente a 90% do valor total arrecadado, por rodada, distribuído percentualmente, em partes iguais, entre os acertadores em cada uma das faixas de pontuação."
   }
 }
