@@ -114,7 +114,7 @@ export default function PremiacaoPage({ params: { locale } }: { params: { locale
         {/* Footer CTA */}
         <div className="mt-20 text-center">
           <a 
-            href="/play" 
+            href="/apostas" 
             className="inline-block px-12 py-5 bg-yellow-500 hover:bg-yellow-400 text-black font-black rounded-full transition-all transform hover:scale-105 shadow-[0_0_40px_rgba(234,179,8,0.4)] uppercase tracking-[0.2em]"
           >
             {t('playNow')}
