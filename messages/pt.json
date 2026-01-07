@@ -54,22 +54,43 @@
     "desc": "Dois caminhos, a mesma tecnologia Trustless. Defina sua participação no rateio global.",
     "basicTitle": "Adesão Básica",
     "basicDesc": "Para quem busca explorar a Web3 com baixo custo e segurança total.",
-    "basicPrice": "R$ 5,00",
-    "basicEth": "(~0.00027 ETH)",
-    "basicFeat1": "Matriz Segura 25x25",
-    "basicFeat2": "Elegível ao Pote e Cascata",
     "basicBtn": "Selecionar Básico",
     "proTitle": "Inter-Bet PRO",
     "proDesc": "Para jogadores focados em multiplicadores agressivos e alto volume.",
-    "proPrice": "R$ 1.000,00",
-    "proEth": "(~0.0459 ETH)",
-    "proFeat1": "Pote Exclusivo de Alto Volume",
-    "proFeat2": "Prioridade em Rendimentos",
     "proBtn": "Acessar PRO"
+  },
+  "ComoFunciona": {
+    "title": "A Matriz 625",
+    "desc": "O sucesso é um cálculo. Nosso sistema utiliza uma grade de referência 25x25, criando 625 possibilidades estratégicas.",
+    "card1Title": "1. Seleção Estratégica",
+    "card1Desc": "Escolha 5 coordenadas (ex: 12/25). Sua ordem de seleção determina seu nível de pontuação de 1 a 5 pontos.",
+    "card2Title": "2. Ciclo Semanal",
+    "card2Desc": "As rodadas fecham todo sábado. A Chainlink VRF dispara o resultado auditado diretamente on-chain.",
+    "card3Title": "3. Rendimento Dominical",
+    "card3Desc": "Aos domingos, o Efeito Cascata é calculado e os vencedores sacam seus prêmios direto para suas carteiras.",
+    "auditTitle": "Como Auditar sua Entrada?",
+    "step1Title": "Recibo na Blockchain",
+    "step1Desc": "Cada entrada gera um link no BaseScan. Seus números são salvos no bloco para sempre.",
+    "step2Title": "Decodificação de Dados",
+    "step2Desc": "No BaseScan, role até a aba Overview e clique no botão Decode Input Data.",
+    "step3Title": "Matemática como Escudo",
+    "step3Desc": "Uma vez confirmado, nem os desenvolvedores podem mudar sua aposta.",
+    "Beginners": {
+      "title": "Novo na Web3? Descomplicamos para você.",
+      "desc": "A tecnologia Blockchain pode parecer complexa, mas no fundo ela é a sua maior segurança. Entenda em segundos:",
+      "walletTitle": "A Carteira Digital",
+      "walletDesc": "Imagine um aplicativo de banco, mas onde SÓ VOCÊ tem a senha e o controle total. É por ela que você aposta e recebe seus prêmios na hora.",
+      "blockchainTitle": "O Juiz Imparcial",
+      "blockchainDesc": "A Blockchain é como um livro de registros que ninguém pode apagar. Ela garante que seu número nunca seja alterado.",
+      "basescanTitle": "Seu Comprovante Eterno",
+      "basescanDesc": "É o seu recibo digital. Ele prova para o mundo que sua aposta foi feita. É transparente e auditável.",
+      "btn": "Entendi, quero começar!"
+    }
   },
   "Premiacao": {
     "title": "O Código da Aliança",
-    "desc": "Um protocolo justo: 90% de cada rodada volta para a comunidade.",
-    "distributionNote": "O prêmio bruto é o equivalente a 90% do valor total arrecadado, por rodada, distribuído percentualmente, em partes iguais, entre os acertadores em cada uma das faixas de pontuação."
+    "desc": "Um protocolo justo: 90% de cada rodada volta para a comunidade. Sem atravessadores.",
+    "distributionNote": "O prêmio bruto é o equivalente a 90% do valor total arrecadado, por rodada, distribuído percentualmente, em partes iguais, entre os acertadores em cada uma das faixas de pontuação.",
+    "playNow": "Entrar na Aliança"
   }
 }
