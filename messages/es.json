@@ -1,8 +1,4 @@
 {
-  "Metadata": {
-    "title": "Blockchain Bet Brasil | El BBB de la Web3",
-    "description": "El Último Secreto de las Loterías Revelado. Protocolo Descentralizado en la Red Base."
-  },
   "Navbar": {
     "home": "Inicio",
     "how": "El Código",
@@ -21,39 +17,25 @@
     "pulseText": "¡El premio SIEMPRE tiene dueño! Gana con 5, 4, 3, 2 o 1 punto.",
     "description": "Aplicación sin intermediarios. Sin manipulación. El primer sistema de distribución descentralizada operado por Smart Contracts y Chainlink VRF.",
     "btnStart": "Unirse a la Alianza",
-    "btnDocs": "Leer el Manifiesto",
-    "trust1": "RED BASE SEGURA",
-    "trust2": "CHAINLINK VRF V2.5",
-    "trust3": "CÓDIGO ABIERTO",
-    "card1Title": "Gobernanza Inmutable",
-    "card1Desc": "El contrato no tiene dueño. Nadie puede cambiar las reglas ni pausar retiros. El Código es la Ley.",
-    "card2Title": "Entropía Verificable",
-    "card2Desc": "Usamos Chainlink VRF para asegurar aleatoriedad absoluta. Los resultados se verifican en la Blockchain.",
-    "card3Title": "El Pacto del 90%",
-    "card3Desc": "El 90% de lo recaudado por ronda está bloqueado para distribución inmediata. Jugamos de tu lado.",
-    "basicCardTitle": "PREMIO ESTIMADO",
-    "basicCardValue": "$10,000.00",
-    "basicCardSub": "Con solo",
-    "basicCardPoint": "1 punto",
-    "basicCardEntry": "ADHESIÓN",
-    "basicCardPrice": "$1.00",
-    "basicCardEth": "~0.00027 ETH",
-    "basicCardFooter": "POTE ALIANZA - CUPOS LIMITADOS.",
-    "proCardTitle": "PREMIO ESTIMADO",
-    "proCardValue": "$2 Millones",
-    "proCardSub": "Con solo",
-    "proCardPoint": "1 punto",
-    "proCardEntry": "ADHESIÓN",
-    "proCardPrice": "$170.00",
-    "proCardEth": "(~0.0459 ETH)",
-    "proCardFooter": "ALTO RENDIMIENTO - POTE EXCLUSIVO"
+    "btnDocs": "Leer el Manifiesto"
   },
-  "Apostas": {
-    "title": "Tu Entrada",
-    "matrixTitle": "Matriz de Selección",
-    "matrixSub": "Selecciona exactamente 5 coordenadas en la cuadrícula 25x25.",
-    "alertWallet": "Conecta tu billetera para continuar.",
-    "audit": "Auditado vía Chainlink VRF",
-    "btnConfirm": "Confirmar Entrada"
+  "InterBet": {
+    "title": "Elige tu",
+    "highlight": "Modalidad",
+    "desc": "Dos caminos, la misma tecnología Trustless. Define tu participación en el pozo global.",
+    "basicTitle": "Adhesión Básica",
+    "basicPrice": "R$ 5,00",
+    "basicUSD": "(USD 1,00)",
+    "basicDesc": "Para quienes buscan explorar Web3 con bajo costo y seguridad total.",
+    "basicFeat1": "Matriz Segura 25x25",
+    "basicFeat2": "Elegible para Pozo y Cascada",
+    "basicBtn": "Seleccionar Básico",
+    "proTitle": "Inter-Bet PRO",
+    "proPrice": "R$ 1.000,00",
+    "proUSD": "(USD 200,00)",
+    "proDesc": "Para jugadores enfocados en multiplicadores agresivos y alto volumen.",
+    "proFeat1": "Pozo Exclusivo de Alto Volumen",
+    "proFeat2": "Prioridad en Rendimientos",
+    "proBtn": "Acceder PRO"
   }
 }

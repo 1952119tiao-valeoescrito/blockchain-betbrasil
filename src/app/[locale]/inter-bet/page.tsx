@@ -23,13 +23,12 @@ export default function InterBetPage() {
           
           {/* ADESÃO BÁSICA */}
           <div className="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-8 md:p-12 hover:border-blue-500/30 transition-all flex flex-col relative overflow-hidden group text-left shadow-2xl">
-            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-500 border border-blue-500/20">
-              <Target size={24} />
+            <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-6 text-blue-500 border border-blue-500/20 text-center">
+              <Target size={24} className="mx-auto" />
             </div>
             
             <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">{t('basicTitle')}</h2>
             
-            {/* PREÇO BÁSICO */}
             <div className="mb-6 flex items-baseline gap-2">
                 <span className="text-4xl font-black text-yellow-500">{t('basicPrice')}</span>
                 <span className="text-gray-500 font-bold text-sm uppercase">{t('basicUSD')}</span>
@@ -57,16 +56,15 @@ export default function InterBetPage() {
 
           {/* INTER-BET PRO */}
           <div className="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-8 md:p-12 hover:border-yellow-500/30 transition-all flex flex-col relative overflow-hidden group text-left shadow-2xl">
-            <div className="absolute top-4 right-4 bg-yellow-500 text-black text-[10px] font-black px-3 py-1 rounded-full tracking-widest uppercase shadow-lg shadow-yellow-500/20">
+            <div className="absolute top-4 right-4 bg-yellow-500 text-black text-[10px] font-black px-3 py-1 rounded-full tracking-widest uppercase">
                High ROI
             </div>
-            <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center mb-6 text-yellow-500 border border-yellow-500/20">
-              <Zap size={24} />
+            <div className="w-12 h-12 bg-yellow-500/10 rounded-xl flex items-center justify-center mb-6 text-yellow-500 border border-yellow-500/20 text-center">
+              <Zap size={24} className="mx-auto" />
             </div>
             
             <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">{t('proTitle')}</h2>
 
-            {/* PREÇO PRO */}
             <div className="mb-6 flex items-baseline gap-2">
                 <span className="text-4xl font-black text-yellow-500">{t('proPrice')}</span>
                 <span className="text-gray-500 font-bold text-sm uppercase">{t('proUSD')}</span>
