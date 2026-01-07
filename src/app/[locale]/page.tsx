@@ -1,109 +1,60 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from '../../navigation'; 
 import { useTranslations } from 'next-intl';
-import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, BarChart3, Gem } from 'lucide-react';
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Navbar from '@/components/Navbar'; // Usando a Navbar que acabamos de criar
-import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
+import Navbar from '@/components/Navbar';
 
 export default function HomePage() {
   const t = useTranslations('Home');
 
   return (
-    <div className="min-h-screen bg-[#0b0c10] font-sans text-slate-100 selection:bg-[#cfb16d] selection:text-black overflow-x-hidden text-center">
+    <div className="min-h-screen bg-[#0b0c10] text-slate-100 overflow-x-hidden">
       <Navbar />
-
-      {/* HERO SECTION - Espaçamento reduzido para "subir" a página */}
-      <section className="relative pt-24 md:pt-36 pb-12 container mx-auto px-4 flex flex-col items-center gap-4">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#13151a] border border-[#2a2d35] text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#cfb16d]">
-          <span className="w-2 h-2 rounded-full bg-[#cfb16d] animate-pulse"></span>
+      
+      <main className="container mx-auto px-4 pt-32 pb-16 flex flex-col items-center text-center">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-yellow-500 mb-6">
           Protocolo 100% On-Chain
         </div>
-        
-        <h3 className="text-base md:text-2xl font-bold text-white tracking-wide uppercase">
-            {t('welcome')} <span className="text-[#cfb16d]">{t('brand')}</span>
-        </h3>
-        
-        <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white leading-[1] tracking-tighter">
+
+        <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-white leading-tight tracking-tighter mb-4">
             {t('heroTitle')} <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#cfb16d] via-[#f0e68c] to-[#cfb16d]">{t('heroHighlight')}</span>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-yellow-200">
+              {t('heroHighlight')}
+            </span>
         </h1>
 
-        <div className="max-w-4xl space-y-2">
-            <h2 className="text-base md:text-2xl font-bold text-gray-200">
-                {t('subtitle')} <span className="text-white block mt-1 font-light text-sm md:text-xl">{t('subtext')}</span>
+        {/* MATRIZ RESPONSIVA - Scroll lateral no mobile */}
+        <div className="w-full max-w-4xl bg-black/40 p-2 md:p-4 rounded-2xl border border-white/5 my-8 overflow-x-auto custom-scrollbar">
+            <div className="grid grid-cols-[repeat(25,1fr)] gap-0.5 md:gap-1 min-w-[600px]">
+                {Array.from({ length: 625 }).map((_, i) => (
+                    <div key={i} className="aspect-square bg-white/5 border border-white/5 rounded-sm"></div>
+                ))}
+            </div>
+        </div>
+
+        <div className="max-w-2xl space-y-4 mb-10">
+            <h2 className="text-xl md:text-3xl font-bold text-gray-200 uppercase tracking-tight">
+                {t('subtitle')}
             </h2>
-            {/* FONTE REDUZIDA PARA UMA LINHA */}
-            <p className="text-[10px] sm:text-[12px] md:text-[16px] lg:text-[19px] font-black text-[#cfb16d] animate-pulse uppercase whitespace-nowrap overflow-hidden py-2">
-                {t('pulseText')}
+            <p className="text-sm md:text-lg text-gray-400 leading-relaxed italic px-4">
+                {t('subtext')}
             </p>
         </div>
 
-        <p className="text-xs md:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed border-t border-[#2a2d35] pt-4">
-            {t('description')}
-        </p>
-
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
-          <Link href="/inter-bet">
-            <button className="bg-[#cfb16d] text-black font-black text-sm md:text-base px-8 py-3 rounded-xl shadow-xl flex items-center gap-2 uppercase tracking-tighter">
-              {t('btnStart')} <ArrowRight size={18} />
+        <div className="flex flex-col sm:flex-row gap-4 w-full justify-center px-4">
+          <Link href="/inter-bet" className="w-full sm:w-auto">
+            <button className="w-full bg-yellow-500 text-black font-black px-8 py-4 rounded-xl uppercase tracking-widest hover:scale-105 transition-transform flex items-center justify-center gap-2">
+              {t('btnStart')} <ArrowRight size={20} />
             </button>
           </Link>
-          <Link href="/como-funciona">
-            <button className="bg-transparent text-white border border-[#2a2d35] font-bold text-sm md:text-base px-8 py-3 rounded-xl hover:bg-white/5 uppercase transition-all">
+          <Link href="/como-funciona" className="w-full sm:w-auto">
+            <button className="w-full bg-transparent text-white border border-white/10 font-bold px-8 py-4 rounded-xl hover:bg-white/5 transition-all">
               {t('btnDocs')}
             </button>
           </Link>
         </div>
-      </section>
-
-      {/* CARDS SECTION */}
-      <section className="py-12 bg-[#08090c] border-y border-[#2a2d35]">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            
-            {/* BASIC */}
-            <div className="bg-gradient-to-br from-blue-900/20 to-black p-8 rounded-[2rem] border-2 border-blue-500/20 text-left relative overflow-hidden">
-                <Zap className="absolute top-4 right-4 text-blue-500/20" size={80} />
-                <h1 className="text-2xl font-black mb-2">{t('basicCardTitle')}<br/><span className="text-blue-400 text-4xl">{t('basicCardValue')}</span></h1>
-                <p className="italic text-blue-200/70 mb-6">{t('basicCardSub')} <span className="text-yellow-500 font-bold underline">{t('basicCardPoint')}</span></p>
-                <div className="bg-black/50 p-6 rounded-3xl border border-blue-500/20 text-center mb-4">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest">{t('basicCardEntry')}</p>
-                    <p className="text-5xl font-black text-yellow-500 tracking-tighter">{t('basicCardPrice')}</p>
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase">{t('basicCardEth')}</p>
-                </div>
-                <p className="text-[10px] font-bold text-blue-100/60 text-center uppercase tracking-widest leading-none">● {t('basicCardFooter')}</p>
-            </div>
-
-            {/* PRO - AGORA LISINHO SEM ERROS */}
-            <div className="bg-gradient-to-br from-purple-900/20 to-black p-8 rounded-[2rem] border-2 border-purple-500/20 text-left relative overflow-hidden">
-                <Gem className="absolute top-4 right-4 text-purple-500/20" size={80} />
-                <h1 className="text-2xl font-black mb-2">{t('proCardTitle')}<br/><span className="text-purple-400 text-4xl">{t('proCardValue')}</span></h1>
-                <p className="italic text-purple-200/70 mb-6">{t('proCardSub')} <span className="text-yellow-500 font-bold underline">{t('proCardPoint')}</span></p>
-                <div className="bg-black/50 p-6 rounded-3xl border border-purple-500/20 text-center mb-4">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-widest">{t('proCardEntry')}</p>
-                    <p className="text-5xl font-black text-yellow-500 tracking-tighter">{t('proCardPrice')}</p>
-                    <p className="text-[10px] text-gray-500 mt-1 uppercase">{t('proCardEth')}</p>
-                </div>
-                <p className="text-[10px] font-bold text-purple-100/60 text-center uppercase tracking-widest leading-none">● {t('proCardFooter')}</p>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* FEATURES - GOVERNANÇA / ENTROPIA / PACTO */}
-      <section className="py-20 bg-[#0b0c10] container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 text-left">
-              {[1, 2, 3].map((i) => (
-                  <div key={i} className="bg-slate-900/40 p-8 rounded-3xl border border-white/5 hover:border-yellow-500/30 transition-all">
-                      <h3 className="text-white font-bold text-xl mb-4 uppercase">{t(`card${i}Title`)}</h3>
-                      <p className="text-gray-400 text-sm leading-relaxed">{t(`card${i}Desc`)}</p>
-                  </div>
-              ))}
-          </div>
-      </section>
+      </main>
     </div>
   );
 }
