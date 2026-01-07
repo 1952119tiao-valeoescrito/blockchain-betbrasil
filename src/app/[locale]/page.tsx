@@ -1,11 +1,9 @@
 "use client";
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from '../../navigation'; 
 import { useTranslations } from 'next-intl';
-import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, Menu, X, BarChart3, Gem } from 'lucide-react';
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ArrowRight, ShieldCheck, Zap, Globe, Coins, Lock, Cpu, BarChart3, Gem } from 'lucide-react';
 import Navbar from '@/components/Navbar';
-import Image from 'next/image';
 
 export default function HomePage() {
   const t = useTranslations('Home');
@@ -38,11 +36,11 @@ export default function HomePage() {
             </span>
         </h1>
 
-        <div className="max-w-4xl space-y-4 px-4">
+        <div className="max-w-4xl space-y-4 px-4 text-center">
             <h2 className="text-lg md:text-3xl font-bold text-gray-200">
                 {t('subtitle')} <span className="text-white block mt-2 font-light text-base md:text-2xl">{t('subtext')}</span>
             </h2>
-            <p className="text-[10px] sm:text-[13px] md:text-lg lg:text-xl font-black text-[#cfb16d] animate-pulse drop-shadow-[0_0_15px_rgba(207,177,109,0.3)] py-4 uppercase whitespace-nowrap overflow-hidden text-ellipsis">
+            <p className="text-[10px] sm:text-[13px] md:text-lg lg:text-xl font-black text-[#cfb16d] animate-pulse drop-shadow-[0_0_15px_rgba(207,177,109,0.3)] py-4 uppercase whitespace-nowrap overflow-hidden">
                 {t('pulseText')}
             </p>
         </div>
@@ -78,48 +76,45 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-20">
             
             {/* BASIC CARD */}
-            <Link href="/apostas" className="group text-left">
-                <div className="h-full bg-gradient-to-br from-blue-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-blue-500/20 backdrop-blur-md transform transition duration-500 hover:scale-[1.02] hover:border-blue-400 relative overflow-hidden shadow-2xl">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><Zap size={100} /></div>
-                    <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
-                      {t('basicCardTitle')} <br/>
-                      <span className="text-blue-400 text-3xl md:text-5xl">{t('basicCardValue')}</span>
-                    </h1>
-                    <p className="text-lg font-medium mb-8 italic text-blue-200/70">
-                      {t('basicCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('basicCardPoint')}</span>
-                    </p>
-                    <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-blue-500/20 shadow-inner">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2 text-center">{t('basicCardEntry')}</p>
-                        <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter text-center">{t('basicCardPrice')}</p>
-                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest text-center">{t('basicCardEth')}</p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-bold text-blue-100/60 uppercase tracking-widest">
-                       <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {t('basicCardFooter')}
-                    </div>
+            <div className="h-full bg-gradient-to-br from-blue-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-blue-500/20 backdrop-blur-md relative overflow-hidden shadow-2xl text-left">
+                <div className="absolute top-0 right-0 p-4 opacity-10"><Zap size={100} /></div>
+                <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
+                  {t('basicCardTitle')} <br/>
+                  <span className="text-blue-400 text-3xl md:text-5xl">{t('basicCardValue')}</span>
+                </h1>
+                <p className="text-lg font-medium mb-8 italic text-blue-200/70">
+                  {t('basicCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('basicCardPoint')}</span>
+                </p>
+                <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-blue-500/20 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('basicCardEntry')}</p>
+                    <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">{t('basicCardPrice')}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('basicCardEth')}</p>
                 </div>
-            </Link>
+                <div className="flex items-center justify-center gap-2 text-xs font-bold text-blue-100/60 uppercase tracking-widest text-center">
+                   <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {t('basicCardFooter')}
+                </div>
+            </div>
 
             {/* PRO CARD */}
-            <Link href="/inter-bet" className="group text-left">
-                <div className="h-full bg-gradient-to-br from-purple-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-purple-500/20 backdrop-blur-md transform transition duration-500 hover:scale-[1.02] hover:border-purple-400 relative overflow-hidden shadow-2xl">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform"><Gem size={100} /></div>
-                    <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
-                      {t('proCardTitle')} <br/>
-                      <span className="text-purple-400 text-3xl md:text-5xl">{t('proCardValue')}</span>
-                    </h1>
-                    <p className="text-lg font-medium mb-8 italic text-purple-200/70">
-                      {t('proCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('proCardPoint')}</span>
-                    </p>
-                    <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-purple-500/20 shadow-inner text-center">
-                        <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('proCardEntry')}</p>
-                        <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">{t('proCardPrice')}</p>
-                        <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('proCardEth')}</p>
-                    </div>
-                    <div className="flex items-center justify-center gap-2 text-xs md:text-sm font-bold text-purple-100/60 uppercase tracking-widest">
-                       <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> {t('proCardFooter')}
-                    </div>
+            <div className="h-full bg-gradient-to-br from-purple-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-purple-500/20 backdrop-blur-md relative overflow-hidden shadow-2xl text-left">
+                <div className="absolute top-0 right-0 p-4 opacity-10"><Gem size={100} /></div>
+                <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
+                  {t('proCardTitle')} <br/>
+                  <span className="text-purple-400 text-3xl md:text-5xl">{t('proCardValue')}</span>
+                </h1>
+                <p className="text-lg font-medium mb-8 italic text-purple-200/70">
+                  {t('proCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('proCardPoint')}</span>
+                </p>
+                <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-purple-500/20 text-center">
+                    <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('proCardEntry')}</p>
+                    <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">{t('proCardPrice')}</p>
+                    <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('proCardEth')}</p>
                 </div>
-            </Link>
+                <div className="flex items-center justify-center gap-2 text-xs font-bold text-purple-100/60 uppercase tracking-widest text-center">
+                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> {t('proCardFooter')}
+                </div>
+            </div>
+
           </div>
 
           {/* FEATURES GRID */}
