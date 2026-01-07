@@ -11,7 +11,7 @@ import { LayoutGrid, ShieldCheck, Trash2, CheckCircle2, Loader2, ExternalLink } 
 // ========================================================
 // CONFIGURAÇÃO DO SEU CONTRATO REAL
 // ========================================================
-const CONTRACT_ADDRESS = "0xDE71dFe53E98c8a032448F077c1FEB253313C45c"; 
+const CONTRACT_ADDRESS = "0xDE71dFe53E98c8a032448F077c1FEB253313C45c";  // COLOQUE SEU ENDEREÇO AQUI
 
 const CONTRACT_ABI = [
   {
@@ -39,7 +39,7 @@ export default function ApostasPage() {
   const mode = searchParams.get('mode') || 'basic';
   const isPro = mode === 'pro';
 
-  // Wagmi Hooks para interação com a Base Network
+  // Wagmi Hooks
   const { writeContract, data: hash, isPending: isWaitingSignature, error } = useWriteContract();
   
   const { isLoading: isConfirmingOnChain, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({
@@ -60,24 +60,22 @@ export default function ApostasPage() {
   const handleConfirm = async () => {
     if (selectedCoords.length !== 5) return;
 
-    // 1. Transformar ["1/2", "3/4"...] em [1, 2, 3, 4...] para o Solidity uint8[10]
+    // Converte ["1/2", "3/4"] em [1, 2, 3, 4...]
     const prognosticosParaContrato = selectedCoords.flatMap(c => {
         const [x, y] = c.split('/').map(num => parseInt(num));
         return [x, y];
     });
 
-    // 2. Definir valor baseado no seu contrato (Basic 0.0002 / Pro 0.04)
-    // Usando valores um pouco acima do mínimo para garantir aceitação
-    const valueInEth = isPro ? "0.045" : "0.0003"; 
+    const valueInEth = isPro ? "0.04" : "0.0002"; 
 
-    // 3. Disparar o MetaMask
+    // O ajuste 'as any' aqui embaixo resolve o erro de 'chain, account missing' no build da Vercel
     writeContract({
       address: CONTRACT_ADDRESS as `0x${string}`,
       abi: CONTRACT_ABI,
       functionName: 'realizarAplicacao',
-      args: [prognosticosParaContrato as unknown as [number, number, number, number, number, number, number, number, number, number]],
+      args: [prognosticosParaContrato],
       value: parseEther(valueInEth),
-    });
+    } as any);
   };
 
   return (
@@ -90,16 +88,15 @@ export default function ApostasPage() {
                 {isPro ? "Adesão Inter-Bet PRO" : "Adesão Básica"}
             </h1>
             <p className="text-yellow-500 font-bold font-mono">
-                PAGAMENTO: {isPro ? "0.045 ETH" : "0.0003 ETH"}
+                PAGAMENTO: {isPro ? "0.04 ETH" : "0.0002 ETH"}
             </p>
         </div>
 
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-8">
-          
-          {/* MATRIZ DE SELEÇÃO */}
+          {/* MATRIZ */}
           <div className="bg-slate-900/40 p-4 md:p-8 rounded-3xl border border-white/10 text-left">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 text-left">
                 <LayoutGrid className="text-yellow-500" />
                 <h2 className="text-xl font-black text-white uppercase">Selecione 5 Pares</h2>
               </div>
@@ -112,11 +109,11 @@ export default function ApostasPage() {
                <div className="grid grid-cols-[30px_repeat(25,1fr)] gap-1 min-w-[850px]">
                   <div className="h-6"></div>
                   {Array.from({ length: 25 }, (_, i) => (
-                    <div key={i} className="text-[10px] text-gray-600 font-bold flex items-center justify-center">{i + 1}</div>
+                    <div key={i} className="text-[10px] text-gray-600 font-bold flex items-center justify-center uppercase">{i + 1}</div>
                   ))}
                   {Array.from({ length: 25 }, (_, row) => (
                     <React.Fragment key={row}>
-                      <div className="text-[10px] text-gray-600 font-bold flex items-center justify-center">{row + 1}</div>
+                      <div className="text-[10px] text-gray-600 font-bold flex items-center justify-center uppercase">{row + 1}</div>
                       {Array.from({ length: 25 }, (_, col) => {
                         const coord = `${col + 1}/${row + 1}`;
                         const isSelected = selectedCoords.includes(coord);
@@ -151,7 +148,7 @@ export default function ApostasPage() {
                     <div className="w-full bg-green-500/10 border border-green-500/20 p-6 rounded-xl text-center">
                         <CheckCircle2 className="text-green-500 mx-auto mb-3" size={40} />
                         <p className="text-green-500 font-black text-sm uppercase">Aposta Confirmada!</p>
-                        <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noreferrer" className="text-[10px] text-white underline mt-4 block flex items-center justify-center gap-1">
+                        <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noreferrer" className="text-[10px] text-white underline mt-4 block flex items-center justify-center gap-1 uppercase font-bold">
                           Ver no BaseScan <ExternalLink size={12} />
                         </a>
                     </div>
@@ -162,12 +159,12 @@ export default function ApostasPage() {
                         disabled={selectedCoords.length < 5 || isWaitingSignature || isConfirmingOnChain}
                         className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${selectedCoords.length === 5 ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-xl' : 'bg-white/5 text-gray-600 opacity-50'}`}
                       >
-                        {isWaitingSignature ? <><Loader2 className="animate-spin" /> Assine na Carteira</> : isConfirmingOnChain ? <><Loader2 className="animate-spin" /> Confirmando na Rede...</> : <><ShieldCheck size={20} /> {t('btnConfirm')}</>}
+                        {isWaitingSignature ? <><Loader2 className="animate-spin" /> Assine na Carteira</> : isConfirmingOnChain ? <><Loader2 className="animate-spin" /> Confirmando na Rede...</> : <><ShieldCheck size={20} /> Confirmar Aposta</>}
                       </button>
                       
                       {error && (
                         <p className="text-[10px] text-red-500 text-center font-bold uppercase leading-tight">
-                          {error.message.includes("rejected") ? "Usuário recusou a transação" : "Erro na transação ou saldo insuficiente"}
+                          Erro: {error.message.includes("rejected") ? "Usuário recusou a transação" : "Saldo insuficiente ou erro na rede"}
                         </p>
                       )}
                     </div>
@@ -175,7 +172,7 @@ export default function ApostasPage() {
                 )}
                 
                 <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase tracking-widest">
-                    <ShieldCheck size={14} className="text-green-500/50" /> {t('audit')}
+                    <ShieldCheck size={14} className="text-green-500/50" /> Auditado via Chainlink VRF
                 </div>
              </div>
           </div>
