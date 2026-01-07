@@ -14,7 +14,7 @@
   "Home": {
     "welcome": "A espera acabou...",
     "brand": "BBB & Inter-Bet",
-    "heroTitle": "A SORTE AGORA É",
+    "heroTitle": "A SORTE AQUI É",
     "heroHighlight": "ESTRATÉGIA.",
     "subtitle": "Blockchain Bet Brasil - O BBB da WEB3.",
     "subtext": "Reescrevendo destinos através da matemática. Sem paredão, sem mi, mi, mi.",
@@ -25,6 +25,12 @@
     "trust1": "BASE L2 SEGURA",
     "trust2": "CHAINLINK VRF V2.5",
     "trust3": "CÓDIGO ABERTO",
+    "card1Title": "Governança Imutável",
+    "card1Desc": "O contrato não tem dono. Ninguém pode alterar as regras, pausar saques ou manipular a matriz.",
+    "card2Title": "Entropia Verificável",
+    "card2Desc": "Usamos Chainlink VRF para garantir aleatoriedade absoluta. Cada resultado é validado on-chain.",
+    "card3Title": "O Pacto dos 90%",
+    "card3Desc": "90% do total arrecadado por rodada é travado para distribuição imediata. Jugamos do seu lado.",
     "basicCardTitle": "PRÊMIO ESTIMADO",
     "basicCardValue": "R$ 50.000,00",
     "basicCardSub": "Com apenas",
@@ -40,19 +46,35 @@
     "proCardEntry": "ADESÃO",
     "proCardPrice": "R$ 1.000,00",
     "proCardEth": "(~0.0459 ETH)",
-    "proCardFooter": "ALTA PERFORMANCE - POTE EXCLUSIVO",
-    "card1Title": "Governança Imutável",
-    "card1Desc": "O contrato não tem dono. Ninguém pode alterar as regras, pausar saques ou manipular a matriz.",
-    "card2Title": "Entropia Verificável",
-    "card2Desc": "Usamos Chainlink VRF para garantir aleatoriedade absoluta. Cada resultado é validado on-chain.",
-    "card3Title": "O Pacto dos 90%",
-    "card3Desc": "90% do total arrecadado por rodada é travado para distribuição imediata. Jugamos do seu lado."
+    "proCardFooter": "ALTA PERFORMANCE - POTE EXCLUSIVO"
+  },
+  "InterBet": {
+    "title": "Escolha sua",
+    "highlight": "Modalidade",
+    "desc": "Dois caminhos, a mesma tecnologia Trustless. Defina sua participação no rateio global.",
+    "basicTitle": "Adesão Básica",
+    "basicDesc": "Para quem busca explorar a Web3 com baixo custo e segurança total.",
+    "basicFeat1": "Matriz Segura 25x25",
+    "basicFeat2": "Elegível ao Pote e Cascata",
+    "basicBtn": "Selecionar Básico",
+    "proTitle": "Inter-Bet PRO",
+    "proDesc": "Para jogadores focados em multiplicadores agressivos e alto volume.",
+    "proFeat1": "Pote Exclusivo de Alto Volume",
+    "proFeat2": "Prioridade em Rendimentos",
+    "proBtn": "Acessar PRO"
+  },
+  "Resultados": {
+    "title": "Central de Resultados",
+    "banner": "Resultados divulgados sempre aos Sábados",
+    "connectWallet": "Conecte sua carteira para verificar seus tickets.",
+    "waitingAudit": "Aguardando Auditoria da Rede...",
+    "statusCalculating": "Apuração em andamento..."
   },
   "ComoFunciona": {
     "title": "A Matriz 625",
     "desc": "O sucesso é um cálculo. Nosso sistema utiliza uma grade de referência 25x25, criando 625 possibilidades estratégicas.",
     "card1Title": "1. Seleção Estratégica",
-    "card1Desc": "Escolha 5 coordenadas da Matriz (ex: 12/25). Sua ordem define sua faixa.",
+    "card1Desc": "Escolha 5 coordenadas da Matriz. Sua ordem define sua faixa.",
     "card2Title": "2. Ciclo Semanal",
     "card2Desc": "As rodadas fecham todo sábado com auditoria via Chainlink VRF.",
     "card3Title": "3. Rendimento Dominical",
@@ -76,29 +98,8 @@
       "btn": "Entendi, quero começar!"
     }
   },
-  "InterBet": {
-    "title": "Escolha sua",
-    "highlight": "Modalidade",
-    "desc": "Dois caminhos, a mesma tecnologia Trustless. Defina sua participação no rateio global.",
-    "basicTitle": "Adesão Básica",
-    "basicDesc": "Para quem busca explorar a Web3 com baixo custo e segurança total.",
-    "basicFeat1": "Matriz Segura 25x25",
-    "basicFeat2": "Elegível ao Pote e Cascata",
-    "basicBtn": "Selecionar Básico",
-    "proTitle": "Inter-Bet PRO",
-    "proDesc": "Para jogadores focados em multiplicadores agressivos e alto volume.",
-    "proFeat1": "Pote Exclusivo de Alto Volume",
-    "proFeat2": "Prioridade em Rendimentos",
-    "proBtn": "Acessar PRO"
-  },
-  "Resultados": {
-    "title": "Central de Resultados",
-    "banner": "Resultados divulgados sempre aos Sábados",
-    "connectWallet": "Conecte sua carteira para verificar seus tickets.",
-    "waitingAudit": "Aguardando Auditoria da Rede..."
-  },
   "Premiacao": {
-    "title": "O Código da Aliança",
+    "title": "O CÓDIGO DA ALIANÇA",
     "desc": "Um protocolo justo: 90% de cada rodada volta para a comunidade. Sem atravessadores.",
     "badge90": "🔒 90% DE RETORNO GARANTIDO POR RODADA",
     "matrixTitle": "MATRIZ 625",
