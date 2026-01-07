@@ -1,45 +1,148 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '@/components/Navbar';
 import { useTranslations } from 'next-intl';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { LayoutGrid, ShieldCheck } from 'lucide-react';
+import { useAccount } from 'wagmi';
+import { LayoutGrid, ShieldCheck, Trash2, CheckCircle2 } from 'lucide-react';
 
 export default function ApostasPage() {
   const t = useTranslations('Apostas');
+  const { isConnected } = useAccount();
+  
+  // ESTADO PARA ARMAZENAR AS 5 COORDENADAS SELECIONADAS
+  const [selectedCoords, setSelectedCoords] = useState<string[]>([]);
+
+  // FUNÇÃO PARA SELECIONAR/DESELECIONAR
+  const toggleCoordinate = (coord: string) => {
+    if (selectedCoords.includes(coord)) {
+      // Remove se já estiver selecionado
+      setSelectedCoords(selectedCoords.filter(c => c !== coord));
+    } else {
+      // Adiciona apenas se houver menos de 5 selecionados
+      if (selectedCoords.length < 5) {
+        setSelectedCoords([...selectedCoords, coord]);
+      }
+    }
+  };
+
+  // LIMPAR TODA A SELEÇÃO
+  const clearSelection = () => setSelectedCoords([]);
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-slate-100">
       <Navbar />
       <main className="container mx-auto px-4 pt-28 pb-10">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_380px] gap-8">
+          
+          {/* LADO ESQUERDO: MATRIZ INTERATIVA */}
           <div className="bg-slate-900/40 p-4 md:p-8 rounded-3xl border border-white/10 text-left">
-            <div className="flex items-center gap-3 mb-6">
-              <LayoutGrid className="text-yellow-500" />
-              <div>
-                <h2 className="text-xl font-black text-white uppercase">{t('matrixTitle')}</h2>
-                <p className="text-xs text-gray-400">{t('matrixSub')}</p>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <LayoutGrid className="text-yellow-500" />
+                <div>
+                  <h2 className="text-xl font-black text-white uppercase">{t('matrixTitle')}</h2>
+                  <p className="text-xs text-gray-400">{t('matrixSub')}</p>
+                </div>
               </div>
+              {selectedCoords.length > 0 && (
+                <button onClick={clearSelection} className="text-[10px] text-red-400 hover:text-red-300 flex items-center gap-1 uppercase font-bold transition-colors">
+                  <Trash2 size={12} /> Limpar
+                </button>
+              )}
             </div>
-            <div className="overflow-x-auto pb-4">
-               <div className="grid grid-cols-[repeat(25,1fr)] gap-1 min-w-[700px]">
-                  {Array.from({ length: 625 }).map((_, i) => (
-                    <button key={i} className="aspect-square bg-white/5 border border-white/5 hover:bg-yellow-500/30 rounded-sm"></button>
+
+            <div className="overflow-x-auto pb-4 custom-scrollbar bg-black/20 rounded-xl p-2 md:p-4 border border-white/5 text-center">
+               <div className="grid grid-cols-[30px_repeat(25,1fr)] gap-1 min-w-[850px]">
+                  
+                  {/* Cabeçalho Superior */}
+                  <div className="h-6"></div>
+                  {Array.from({ length: 25 }, (_, i) => (
+                    <div key={`col-${i}`} className="text-[10px] text-gray-600 font-bold flex items-center justify-center uppercase">{i + 1}</div>
+                  ))}
+
+                  {/* Linhas da Matriz */}
+                  {Array.from({ length: 25 }, (_, row) => (
+                    <React.Fragment key={`row-frag-${row}`}>
+                      <div className="text-[10px] text-gray-600 font-bold flex items-center justify-center uppercase">{row + 1}</div>
+
+                      {Array.from({ length: 25 }, (_, col) => {
+                        const x = col + 1;
+                        const y = row + 1;
+                        const coord = `${x}/${y}`;
+                        const isSelected = selectedCoords.includes(coord);
+
+                        return (
+                          <button 
+                            key={coord} 
+                            onClick={() => toggleCoordinate(coord)}
+                            className={`aspect-square border transition-all rounded-sm flex items-center justify-center group
+                              ${isSelected 
+                                ? 'bg-yellow-500 border-yellow-300 text-black shadow-[0_0_15px_rgba(234,179,8,0.4)] z-10 scale-110' 
+                                : 'bg-white/5 border-white/10 hover:border-yellow-500/50 hover:bg-yellow-500/10'
+                              }`}
+                            title={`Coordenada ${coord}`}
+                          >
+                            <span className={`text-[7px] md:text-[8px] font-mono font-bold
+                              ${isSelected ? 'text-black' : 'text-gray-700 group-hover:text-yellow-200'}`}>
+                              {coord}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </React.Fragment>
                   ))}
                </div>
             </div>
           </div>
-          <div className="bg-slate-900/80 p-6 md:p-8 rounded-3xl border border-yellow-500/20 h-fit">
-             <h3 className="text-lg font-black text-white uppercase mb-6 text-center border-b border-white/5 pb-4">{t('title')}</h3>
-             <div className="flex flex-col items-center gap-6 py-4">
-                <p className="text-gray-500 text-sm italic">{t('alertWallet')}</p>
-                <ConnectButton />
+
+          {/* LADO DIREITO: FORMULÁRIO DE REGISTRO */}
+          <div className="bg-slate-900/80 p-6 md:p-8 rounded-3xl border border-yellow-500/20 h-fit sticky top-28">
+             <h3 className="text-lg font-black text-white uppercase mb-6 text-center border-b border-white/5 pb-4">
+                {t('title')}
+             </h3>
+             
+             <div className="space-y-3 mb-8">
+                {/* MOSTRA AS 5 VAGAS DE APOSTA */}
+                {[0, 1, 2, 3, 4].map((index) => (
+                   <div key={index} className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5">
+                      <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Nº 0{index + 1}</span>
+                      {selectedCoords[index] ? (
+                        <span className="text-yellow-500 font-mono font-black text-lg animate-in zoom-in-50">{selectedCoords[index]}</span>
+                      ) : (
+                        <span className="text-gray-700 font-mono text-sm italic">{t('empty')}</span>
+                      )}
+                   </div>
+                ))}
+             </div>
+
+             <div className="flex flex-col items-center gap-6">
+                {!isConnected ? (
+                  <>
+                    <p className="text-gray-500 text-sm italic text-center px-4">{t('alertWallet')}</p>
+                    <ConnectButton />
+                  </>
+                ) : (
+                  <button 
+                    disabled={selectedCoords.length < 5}
+                    className={`w-full py-4 rounded-xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2
+                      ${selectedCoords.length === 5 
+                        ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_30px_rgba(234,179,8,0.3)] hover:scale-[1.02]' 
+                        : 'bg-white/5 text-gray-600 cursor-not-allowed opacity-50'}`}
+                  >
+                    {selectedCoords.length === 5 && <CheckCircle2 size={18} />}
+                    {t('btnConfirm')}
+                  </button>
+                )}
+
                 <div className="w-full h-[1px] bg-white/5 my-2"></div>
                 <div className="flex items-center gap-2 text-[10px] text-gray-500 uppercase">
-                    <ShieldCheck size={14} className="text-green-500" /> {t('audit')}
+                    <ShieldCheck size={14} className="text-green-500" />
+                    {t('audit')}
                 </div>
              </div>
           </div>
+
         </div>
       </main>
     </div>
