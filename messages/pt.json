@@ -14,14 +14,14 @@
   "Home": {
     "welcome": "A espera acabou...",
     "brand": "BBB & Inter-Bet",
-    "heroTitle": "A SORTE AQUI É",
+    "heroTitle": "A JOGADA AQUI É",
     "heroHighlight": "ESTRATÉGIA.",
     "subtitle": "Blockchain Bet Brasil - O BBB da WEB3.",
     "subtext": "Reescrevendo destinos através da matemática. Sem paredão, sem mi, mi, mi.",
     "pulseText": "O prêmio SEMPRE tem dono. Ganhe com 5, 4, 3, 2 ou 1 ponto apenas!",
     "description": "Aplicação sem intermediários. Sem manipulação. O primeiro sistema de distribuição descentralizada operado inteiramente por Smart Contracts e Chainlink VRF na rede Base.",
     "btnStart": "Aposta Básica",
-    "btnDocs": "Ler o Manifesto",
+    "btnDocs": "Como Funciona",
     "trust1": "BASE L2 SEGURA",
     "trust2": "CHAINLINK VRF V2.5",
     "trust3": "CÓDIGO ABERTO",
@@ -73,7 +73,7 @@
     "matrixSub": "Selecione exatamente 5 coordenadas na grade 25x25.",
     "alertWallet": "Conecte sua carteira para apostar.",
     "audit": "Auditado via Chainlink VRF",
-    "btnConfirm": "Confirmar Aposta",
+    "btnConfirm": "Confirmar Entrada",
     "empty": "Vazio..."
   },
   "Resultados": {
@@ -101,13 +101,13 @@
     "card3Desc": "Aos domingos, o prêmio é liberado diretamente para sua carteira.",
     "Beginners": {
       "title": "Novo na Web3? Descomplicamos para você.",
-      "desc": "A tecnologia Blockchain pode parecer complexa, mas no fundo ela é a sua maior segurança.",
+      "desc": "A tecnologia Blockchain é na verdade sua maior segurança. Entenda em segundos:",
       "walletTitle": "A Carteira Digital",
-      "walletDesc": "Onde SÓ VOCÊ tem o controle total dos seus fundos e prêmios.",
+      "walletDesc": "Imagina um aplicativo de banco onde SÓ VOCÊ tem a senha. É por ela que você aposta.",
       "blockchainTitle": "O Juiz Imparcial",
-      "blockchainDesc": "Garante que ninguém mude as regras ou suma com o prêmio.",
+      "blockchainDesc": "Blockchain garante que ninguém mude as regras ou suma com o prêmio automaticamente.",
       "basescanTitle": "Seu Comprovante Eterno",
-      "basescanDesc": "Seu recibo digital, transparente e impossível de falsificar.",
+      "basescanDesc": "Seu recibo digital. Transparente, auditável e impossível de falsificar.",
       "btn": "Entendi, quero começar!"
     }
   },
@@ -132,5 +132,8 @@
     "rolloverTitle": "ARTIGO 7º: RODADA TURBINADA",
     "rolloverDesc1": "Se ninguém pontuar, a próxima rodada recebe um bônus de +40% injetado em cada faixa.",
     "playNow": "Ir para Apostas"
+  },
+  "Footer": {
+    "allRightsReserved": "Todos os direitos reservados. Protocolo Descentralizado."
   }
 }
