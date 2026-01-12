@@ -10,7 +10,7 @@ contract BlockchainBetBrasil is ReentrancyGuard, VRFConsumerBaseV2Plus, Automati
     
     // --- CONFIGURAÇÕES ---
     uint256 public constant MAX_NUM = 25; 
-    uint256 public constant MAX_APLICACOES = 10000; 
+    // Removido limite máximo de aplicações para permitir participação ilimitada
     uint256 public constant HOUSE_FEE_PERCENT = 10;
     
     // --- CICLO SEMANAL (Baseado no Deploy de Domingo 21h) ---
@@ -92,7 +92,7 @@ contract BlockchainBetBrasil is ReentrancyGuard, VRFConsumerBaseV2Plus, Automati
     function realizarAplicacao(uint8[10] calldata _prognosticos) external payable nonReentrant {
         Rodada storage r = rodadas[rodadaAtualId];
         require(r.aberta, "Rodada fechada");
-        require(aplicacoesDaRodada[rodadaAtualId].length < MAX_APLICACOES, "Lotacao maxima");
+        // Sem limite de entradas por rodada (participação ilimitada).
 
         for(uint i=0; i<10; i++){
             require(_prognosticos[i] >= 1 && _prognosticos[i] <= MAX_NUM, "Prognostico invalido");
