@@ -31,7 +31,7 @@ export default function ApostasPage() {
   const searchParams = useSearchParams();
   
   const mode = searchParams.get('mode') || 'basic';
-  const isPro = mode === 'pro';
+  const isPro = false; // Unificado para oficial
 
   // Hooks de Blockchain
   const { writeContract, data: hash, isPending: isWaitingSignature, error } = useWriteContract();
@@ -57,7 +57,7 @@ export default function ApostasPage() {
         return [x, y];
     });
 
-    const valueInEth = isPro ? "0.04" : "0.0002"; 
+    const valueInEth = "0.0002"; 
 
     writeContract({
       address: CONTRACT_ADDRESS as `0x${string}`,
@@ -76,10 +76,10 @@ export default function ApostasPage() {
         {/* HEADER DA PÁGINA */}
         <div className="mb-8 text-center lg:text-left">
             <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter italic leading-none">
-                {isPro ? "Adesão Inter-Bet PRO" : "Adesão Básica"}
+                Aposta Oficial
             </h1>
             <p className="text-yellow-500 font-bold font-mono mt-2 uppercase tracking-widest text-sm">
-                Valor da Entrada: {isPro ? "0.04 ETH" : "0.0002 ETH"}
+                Valor da Entrada: 0.0002 ETH
             </p>
         </div>
 

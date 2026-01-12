@@ -1,0 +1,43 @@
+PENDENTE DEPLOY - BLOCKCHAIN BET BRASIL
+=====================================
+
+Data: Janeiro 12, 2026
+
+STATUS ATUAL:
+-------------
+- ✅ Google Analytics implementado e push realizado com sucesso.
+- ✅ Lógica de 'Volume Ilimitado' foi atualizada no código do Frontend.
+- ❌ Deploy do novo contrato inteligente PAUSADO devido à falta de saldo para taxas de rede (gas).
+
+CONTRATO ATUAL NA REDE:
+-----------------------
+Endereço: 0xDE71dFe53E98c8a032448F077c1FEB253313C45c
+Status: Contrato antigo (lógica desatualizada, sem suporte a Volume Ilimitado).
+
+SCRIPTS DE DEPLOY A SEREM EXECUTADOS:
+-------------------------------------
+Assim que houver saldo suficiente na carteira para cobrir as taxas de gas:
+
+1. DEPLOY PRINCIPAL:
+   Comando: npx hardhat run scripts/deploy.ts --network base
+   Descrição: Faz o deploy do contrato BlockchainBetBrasil.sol na rede Base Mainnet.
+
+2. PRÓXIMOS PASSOS APÓS DEPLOY (OBRIGATÓRIOS):
+   - Vá em vrf.chain.link e adicione o novo endereço como CONSUMER na subscription.
+   - Vá em automation.chain.link e registre o novo endereço como UPKEEP (Custom Logic).
+   - Atualize o endereço em src/constants/abi.ts e em todos os outros arquivos do frontend.
+
+3. SCRIPTS DE MANUTENÇÃO (OPCIONAIS, APÓS DEPLOY):
+   - scripts/verificar-status.ts: Para verificar o status da rodada.
+   - scripts/force-upkeep.ts: Para forçar ações de upkeep se necessário.
+   - scripts/checar-saude.ts: Para diagnóstico de saúde do contrato.
+
+NOTAS IMPORTANTES:
+-----------------
+- Certifique-se de que o arquivo .env contém a PRIVATE_KEY configurada.
+- O deploy requer aproximadamente 0.01-0.05 ETH em gas (verificar preços atuais).
+- Após deploy, testar todas as funcionalidades antes de liberar para produção.
+
+CONTATO PARA RETOMADA:
+----------------------
+Chamar Devin assim que a carteira for abastecida para retomar o processo.
