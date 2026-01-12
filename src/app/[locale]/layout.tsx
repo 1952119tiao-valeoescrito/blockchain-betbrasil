@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/globals.css"; 
 import '@rainbow-me/rainbowkit/styles.css';
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 import Script from 'next/script';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-intl/server';
@@ -52,11 +52,24 @@ export default async function RootLayout({
         </NextIntlClientProvider>
 
         {/* Integrações Externas */}
+        <GoogleTagManager gtmId="GT-5TN9XQCH" />
         <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
         <Script 
           src="//code.jivosite.com/widget/uIZfU1ccP5" 
           strategy="lazyOnload" 
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=AW-16509856452`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-16509856452');
+          `}
+        </Script>
       </body>
     </html>
   );
