@@ -73,7 +73,11 @@
     "connectWallet": "Conecta tu billetera.",
     "waitingAudit": "Verificando Red...",
     "statusCalculating": "Liquidación en curso...",
-    "noTickets": "No se encontraron tickets."
+    "noTickets": "No se encontraron tickets.",
+    "officialResult": "Inter-Bet - Resultado Oficial",
+    "contestNumber": "Concurso nº",
+    "prize": "Premio",
+    "viewTransaction": "Ver Transacción en el Explorador"
   },
   "ComoFunciona": {
     "title": "La Matriz 625",

@@ -73,7 +73,11 @@
     "connectWallet": "Conecte sua carteira para verificar seus tickets.",
     "waitingAudit": "Aguardando Auditoria da Rede...",
     "statusCalculating": "Apuração em andamento...",
-    "noTickets": "Nenhum ticket encontrado para esta carteira na Rodada #2."
+    "noTickets": "Nenhum ticket encontrado para esta carteira na Rodada #2.",
+    "officialResult": "Inter-Bet - Resultado Oficial",
+    "contestNumber": "Concurso nº",
+    "prize": "Prêmio",
+    "viewTransaction": "Ver Transação no Explorador"
   },
   "ComoFunciona": {
     "title": "A Matriz 625",

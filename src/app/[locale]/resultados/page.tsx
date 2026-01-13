@@ -40,6 +40,16 @@ const CONTRACT_ABI = [
     "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "stateMutability": "view",
     "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "_rodadaId", "type": "uint256" }],
+    "name": "getResultadoRodada",
+    "outputs": [
+      { "internalType": "uint8[10]", "name": "resultado", "type": "uint8[10]" },
+      { "internalType": "bytes32", "name": "txHash", "type": "bytes32" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const;
 
@@ -54,7 +64,17 @@ export default function ResultadosPage() {
     functionName: 'rodadaAtualId',
   });
 
-  // 2. Busca os Tickets do Usuário
+  // 2. Busca o Resultado da Rodada Anterior (se rodadaId > 1)
+  const resultadoRodadaId = rodadaId && rodadaId > 1n ? rodadaId - 1n : undefined;
+  const { data: resultadoData } = useReadContract({
+    address: CONTRACT_ADDRESS as `0x${string}`,
+    abi: CONTRACT_ABI,
+    functionName: 'getResultadoRodada',
+    args: resultadoRodadaId ? [resultadoRodadaId] : undefined,
+    query: { enabled: !!resultadoRodadaId }
+  });
+
+  // 3. Busca os Tickets do Usuário
   const { data: userData, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
@@ -64,6 +84,8 @@ export default function ResultadosPage() {
   });
 
   const tickets = userData ? userData[0] : [];
+  const resultado = resultadoData ? resultadoData[0] : [];
+  const txHash = resultadoData ? resultadoData[1] : undefined;
 
   return (
     <div className="min-h-screen bg-[#0b0c10] text-slate-100">
@@ -73,6 +95,38 @@ export default function ResultadosPage() {
           <h1 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter">{t('title')}</h1>
           <p className="text-gray-400 italic">{t('banner')}</p>
         </header>
+
+        {/* Card de Resultado Oficial */}
+        <div className="max-w-4xl mx-auto mb-12">
+          <div className="bg-gradient-to-r from-yellow-500/10 to-purple-500/10 border border-yellow-500/20 p-8 md:p-12 rounded-[2.5rem] shadow-2xl backdrop-blur-md">
+            <h2 className="text-2xl md:text-4xl font-black text-white mb-6 uppercase tracking-tight">{t('officialResult')}</h2>
+            {resultadoRodadaId && (
+              <p className="text-lg text-gray-300 mb-8">{t('contestNumber')} {resultadoRodadaId.toString()}</p>
+            )}
+            {resultado && resultado.length >= 10 ? (
+              <div className="space-y-4 mb-8">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex justify-center items-center gap-4">
+                    <span className="text-yellow-500 font-bold text-lg">{i + 1}º {t('prize')}:</span>
+                    <span className="text-white font-mono text-xl">({resultado[i*2]}/{resultado[i*2+1]})</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-400">Aguardando resultado...</p>
+            )}
+            {txHash && (
+              <a
+                href={`https://basescan.org/tx/${txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-yellow-500 text-black px-6 py-3 rounded-full font-bold hover:bg-yellow-400 transition-colors"
+              >
+                {t('viewTransaction')}
+              </a>
+            )}
+          </div>
+        </div>
 
         <div className="max-w-3xl mx-auto bg-slate-900/50 border border-white/5 p-6 md:p-12 rounded-[2.5rem] shadow-2xl backdrop-blur-md">
             {!isConnected ? (

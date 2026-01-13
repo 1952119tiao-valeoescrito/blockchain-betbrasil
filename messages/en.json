@@ -73,7 +73,11 @@
     "connectWallet": "Connect wallet.",
     "waitingAudit": "Waiting Audit...",
     "statusCalculating": "In progress...",
-    "noTickets": "No tickets found."
+    "noTickets": "No tickets found.",
+    "officialResult": "Inter-Bet - Official Result",
+    "contestNumber": "Contest No.",
+    "prize": "Prize",
+    "viewTransaction": "View Transaction on Explorer"
   },
   "ComoFunciona": {
     "title": "The 625 Matrix",
