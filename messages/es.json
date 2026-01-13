@@ -78,6 +78,18 @@
   "ComoFunciona": {
     "title": "La Matriz 625",
     "desc": "El éxito es un cálculo.",
+    "faq": {
+      "q1": "¿Qué es Blockchain Bet Brasil?",
+      "a1": "Es un protocolo global de apuestas descentralizado, operado íntegramente por contratos inteligentes en la red blockchain, garantizando que no haya intervención humana o manipulación de resultados.",
+      "q2": "¿Cómo se sortean los números?",
+      "a2": "Utilizamos la tecnología Chainlink VRF (Verifiable Random Function), que proporciona una fuente de aleatoriedad auditada en cadena, garantizando que el sorteo sea 100% justo e imposible de predecir o manipular.",
+      "q3": "¿Cómo recibo mi premio?",
+      "a3": "Después de la validación del sorteo por Chainlink VRF, los ganadores deben reclamar el premio directamente en el sitio. El monto se transfiere instantáneamente del contrato inteligente a su billetera después de la interacción. Este modelo de 'pull' garantiza la sostenibilidad y seguridad del protocolo.",
+      "q4": "¿Por qué usar la matriz 25x25?",
+      "a4": "La matriz de 625 posibilidades ofrece un equilibrio matemático ideal entre probabilidad y premio acumulado, permitiendo que el premio crezca de manera sostenible y transparente para todos los participantes.",
+      "q5": "¿Se puede cambiar el contrato?",
+      "a5": "No. El contrato tiene gobernanza inmutable. Una vez desplegado en la red, las reglas de distribución y sorteo no pueden ser cambiadas por nadie, ni siquiera por sus creadores."
+    },
     "Beginners": {
       "title": "¿Nuevo en Web3?",
       "desc": "Te lo explicamos fácil.",

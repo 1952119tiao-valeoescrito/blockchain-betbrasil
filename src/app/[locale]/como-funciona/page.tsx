@@ -1,8 +1,8 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Navbar from '@/components/Navbar';
-import { Target, RefreshCcw, Coins, Search, Wallet, Globe, BarChart } from 'lucide-react';
+import { Target, RefreshCcw, Coins, Search, Wallet, Globe, BarChart, ChevronDown } from 'lucide-react';
 
 export default function ComoFuncionaPage() {
   const t = useTranslations('ComoFunciona');
@@ -59,6 +59,57 @@ export default function ComoFuncionaPage() {
     </div>
   );
 
+  // FAQ Accordion Component
+  const FAQAccordion = () => {
+    const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+    const toggleAccordion = (index: number) => {
+      setOpenIndex(openIndex === index ? null : index);
+    };
+
+    const faqItems = [
+      { question: t('faq.q1'), answer: t('faq.a1') },
+      { question: t('faq.q2'), answer: t('faq.a2') },
+      { question: t('faq.q3'), answer: t('faq.a3') },
+      { question: t('faq.q4'), answer: t('faq.a4') },
+      { question: t('faq.q5'), answer: t('faq.a5') },
+    ];
+
+    return (
+      <div className="w-full max-w-4xl mx-auto mt-20 mb-24">
+        <h2 className="text-3xl font-bold text-white text-center mb-12 uppercase tracking-tight">
+          Perguntas Frequentes
+        </h2>
+        <div className="space-y-4">
+          {faqItems.map((item, index) => (
+            <div key={index} className="bg-[#13151a] border border-[#2a2d35] rounded-2xl overflow-hidden">
+              <button
+                onClick={() => toggleAccordion(index)}
+                className="w-full px-8 py-6 text-left flex justify-between items-center hover:bg-[#1a1d23] transition-colors"
+              >
+                <span className="text-lg font-semibold text-white">{item.question}</span>
+                <ChevronDown
+                  className={`w-6 h-6 text-yellow-500 transition-transform duration-300 ${
+                    openIndex === index ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  openIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                }`}
+              >
+                <div className="px-8 pb-6 text-gray-400 leading-relaxed">
+                  {item.answer}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-[#0b0c10] text-slate-100 font-sans selection:bg-[#cfb16d] selection:text-black">
       <Navbar />
@@ -77,19 +128,8 @@ export default function ComoFuncionaPage() {
         {/* A MATRIZ CORRIGIDA */}
         <MatrixDisplay />
 
-        {/* CARDS TÉCNICOS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 mt-20 text-left">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-[#13151a] border border-[#2a2d35] p-8 rounded-[2rem] hover:border-yellow-500/30 transition-all shadow-xl">
-              <h3 className="text-xl font-bold text-white mb-4 uppercase tracking-tight">
-                {t(`card${i}Title`)}
-              </h3>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                {t(`card${i}Desc`)}
-              </p>
-            </div>
-          ))}
-        </div>
+        {/* FAQ ACCORDION */}
+        <FAQAccordion />
       </main>
     </div>
   );

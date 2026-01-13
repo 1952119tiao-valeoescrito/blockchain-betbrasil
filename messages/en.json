@@ -78,6 +78,18 @@
   "ComoFunciona": {
     "title": "The 625 Matrix",
     "desc": "Success is a calculation.",
+    "faq": {
+      "q1": "What is Blockchain Bet Brasil?",
+      "a1": "It is a global decentralized betting protocol, operated entirely by smart contracts on the blockchain network, ensuring no human intervention or result manipulation.",
+      "q2": "How are the numbers drawn?",
+      "a2": "We use Chainlink VRF (Verifiable Random Function) technology, which provides an auditable on-chain source of randomness, ensuring the draw is 100% fair and impossible to predict or manipulate.",
+      "q3": "How do I receive my prize?",
+      "a3": "After the draw validation by Chainlink VRF, winners must claim the prize directly on the site. The amount is transferred instantly from the smart contract to your wallet after interaction. This 'pull' model ensures the protocol's sustainability and security.",
+      "q4": "Why use the 25x25 matrix?",
+      "a4": "The matrix of 625 possibilities offers an ideal mathematical balance between probability and accumulated prize, allowing the prize to grow sustainably and transparently for all participants.",
+      "q5": "Can the contract be changed?",
+      "a5": "No. The contract has immutable governance. Once deployed on the network, the distribution and draw rules cannot be changed by anyone, not even its creators."
+    },
     "Beginners": {
       "title": "New to Web3?",
       "desc": "We simplified it for you.",

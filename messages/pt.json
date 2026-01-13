@@ -91,6 +91,18 @@
     "card2Desc": "As rodadas fecham todo sábado com auditoria via Chainlink VRF.",
     "card3Title": "3. Rendimento",
     "card3Desc": "Aos domingos, o prêmio é liberado diretamente para sua carteira.",
+    "faq": {
+      "q1": "O que é a Blockchain Bet Brasil?",
+      "a1": "É um protocolo global de apostas descentralizado, operado inteiramente por contratos inteligentes na rede blockchain, garantindo que não haja intervenção humana ou manipulação de resultados.",
+      "q2": "Como os números são sorteados?",
+      "a2": "Utilizamos a tecnologia Chainlink VRF (Verifiable Random Function), que fornece uma fonte de aleatoriedade auditável on-chain, garantindo que o sorteio seja 100% justo e impossível de ser previsto ou manipulado.",
+      "q3": "Como eu recebo meu prêmio?",
+      "a3": "Após a validação do sorteio pela Chainlink VRF, os ganhadores devem realizar o resgate (claim) do prêmio diretamente no site. O valor é transferido instantaneamente do contrato inteligente para a sua carteira após a interação. Este modelo de 'pull' garante a sustentabilidade e segurança do protocolo.",
+      "q4": "Por que usar a matriz 25x25?",
+      "a4": "A matriz de 625 possibilidades oferece um equilíbrio matemático ideal entre probabilidade e premiação acumulada, permitindo que o prêmio cresça de forma sustentável e transparente para todos os participantes.",
+      "q5": "O contrato pode ser alterado?",
+      "a5": "Não. O contrato possui governança imutável. Uma vez implantado na rede, as regras de distribuição e sorteio não podem ser alteradas por ninguém, nem mesmo pelos seus criadores."
+    },
     "Beginners": {
       "title": "Novo na Web3?",
       "desc": "Descomplicamos para você. A tecnologia é sua maior segurança.",
