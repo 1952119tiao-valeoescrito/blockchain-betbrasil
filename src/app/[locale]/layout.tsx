@@ -38,7 +38,7 @@ export default async function RootLayout({
       <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0c10] text-gray-200 selection:bg-[#cfb16d] selection:text-black`}>
         
         <NextIntlClientProvider messages={messages} locale={locale}>
-          <Web3Provider>
+          <Web3Provider locale={locale}>
               
               {/* O Manifesto da Aliança aparece aqui na abertura do site */}
               <ManifestoOverlay />

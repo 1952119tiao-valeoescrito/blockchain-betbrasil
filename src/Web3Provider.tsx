@@ -9,13 +9,15 @@ import { config } from './wagmi';
 
 const queryClient = new QueryClient();
 
-export function Web3Provider({ children }: { children: React.ReactNode }) {
+export function Web3Provider({ children, locale }: { children: React.ReactNode; locale: string }) {
+  // Mapeia o locale para o formato do RainbowKit
+  const rainbowLocale = locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es' : 'en';
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider 
-            // Tradução para Português
-            locale="pt-BR"
+            locale={rainbowLocale}
             
             // Personalização Visual (Identidade Black & Gold)
             theme={darkTheme({
