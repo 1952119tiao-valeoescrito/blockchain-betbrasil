@@ -37,6 +37,9 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0c10] text-gray-200 selection:bg-[#cfb16d] selection:text-black`}>
         
+        {/* Google Tag Manager - Carregamento prioritário */}
+        <GoogleTagManager gtmId="GT-5TN9XQCH" />
+
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Web3Provider locale={locale}>
               
@@ -52,8 +55,6 @@ export default async function RootLayout({
         </NextIntlClientProvider>
 
         {/* Integrações Externas */}
-        <GoogleTagManager gtmId="GT-5TN9XQCH" />
-        <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
         <Script 
           src="//code.jivosite.com/widget/uIZfU1ccP5" 
           strategy="lazyOnload" 
