@@ -55,6 +55,7 @@
   "Apostas": {
     "title": "Your Entry",
     "matrixTitle": "Selection Matrix",
+    "matrixInstruction": "Choose and click on the selected forecast so that it is automatically inserted into the registration form.",
     "matrixSub": "Select 5 coordinates.",
     "alertWallet": "Connect wallet.",
     "audit": "Audited via Chainlink VRF",

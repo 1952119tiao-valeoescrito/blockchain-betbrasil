@@ -48,6 +48,10 @@ export default function ApostasPage() {
     }
   };
 
+  const removeCoordinate = (index: number) => {
+    setSelectedCoords(selectedCoords.filter((_, i) => i !== index));
+  };
+
   const handleConfirm = async () => {
     if (selectedCoords.length !== 5) return;
 
@@ -87,14 +91,12 @@ export default function ApostasPage() {
           
           {/* LADO ESQUERDO: MATRIZ COM VISIBILIDADE MELHORADA */}
           <div className="bg-slate-900/40 p-4 md:p-8 rounded-3xl border border-white/10 text-left">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
+            <div className="mb-6">
+              <div className="flex items-center gap-3 mb-2">
                 <LayoutGrid className="text-yellow-500" />
                 <h2 className="text-xl font-black text-white uppercase">{t('matrixTitle')}</h2>
               </div>
-              {selectedCoords.length > 0 && !isWaitingSignature && (
-                <button onClick={() => setSelectedCoords([])} className="text-[10px] text-red-400 font-bold uppercase hover:underline">Limpar Seleção</button>
-              )}
+              <p className="text-sm text-gray-400">{t('matrixInstruction')}</p>
             </div>
 
             {/* AREA DA MATRIZ (ESTILO COMO-FUNCIONA) */}
@@ -145,9 +147,12 @@ export default function ApostasPage() {
                 {[0, 1, 2, 3, 4].map((i) => (
                    <div key={i} className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5">
                       <span className="text-[10px] text-gray-500 font-bold uppercase">Nº 0{i + 1}</span>
-                      <span className="text-yellow-500 font-mono font-black text-xl leading-none">
-                        {selectedCoords[i] || "-- / --"}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-yellow-500 font-mono font-black text-xl leading-none">
+                          {selectedCoords[i] || "-- / --"}
+                        </span>
+                        {selectedCoords[i] && <Trash2 className="text-red-400 cursor-pointer hover:text-red-300" size={16} onClick={() => removeCoordinate(i)} />}
+                      </div>
                    </div>
                 ))}
              </div>

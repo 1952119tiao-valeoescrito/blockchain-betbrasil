@@ -55,6 +55,7 @@
   "Apostas": {
     "title": "Sua Entrada",
     "matrixTitle": "Matriz de Seleção",
+    "matrixInstruction": "Escolha e clique no prognóstico escolhido para que ele seja inserido automaticamente no formulário de adesão.",
     "matrixSub": "Selecione exatamente 5 coordenadas na grade 25x25.",
     "alertWallet": "Conecte sua carteira para apostar.",
     "audit": "Auditado via Chainlink VRF",
