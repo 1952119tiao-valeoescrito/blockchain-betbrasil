@@ -38,7 +38,12 @@
     "card2Title": "Entropía Verificable",
     "card2Desc": "Resultados validados on-chain.",
     "card3Title": "El Pacto del 90%",
-    "card3Desc": "El 90% vuelve a los jugadores."
+    "card3Desc": "El 90% vuelve a los jugadores.",
+    "Footer": {
+      "allRightsReserved": "Todos los derechos reservados.",
+      "privacyPolicy": "Política de Privacidad",
+      "termsOfUse": "Términos de Uso"
+    }
   },
   "InterBet": {
     "title": "Apuesta",
@@ -116,8 +121,5 @@
     "p3": "Sin dueños. Sin muros. Sin excusas. El Código es la única Ley.",
     "btnAccept": "FIRMAR EL PACTO",
     "btnSkip": "Saltar al Juego"
-  },
-  "Footer": {
-    "allRightsReserved": "Todos los derechos reservados. Protocolo Descentralizado."
   }
 }

@@ -38,7 +38,12 @@
     "card2Title": "Verifiable Entropy",
     "card2Desc": "Absolute randomness on-chain.",
     "card3Title": "The 90% Pact",
-    "card3Desc": "90% payout per round."
+    "card3Desc": "90% payout per round.",
+    "Footer": {
+      "allRightsReserved": "All rights reserved.",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfUse": "Terms of Use"
+    }
   },
   "InterBet": {
     "title": "Official",
@@ -116,8 +121,5 @@
     "p3": "No owners. No walls. No nonsense. The Code is the only Law.",
     "btnAccept": "SIGN THE PACT",
     "btnSkip": "Skip to Game"
-  },
-  "Footer": {
-    "allRightsReserved": "All rights reserved. Decentralized Protocol."
   }
 }

@@ -38,7 +38,12 @@
     "card2Title": "Entropia Verificável",
     "card2Desc": "Usamos Chainlink VRF para garantir aleatoriedade absoluta. Cada resultado é validado on-chain.",
     "card3Title": "O Pacto dos 90%",
-    "card3Desc": "90% do total arrecadado por rodada é travado para distribuição imediata. Jogamos do seu lado."
+    "card3Desc": "90% do total arrecadado por rodada é travado para distribuição imediata. Jogamos do seu lado.",
+    "Footer": {
+      "allRightsReserved": "Todos os direitos reservados.",
+      "privacyPolicy": "Política de Privacidade",
+      "termsOfUse": "Termos de Uso"
+    }
   },
   "InterBet": {
     "title": "Aposta",
@@ -129,8 +134,5 @@
     "p3": "Sem donos. Sem paredão. Sem mi-mi-mi. O Código é a única Lei.",
     "btnAccept": "ASSINAR O PACTO",
     "btnSkip": "Pular para o Jogo"
-  },
-  "Footer": {
-    "allRightsReserved": "Todos os direitos reservados. Protocolo Descentralizado."
   }
 }

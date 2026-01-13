@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 
 const Footer = () => {
-  const t = useTranslations('Footer');
+  const t = useTranslations('Home.Footer');
   const currentYear = new Date().getFullYear();
 
   return (
