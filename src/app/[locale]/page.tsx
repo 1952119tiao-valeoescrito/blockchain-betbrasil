@@ -72,7 +72,7 @@ export default function HomePage() {
       {/* PRICING CARDS SECTION */}
       <section className="py-12 md:py-20 bg-[#08090c] border-y border-[#2a2d35]">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+          <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto mb-16 place-items-center">
             
             {/* BASIC CARD */}
             <div className="h-full bg-gradient-to-br from-blue-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-blue-500/20 backdrop-blur-md relative overflow-hidden shadow-2xl text-left">
@@ -91,26 +91,6 @@ export default function HomePage() {
                 </div>
                 <div className="flex items-center justify-center gap-2 text-xs font-bold text-blue-100/60 uppercase tracking-widest text-center">
                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {t('basicCardFooter')}
-                </div>
-            </div>
-
-            {/* PRO CARD */}
-            <div className="h-full bg-gradient-to-br from-purple-900/20 to-[#0b0c10] text-white rounded-[2rem] p-6 md:p-10 border-2 border-purple-500/20 backdrop-blur-md relative overflow-hidden shadow-2xl text-left">
-                <div className="absolute top-0 right-0 p-4 opacity-10"><Gem size={100} /></div>
-                <h1 className="text-xl md:text-3xl font-black mb-4 uppercase tracking-tight leading-tight">
-                  {t('proCardTitle')} <br/>
-                  <span className="text-purple-400 text-3xl md:text-5xl">{t('proCardValue')}</span>
-                </h1>
-                <p className="text-lg font-medium mb-8 italic text-blue-200/70">
-                  {t('proCardSub')} <span className="text-[#cfb16d] font-bold underline decoration-2">{t('proCardPoint')}</span>
-                </p>
-                <div className="bg-black/40 rounded-3xl p-6 mb-6 border border-purple-500/20 text-center shadow-inner">
-                    <p className="text-[10px] text-gray-500 uppercase tracking-[0.3em] mb-2">{t('proCardEntry')}</p>
-                    <p className="text-4xl md:text-6xl font-black text-[#cfb16d] tracking-tighter">{t('proCardPrice')}</p>
-                    <p className="text-[10px] md:text-xs text-gray-500 mt-2 font-mono uppercase tracking-widest">{t('proCardEth')}</p>
-                </div>
-                <div className="flex items-center justify-center gap-2 text-xs font-bold text-purple-100/60 uppercase tracking-widest text-center">
-                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span> {t('proCardFooter')}
                 </div>
             </div>
 
