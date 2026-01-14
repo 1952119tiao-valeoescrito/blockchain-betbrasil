@@ -48,10 +48,6 @@ export default function ApostasPage() {
     }
   };
 
-  const removeCoordinate = (index: number) => {
-    setSelectedCoords(selectedCoords.filter((_, i) => i !== index));
-  };
-
   const handleConfirm = async () => {
     if (selectedCoords.length !== 5) return;
 
@@ -151,7 +147,7 @@ export default function ApostasPage() {
                         <span className="text-yellow-500 font-mono font-black text-xl leading-none">
                           {selectedCoords[i] || "-- / --"}
                         </span>
-                        {selectedCoords[i] && <Trash2 className="text-red-400 cursor-pointer hover:text-red-300" size={16} onClick={() => removeCoordinate(i)} />}
+                        {selectedCoords[i] && <Trash2 className="text-red-400 cursor-pointer hover:text-red-300" size={16} onClick={() => toggleCoordinate(selectedCoords[i])} />}
                       </div>
                    </div>
                 ))}
