@@ -37,22 +37,29 @@ export default function ApostasPage() {
   const { writeContract, data: hash, isPending: isWaitingSignature, error } = useWriteContract();
   const { isLoading: isConfirmingOnChain, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({ hash });
 
-  const [selectedCoords, setSelectedCoords] = useState<string[]>([]);
+  const [selectedCoords, setSelectedCoords] = useState<string[]>(['','','','','']);
 
   const toggleCoordinate = (coord: string) => {
     if (isWaitingSignature || isConfirmingOnChain) return;
-    if (selectedCoords.includes(coord)) {
-      setSelectedCoords(selectedCoords.filter(c => c !== coord));
-    } else {
-      if (selectedCoords.length < 5) setSelectedCoords([...selectedCoords, coord]);
+    const index = selectedCoords.indexOf('');
+    if (index !== -1) {
+      const newCoords = [...selectedCoords];
+      newCoords[index] = coord;
+      setSelectedCoords(newCoords);
     }
   };
 
+  const removeCoordinate = (index: number) => {
+    const newCoords = [...selectedCoords];
+    newCoords[index] = '';
+    setSelectedCoords(newCoords);
+  };
+
   const handleConfirm = async () => {
-    if (selectedCoords.length !== 5) return;
+    if (selectedCoords.filter(c => c).length !== 5) return;
 
     // Converte ["1/2", "3/4"] em [1, 2, 3, 4...] para o Solidity uint8[10]
-    const prognosticosParaContrato = selectedCoords.flatMap(c => {
+    const prognosticosParaContrato = selectedCoords.filter(c => c).flatMap(c => {
         const [x, y] = c.split('/').map(num => parseInt(num));
         return [x, y];
     });
@@ -140,17 +147,20 @@ export default function ApostasPage() {
           <div className="bg-slate-900/80 p-6 md:p-8 rounded-3xl border border-yellow-500/20 h-fit sticky top-28 shadow-2xl">
              <h3 className="text-lg font-black text-white uppercase mb-6 text-center border-b border-white/5 pb-4 tracking-widest">{t('title')}</h3>
              <div className="space-y-3 mb-8">
-                {[0, 1, 2, 3, 4].map((i) => (
-                   <div key={i} className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5">
-                      <span className="text-[10px] text-gray-500 font-bold uppercase">Nº 0{i + 1}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-yellow-500 font-mono font-black text-xl leading-none">
-                          {selectedCoords[i] || "-- / --"}
-                        </span>
-                        {selectedCoords[i] && <Trash2 className="text-red-400 cursor-pointer hover:text-red-300" size={16} onClick={() => toggleCoordinate(selectedCoords[i])} />}
-                      </div>
-                   </div>
-                ))}
+                {[0, 1, 2, 3, 4].map((i) => {
+                   const coord = selectedCoords[i];
+                   return (
+                     <div key={i} className="flex items-center justify-between bg-black/40 p-4 rounded-xl border border-white/5">
+                        <span className="text-[10px] text-gray-500 font-bold uppercase">Nº 0{i + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-yellow-500 font-mono font-black text-xl leading-none">
+                            {coord || "-- / --"}
+                          </span>
+                          {coord && <Trash2 className="text-red-400 cursor-pointer hover:text-red-300" size={16} onClick={() => removeCoordinate(i)} />}
+                        </div>
+                     </div>
+                   );
+                 })}
              </div>
 
              <div className="flex flex-col items-center gap-6">
@@ -167,8 +177,8 @@ export default function ApostasPage() {
                     <div className="w-full space-y-4">
                       <button 
                         onClick={handleConfirm} 
-                        disabled={selectedCoords.length < 5 || isWaitingSignature || isConfirmingOnChain}
-                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${selectedCoords.length === 5 ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_30px_rgba(234,179,8,0.3)]' : 'bg-white/5 text-gray-600 opacity-50 cursor-not-allowed'}`}
+                        disabled={selectedCoords.filter(c => c).length < 5 || isWaitingSignature || isConfirmingOnChain}
+                        className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${selectedCoords.filter(c => c).length === 5 ? 'bg-yellow-500 text-black hover:bg-yellow-400 shadow-[0_0_30px_rgba(234,179,8,0.3)]' : 'bg-white/5 text-gray-600 opacity-50 cursor-not-allowed'}`}
                       >
                         {isWaitingSignature ? <Loader2 className="animate-spin" /> : isConfirmingOnChain ? <Loader2 className="animate-spin" /> : <ShieldCheck />} 
                         {isWaitingSignature ? "Assine na Carteira" : isConfirmingOnChain ? "Confirmando..." : "Confirmar Aposta"}
