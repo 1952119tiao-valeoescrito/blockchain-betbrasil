@@ -130,12 +130,13 @@
   },
   "Manifesto": {
     "badge": "Active Protocol",
-    "title": "THE 90% REBELLION",
+    "title": "THE DISTRIBUTION OF THE 90%",
     "headline": "THE FOOL’S GAME IS OVER. WELCOME TO THE ERA OF STRATEGY.",
-    "p1": "While 'old world' lotteries steal 60% of your money, we burn the middlemen. In the Alliance, 90% is the Real Payout.",
+    "p1": "While 'old world' lotteries steal 60% of your money, even before the draws take place, we burn the middlemen. At Blockchain Bet Brasil, 90% of the gross revenue, each round, is destined for Real Payment to winners.",
     "p2": "We don’t profit from your loss; we thrive on your strategic move.",
     "p3": "No owners. No walls. No nonsense. The Code is the only Law.",
-    "btnAccept": "SIGN THE PACT",
-    "btnSkip": "Skip to Game"
+    "btnAccept": "SINCERELY!",
+    "btnSkip": "Let's Play",
+    "footer": "Verified on Base Blockchain | No House Edge"
   }
 }

@@ -143,12 +143,13 @@
   },
   "Manifesto": {
     "badge": "Protocolo Ativo",
-    "title": "A REBELIÃO DOS 90%",
-    "headline": "O JOGO DOS TOLOS ACABOU. BEM-VINDO À ERA DA ESTRATEGIA.",
-    "p1": "Enquanto as loterias do 'velho mundo' roubam 60% do seu dinheiro, nós queimamos os atravessadores. Na Aliança, 90% é o Payout Real.",
+    "title": "A DISTRIBUIÇÃO DOS 90%",
+    "headline": "O JOGO DOS TOLOS ACABOU. BEM-VINDO À ERA DA ESTRATÉGIA.",
+    "p1": "Enquanto as loterias do 'velho mundo' roubam 60% do seu dinheiro, antes mesmo dos sorteios serem realizados, nós queimamos os atravessadores. Na Blockchain Bet Brasil, 90% da arrecadação bruta, a cada rodada, são destinados para Pagamento Real aos ganhadores.",
     "p2": "Não lucramos com a sua derrota, nós prosperamos com a sua jogada.",
     "p3": "Sem donos. Sem paredão. Sem mi-mi-mi. O Código é a única Lei.",
-    "btnAccept": "ASSINAR O PACTO",
-    "btnSkip": "Pular para o Jogo"
+    "btnAccept": "SINCERAMENTE!",
+    "btnSkip": "Vamos ao Jogo",
+    "footer": "Verified on Base Blockchain | No House Edge"
   }
 }

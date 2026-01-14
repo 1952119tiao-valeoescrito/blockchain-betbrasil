@@ -41,7 +41,7 @@ const ManifestoOverlay = () => {
           <h2 className="text-xl md:text-2xl font-bold text-yellow-500 leading-tight uppercase italic">
             {t('headline')}
           </h2>
-          <div className="space-y-4 text-gray-300 text-sm md:text-lg leading-relaxed">
+          <div className="space-y-3 text-gray-300 text-xs md:text-base leading-relaxed">
             <p>"{t('p1')}"</p>
             <p className="font-bold text-white italic">{t('p2')}</p>
             <p className="text-yellow-500/80 font-mono text-xs md:text-sm uppercase tracking-widest">{t('p3')}</p>

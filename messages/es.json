@@ -130,12 +130,13 @@
   },
   "Manifesto": {
     "badge": "Protocolo Activo",
-    "title": "LA REBELIÓN DEL 90%",
+    "title": "LA DISTRIBUCIÓN DEL 90%",
     "headline": "EL JUEGO DE LOS NECIOS TERMINÓ. BIENVENIDO A LA ERA DE LA ESTRATEGIA.",
-    "p1": "Mientras las loterías del 'viejo mundo' te roban el 60% de tu dinero, nosotros eliminamos a los intermediarios. En la Alianza, el 90% es el Payout Real.",
+    "p1": "Mientras las loterías del 'viejo mundo' te roban el 60% de tu dinero, incluso antes de que se realicen los sorteos, nosotros quemamos a los intermediarios. En Blockchain Bet Brasil, el 90% de los ingresos brutos, en cada ronda, se destina al Pago Real a los ganadores.",
     "p2": "No lucramos con tu derrota, prosperamos con tu jugada.",
     "p3": "Sin dueños. Sin muros. Sin excusas. El Código es la única Ley.",
-    "btnAccept": "FIRMAR EL PACTO",
-    "btnSkip": "Saltar al Juego"
+    "btnAccept": "¡SINCERAMENTE!",
+    "btnSkip": "Vamos al Juego",
+    "footer": "Verified on Base Blockchain | No House Edge"
   }
 }
