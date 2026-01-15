@@ -4,7 +4,7 @@ import { Link } from '@/navigation';
 import { useTranslations } from 'next-intl';
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from 'next/image';
-import { Menu, X, Zap } from 'lucide-react';
+import { Menu, X, Zap, Sparkles } from 'lucide-react';
 
 const Navbar = () => {
   const t = useTranslations('Navbar');
@@ -35,6 +35,9 @@ const Navbar = () => {
             <Link href="/inter-bet" className="text-sm font-bold text-yellow-500 hover:text-yellow-400 transition-colors flex items-center gap-1">
               <Zap size={14} /> {t('interbet')}
             </Link>
+            <Link href="/quina-bet" className="text-sm font-bold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1">
+              <Sparkles size={14} /> Quina-Bet
+            </Link>
             <ConnectButton showBalance={false} accountStatus="avatar" chainStatus="icon" />
           </div>
 
@@ -56,6 +59,7 @@ const Navbar = () => {
             <Link href="/resultados" onClick={() => setIsOpen(false)} className="text-2xl text-white">{t('results')}</Link>
             <Link href="/premiacao" onClick={() => setIsOpen(false)} className="text-2xl text-white">{t('prizes')}</Link>
             <Link href="/inter-bet" onClick={() => setIsOpen(false)} className="text-2xl text-yellow-500">{t('interbet')}</Link>
+            <Link href="/quina-bet" onClick={() => setIsOpen(false)} className="text-2xl text-amber-400">Quina-Bet</Link>
           </div>
         </div>
       </div>
