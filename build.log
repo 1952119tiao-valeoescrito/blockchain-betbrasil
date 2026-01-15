@@ -1,0 +1,48 @@
+
+> blockchain-betbrasil-full@2.0.0 build
+> next build
+
+   ▲ Next.js 14.1.0
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in '/workspaces/blockchain-betbrasil/node_modules/@metamask/sdk/dist/browser/es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./node_modules/@rainbow-me/rainbowkit/dist/index.js
+./src/app/[locale]/apostas/page.tsx
+
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/3) ...
+ ✓ Generating static pages (3/3) 
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /_not-found                          891 B          87.8 kB
+├ λ /[locale]                            3.68 kB         327 kB
+├ λ /[locale]/apostas                    6.56 kB         329 kB
+├ λ /[locale]/como-funciona              2.45 kB         325 kB
+├ λ /[locale]/inter-bet                  2.35 kB         325 kB
+├ λ /[locale]/politica-de-privacidade    2.65 kB        96.9 kB
+├ λ /[locale]/premiacao                  2.88 kB         326 kB
+├ λ /[locale]/resultados                 3.92 kB         327 kB
+└ λ /[locale]/termos-de-uso              3.01 kB        97.2 kB
++ First Load JS shared by all            86.9 kB
+  ├ chunks/8069-e52a97949c652165.js      29.1 kB
+  ├ chunks/fd9d1056-74e20f3c809ae80a.js  53.4 kB
+  └ other shared chunks (total)          4.46 kB
+
+
+ƒ Middleware                             86.7 kB
+
+○  (Static)   prerendered as static content
+λ  (Dynamic)  server-rendered on demand using Node.js
+

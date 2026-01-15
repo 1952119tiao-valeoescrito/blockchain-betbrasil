@@ -39,6 +39,9 @@ export default async function RootLayout({
         
         {/* Google Tag Manager - Carregamento prioritário */}
         <GoogleTagManager gtmId="GT-5TN9XQCH" />
+        
+        {/* Google Analytics - Destravamento de page_view events */}
+        <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
 
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Web3Provider locale={locale}>
