@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import Navbar from '@/components/Navbar';
-import { ShieldCheck, ArrowRight, Zap, Target, Sparkles, Trash2 } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Zap, Target, Sparkles, Trash2, LayoutGrid } from 'lucide-react';
 
 interface VolumeSlot {
   x: number;
@@ -15,11 +15,14 @@ export default function QuinaBetPage() {
   const [selection, setSelection] = useState<VolumeSlot[]>([]);
   const selectedCount = selection.length;
 
-  const toggleNumber = (num: number) => {
-    if (selectedCount < 25 && !selection.some(s => (s.x - 1) * 5 + s.y === num)) {
-      const row = Math.floor((num - 1) / 5) + 1;
-      const col = ((num - 1) % 5) + 1;
-      setSelection((prev) => [...prev, { x: row, y: col }]);
+  const toggleCoordinate = (x: number, y: number) => {
+    const coord: VolumeSlot = { x, y };
+    const isSelected = selection.some(s => s.x === x && s.y === y);
+    
+    if (isSelected) {
+      setSelection((prev) => prev.filter(s => !(s.x === x && s.y === y)));
+    } else if (selectedCount < 25) {
+      setSelection((prev) => [...prev, coord]);
     }
   };
 
@@ -32,26 +35,24 @@ export default function QuinaBetPage() {
   };
 
   const handleRandom = () => {
-    const selectedNums = new Set<number>();
+    const selectedCoords = new Set<string>();
     const newSlots: VolumeSlot[] = [];
     
     while (newSlots.length < 25) {
-      const randomNum = Math.floor(Math.random() * 625) + 1;
-      if (!selectedNums.has(randomNum)) {
-        selectedNums.add(randomNum);
-        const row = Math.floor((randomNum - 1) / 5) + 1;
-        const col = ((randomNum - 1) % 5) + 1;
-        newSlots.push({ x: row, y: col });
+      const randomX = Math.floor(Math.random() * 25) + 1;
+      const randomY = Math.floor(Math.random() * 25) + 1;
+      const key = `${randomX}/${randomY}`;
+      
+      if (!selectedCoords.has(key)) {
+        selectedCoords.add(key);
+        newSlots.push({ x: randomX, y: randomY });
       }
     }
     setSelection(newSlots);
   };
 
-  const numbers = Array.from({ length: 625 }, (_, i) => i + 1);
-  const isNumberSelected = (num: number) => {
-    const row = Math.floor((num - 1) / 5) + 1;
-    const col = ((num - 1) % 5) + 1;
-    return selection.some(s => s.x === row && s.y === col);
+  const isCoordinateSelected = (x: number, y: number) => {
+    return selection.some(s => s.x === x && s.y === y);
   };
 
   return (
@@ -96,27 +97,56 @@ export default function QuinaBetPage() {
             
             {/* LEFT: 25x25 SELECTION MATRIX */}
             <div className="flex flex-col">
-              <h2 className="text-xl font-black text-white mb-4 uppercase tracking-tight">
-                {t('matrixTitle')} (625)
-              </h2>
+              <div className="mb-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <LayoutGrid className="text-amber-400" />
+                  <h2 className="text-xl font-black text-white uppercase">{t('matrixTitle')}</h2>
+                </div>
+                <p className="text-sm text-gray-400">{t('matrixInstruction')}</p>
+              </div>
 
-              <div className="grid grid-cols-5 gap-2 mb-4 max-w-sm">
-                {numbers.map((num) => (
-                  <button
-                    key={num}
-                    onClick={() => toggleNumber(num)}
-                    disabled={selectedCount >= 25 && !isNumberSelected(num)}
-                    className={`
-                      w-16 h-16 rounded-lg font-bold text-sm transition-all font-mono tracking-tight
-                      ${isNumberSelected(num)
-                        ? 'bg-amber-500 text-black border-2 border-amber-300 shadow-lg scale-105'
-                        : 'bg-slate-800 text-gray-300 border-2 border-slate-700 hover:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
-                      }
-                    `}
-                  >
-                    {num}
-                  </button>
-                ))}
+              {/* MATRIZ 25x25 COM COORDENADAS */}
+              <div className="overflow-x-auto pb-4 bg-black/40 rounded-xl p-4 border border-slate-700 shadow-inner mb-4">
+                <div className="grid gap-1 min-w-fit" style={{ gridTemplateColumns: 'repeat(26, 1fr)' }}>
+                  
+                  {/* Cabeçalho X (números 1-25) */}
+                  <div className="h-6" />
+                  {Array.from({ length: 25 }, (_, i) => (
+                    <div key={`col-${i}`} className="text-[10px] text-gray-500 font-bold flex items-center justify-center uppercase font-mono h-6">
+                      {i + 1}
+                    </div>
+                  ))}
+
+                  {/* Linhas Y + Células */}
+                  {Array.from({ length: 25 }, (_, row) => (
+                    <React.Fragment key={`row-${row}`}>
+                      <div className="text-[10px] text-gray-500 font-bold flex items-center justify-center uppercase font-mono">{row + 1}</div>
+                      {Array.from({ length: 25 }, (_, col) => {
+                        const x = col + 1;
+                        const y = row + 1;
+                        const isSelected = isCoordinateSelected(x, y);
+                        const coord = `${x}/${y}`;
+                        
+                        return (
+                          <button
+                            key={coord}
+                            disabled={selectedCount >= 25 && !isSelected}
+                            onClick={() => toggleCoordinate(x, y)}
+                            className={`w-8 h-8 border rounded-sm flex items-center justify-center group transition-all text-[7px] font-mono font-bold
+                              ${isSelected
+                                ? 'bg-amber-500 border-amber-300 text-black z-10 scale-110 shadow-[0_0_15px_rgba(217,119,6,0.6)]'
+                                : 'bg-slate-800/50 border-slate-700 text-gray-500 hover:bg-amber-500/20 hover:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                              }`}
+                          >
+                            <span className={`transition-colors ${isSelected ? 'text-black' : 'group-hover:text-amber-200'}`}>
+                              {coord}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </React.Fragment>
+                  ))}
+                </div>
               </div>
 
               {/* PROGRESS */}
@@ -132,7 +162,8 @@ export default function QuinaBetPage() {
               <div className="flex gap-2">
                 <button
                   onClick={handleRandom}
-                  className="flex-1 px-4 py-2 bg-amber-600/30 border border-amber-500/50 rounded-lg text-amber-300 font-bold text-sm hover:bg-amber-600/50 transition-all"
+                  className="flex-1 px-4 py-2 bg-amber-600/30 border border-amber-500/50 rounded-lg text-amber-300 font-bold text-sm hover:bg-amber-600/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={selectedCount === 25}
                 >
                   {t('btnRandom')}
                 </button>
