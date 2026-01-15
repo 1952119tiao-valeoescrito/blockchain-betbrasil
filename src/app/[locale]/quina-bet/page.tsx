@@ -283,6 +283,11 @@ export default function QuinaBetPage() {
               </div>
 
               <p className="text-xs text-gray-500 mt-3 text-center font-mono">{t('volumeHint')}</p>
+              
+              {/* GOLD TAGLINE */}
+              <p className="text-sm italic font-light text-amber-300 mt-6 text-center leading-relaxed">
+                {t('goldTagline')}
+              </p>
             </div>
           </div>
 
