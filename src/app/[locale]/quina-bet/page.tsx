@@ -244,40 +244,43 @@ export default function QuinaBetPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {[1, 2, 3, 4, 5].map((row) => (
-                      <tr key={row}>
-                        <td className="px-2 py-3 text-xs font-bold text-gray-400 border-r border-slate-700 text-right w-12">
-                          {row}
-                        </td>
-                        {[1, 2, 3, 4, 5].map((col) => {
-                          const slotIndex = (row - 1) * 5 + (col - 1);
-                          const slot = slots[slotIndex];
-                          return (
-                            <td
-                              key={`${row}-${col}`}
-                              className="px-3 py-3 border border-slate-700/50 text-sm font-mono relative group hover:bg-slate-700/30 transition-colors"
-                            >
-                              {slot ? (
-                                <div className="flex items-center justify-center gap-2">
-                                  <span className="text-amber-300 font-black">
-                                    {slot.x}/{slot.y}
-                                  </span>
-                                  <button
-                                    onClick={() => removeSlot(slotIndex)}
-                                    className="inline-flex items-center justify-center p-1 bg-red-600/40 hover:bg-red-600/70 rounded transition-all text-red-300 hover:text-red-100 ml-1"
-                                    title={t('deleteBtnTitle')}
-                                  >
-                                    <Trash2 size={14} />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-gray-500 text-xs">-- / --</span>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                    {[1, 2, 3, 4, 5].map((row) => {
+                      const rowLabels = [t('row1'), t('row2'), t('row3'), t('row4'), t('row5')];
+                      return (
+                        <tr key={row}>
+                          <td className="px-3 py-3 text-xs font-bold text-amber-400 border-r border-slate-700 text-right w-12 bg-slate-800/40">
+                            {rowLabels[row - 1]}
+                          </td>
+                          {[1, 2, 3, 4, 5].map((col) => {
+                            const slotIndex = (row - 1) * 5 + (col - 1);
+                            const slot = slots[slotIndex];
+                            return (
+                              <td
+                                key={`${row}-${col}`}
+                                className="px-3 py-3 border border-slate-700/50 text-sm font-mono relative group hover:bg-slate-700/30 transition-colors"
+                              >
+                                {slot ? (
+                                  <div className="flex items-center justify-center gap-2">
+                                    <span className="text-amber-300 font-black">
+                                      {slot.x}/{slot.y}
+                                    </span>
+                                    <button
+                                      onClick={() => removeSlot(slotIndex)}
+                                      className="inline-flex items-center justify-center p-1 bg-red-600/40 hover:bg-red-600/70 rounded transition-all text-red-300 hover:text-red-100 ml-1"
+                                      title={t('deleteBtnTitle')}
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <span className="text-gray-500 text-xs">-- / --</span>
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
