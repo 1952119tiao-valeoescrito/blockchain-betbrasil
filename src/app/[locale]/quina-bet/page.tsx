@@ -3,51 +3,63 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import Navbar from '@/components/Navbar';
-import { ShieldCheck, ArrowRight, Zap, Target, Sparkles } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Zap, Target, Sparkles, Trash2 } from 'lucide-react';
 
-interface QuinaSelection {
-  [key: number]: boolean;
+interface VolumeSlot {
+  x: number;
+  y: number;
 }
 
 export default function QuinaBetPage() {
   const t = useTranslations('QuinaBet');
-  const [selection, setSelection] = useState<QuinaSelection>({});
-  const selectedCount = Object.values(selection).filter(Boolean).length;
+  const [selection, setSelection] = useState<VolumeSlot[]>([]);
+  const selectedCount = selection.length;
 
   const toggleNumber = (num: number) => {
-    if (selectedCount >= 25 || selection[num]) {
-      setSelection((prev) => ({
-        ...prev,
-        [num]: !prev[num],
-      }));
+    if (selectedCount < 25 && !selection.some(s => (s.x - 1) * 5 + s.y === num)) {
+      const row = Math.floor((num - 1) / 5) + 1;
+      const col = ((num - 1) % 5) + 1;
+      setSelection((prev) => [...prev, { x: row, y: col }]);
     }
+  };
+
+  const removeSlot = (index: number) => {
+    setSelection((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleClear = () => {
-    setSelection({});
+    setSelection([]);
   };
 
   const handleRandom = () => {
-    const newSelection: QuinaSelection = {};
-    let count = 0;
-    while (count < 25) {
-      const randomNum = Math.floor(Math.random() * 25) + 1;
-      if (!newSelection[randomNum]) {
-        newSelection[randomNum] = true;
-        count++;
+    const selectedNums = new Set<number>();
+    const newSlots: VolumeSlot[] = [];
+    
+    while (newSlots.length < 25) {
+      const randomNum = Math.floor(Math.random() * 625) + 1;
+      if (!selectedNums.has(randomNum)) {
+        selectedNums.add(randomNum);
+        const row = Math.floor((randomNum - 1) / 5) + 1;
+        const col = ((randomNum - 1) % 5) + 1;
+        newSlots.push({ x: row, y: col });
       }
     }
-    setSelection(newSelection);
+    setSelection(newSlots);
   };
 
-  const numbers = Array.from({ length: 25 }, (_, i) => i + 1);
+  const numbers = Array.from({ length: 625 }, (_, i) => i + 1);
+  const isNumberSelected = (num: number) => {
+    const row = Math.floor((num - 1) / 5) + 1;
+    const col = ((num - 1) % 5) + 1;
+    return selection.some(s => s.x === row && s.y === col);
+  };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-100 font-sans selection:bg-yellow-500 selection:text-black overflow-x-hidden">
       <Navbar />
       <main className="container mx-auto px-4 pt-32 pb-20">
         {/* HEADER */}
-        <header className="mb-16 text-center">
+        <header className="mb-12 text-center">
           <h1 className="text-4xl md:text-6xl font-black text-white mb-4 uppercase tracking-tighter leading-none">
             {t('title')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500">{t('highlight')}</span>
           </h1>
@@ -79,60 +91,123 @@ export default function QuinaBetPage() {
         </div>
 
         {/* MAIN BETTING AREA */}
-        <div className="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-8 md:p-12 shadow-2xl">
-          {/* SELECTION MATRIX */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-black text-white uppercase tracking-tight">
-                {t('selectLabel')} <span className="text-amber-300">({selectedCount}/25)</span>
+        <div className="bg-slate-900/40 border-2 border-slate-800 rounded-[2.5rem] p-6 md:p-8 shadow-2xl overflow-x-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 min-w-max lg:min-w-full">
+            
+            {/* LEFT: 25x25 SELECTION MATRIX */}
+            <div className="flex flex-col">
+              <h2 className="text-xl font-black text-white mb-4 uppercase tracking-tight">
+                {t('matrixTitle')} (625)
               </h2>
-              <div className="flex gap-3">
+
+              <div className="grid grid-cols-5 gap-2 mb-4 max-w-sm">
+                {numbers.map((num) => (
+                  <button
+                    key={num}
+                    onClick={() => toggleNumber(num)}
+                    disabled={selectedCount >= 25 && !isNumberSelected(num)}
+                    className={`
+                      w-16 h-16 rounded-lg font-bold text-sm transition-all font-mono tracking-tight
+                      ${isNumberSelected(num)
+                        ? 'bg-amber-500 text-black border-2 border-amber-300 shadow-lg scale-105'
+                        : 'bg-slate-800 text-gray-300 border-2 border-slate-700 hover:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
+                      }
+                    `}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+
+              {/* PROGRESS */}
+              <div className="bg-slate-800/50 rounded-full h-2 overflow-hidden mb-2">
+                <div
+                  className="h-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-300"
+                  style={{ width: `${(selectedCount / 25) * 100}%` }}
+                />
+              </div>
+              <p className="text-xs text-gray-500 text-center font-mono mb-4">{selectedCount}/25 {t('selected')}</p>
+
+              {/* CONTROLS */}
+              <div className="flex gap-2">
                 <button
                   onClick={handleRandom}
-                  className="px-4 py-2 bg-amber-600/30 border border-amber-500/50 rounded-lg text-amber-300 font-bold text-sm hover:bg-amber-600/50 transition-all"
+                  className="flex-1 px-4 py-2 bg-amber-600/30 border border-amber-500/50 rounded-lg text-amber-300 font-bold text-sm hover:bg-amber-600/50 transition-all"
                 >
                   {t('btnRandom')}
                 </button>
                 <button
                   onClick={handleClear}
-                  className="px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-gray-300 font-bold text-sm hover:bg-slate-700 transition-all"
+                  className="flex-1 px-4 py-2 bg-slate-700/50 border border-slate-600 rounded-lg text-gray-300 font-bold text-sm hover:bg-slate-700 transition-all"
                 >
                   {t('btnClear')}
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-5 gap-3 mb-8">
-              {numbers.map((num) => (
-                <button
-                  key={num}
-                  onClick={() => toggleNumber(num)}
-                  disabled={selectedCount >= 25 && !selection[num]}
-                  className={`
-                    aspect-square rounded-lg font-black text-lg transition-all font-mono tracking-tight
-                    ${selection[num]
-                      ? 'bg-amber-500 text-black border-2 border-amber-300 shadow-lg scale-105'
-                      : 'bg-slate-800 text-gray-300 border-2 border-slate-700 hover:border-amber-500/50 disabled:opacity-50 disabled:cursor-not-allowed'
-                    }
-                  `}
-                >
-                  {num}
-                </button>
-              ))}
-            </div>
+            {/* RIGHT: VOLANTE (5x5 TICKET) */}
+            <div className="flex flex-col">
+              <h2 className="text-xl font-black text-white mb-4 uppercase tracking-tight">
+                {t('volumeTitle')} <span className="text-amber-300">({selectedCount}/25)</span>
+              </h2>
 
-            {/* PROGRESS BAR */}
-            <div className="bg-slate-800/50 rounded-full h-2 overflow-hidden mb-4">
-              <div
-                className="h-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-300"
-                style={{ width: `${(selectedCount / 25) * 100}%` }}
-              />
+              <div className="bg-black/40 border border-amber-500/30 rounded-xl p-4 overflow-x-auto">
+                <table className="w-full text-center min-w-fit">
+                  <thead>
+                    <tr>
+                      <th className="w-12 px-2 py-2 text-xs font-bold text-gray-400 border-b border-slate-700" />
+                      <th className="px-3 py-2 text-xs font-bold text-amber-300 border-b border-slate-700 uppercase">{t('col1')}</th>
+                      <th className="px-3 py-2 text-xs font-bold text-amber-300 border-b border-slate-700 uppercase">{t('col2')}</th>
+                      <th className="px-3 py-2 text-xs font-bold text-amber-300 border-b border-slate-700 uppercase">{t('col3')}</th>
+                      <th className="px-3 py-2 text-xs font-bold text-amber-300 border-b border-slate-700 uppercase">{t('col4')}</th>
+                      <th className="px-3 py-2 text-xs font-bold text-amber-300 border-b border-slate-700 uppercase">{t('col5')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[1, 2, 3, 4, 5].map((row) => (
+                      <tr key={row}>
+                        <td className="px-2 py-3 text-xs font-bold text-gray-400 border-r border-slate-700 text-right w-12">
+                          {row}
+                        </td>
+                        {[1, 2, 3, 4, 5].map((col) => {
+                          const slotIndex = (row - 1) * 5 + (col - 1);
+                          const slot = selection[slotIndex];
+                          return (
+                            <td
+                              key={`${row}-${col}`}
+                              className="px-3 py-3 border border-slate-700/50 text-sm font-mono relative group"
+                            >
+                              {slot ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  <span className="text-amber-300 font-black">
+                                    {slot.x}/{slot.y}
+                                  </span>
+                                  <button
+                                    onClick={() => removeSlot(slotIndex)}
+                                    className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 top-1 p-1 bg-red-600/30 hover:bg-red-600/50 rounded text-red-300"
+                                    title={t('deleteBtnTitle')}
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-gray-500 text-xs">-- / --</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <p className="text-xs text-gray-500 mt-3 text-center font-mono">{t('volumeHint')}</p>
             </div>
-            <p className="text-xs text-gray-500 text-center font-mono">{selectedCount}/25 {t('selected')}</p>
           </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-10">
+          {/* ACTION BUTTONS - FULL WIDTH */}
+          <div className="flex flex-col sm:flex-row gap-4 mt-8">
             <button
               disabled={selectedCount !== 25}
               className={`
