@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/globals.css"; 
 import '@rainbow-me/rainbowkit/styles.css';
-import { GoogleAnalytics, GoogleTagManager } from '@next/third-parties/google';
 import Script from 'next/script';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, unstable_setRequestLocale } from 'next-intl/server';
@@ -37,11 +36,22 @@ export default async function RootLayout({
     <html lang={locale}>
       <body className={`${inter.className} min-h-screen flex flex-col bg-[#0b0c10] text-gray-200 selection:bg-[#cfb16d] selection:text-black`}>
         
-        {/* Google Tag Manager - Carregamento prioritário */}
-        <GoogleTagManager gtmId="GT-5TN9XQCH" />
-        
-        {/* Google Analytics - Destravamento de page_view events */}
-        <GoogleAnalytics gaId="G-MGWSEGKZ0V" />
+        {/* Google Analytics via gtag.js - Sem intermediários */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MGWSEGKZ0V"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-MGWSEGKZ0V', {
+              page_path: window.location.pathname,
+            });
+            gtag('config', 'GT-5TN9XQCH');
+          `}
+        </Script>
 
         <NextIntlClientProvider messages={messages} locale={locale}>
           <Web3Provider locale={locale}>
