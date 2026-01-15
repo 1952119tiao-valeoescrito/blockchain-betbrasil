@@ -13,58 +13,77 @@ interface VolumeSlot {
   y: number;
 }
 
+// Tipo para o array de 25 slots (gavetas fixas)
+type FixedSlots = Array<VolumeSlot | null>;
+
 export default function QuinaBetPage() {
   const t = useTranslations('QuinaBet');
   const { address, isConnected } = useAccount();
   const { writeContract, data: hash, isPending: isWaitingSignature, error } = useWriteContract();
   const { isLoading: isConfirmingOnChain, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({ hash });
   
-  const [selection, setSelection] = useState<VolumeSlot[]>([]);
-  const selectedCount = selection.length;
+  const [slots, setSlots] = useState<FixedSlots>(Array(25).fill(null));
+  const selectedCount = slots.filter(s => s !== null).length;
 
   const toggleCoordinate = (x: number, y: number) => {
     const coord: VolumeSlot = { x, y };
-    const isSelected = selection.some(s => s.x === x && s.y === y);
+    const existingIndex = slots.findIndex(s => s && s.x === x && s.y === y);
     
-    if (isSelected) {
-      setSelection((prev) => prev.filter(s => !(s.x === x && s.y === y)));
+    if (existingIndex !== -1) {
+      // Coordenada já existe - remover
+      const newSlots = [...slots];
+      newSlots[existingIndex] = null;
+      setSlots(newSlots);
     } else if (selectedCount < 25) {
-      setSelection((prev) => [...prev, coord]);
+      // Encontrar primeiro slot vazio
+      const emptyIndex = slots.findIndex(s => s === null);
+      if (emptyIndex !== -1) {
+        const newSlots = [...slots];
+        newSlots[emptyIndex] = coord;
+        setSlots(newSlots);
+      }
     }
   };
 
   const removeSlot = (index: number) => {
-    setSelection((prev) => prev.filter((_, i) => i !== index));
+    // Lógica de gavetas fixas: apenas deixar vazio, sem deslocar
+    const newSlots = [...slots];
+    newSlots[index] = null;
+    setSlots(newSlots);
   };
 
   const handleClear = () => {
-    setSelection([]);
+    setSlots(Array(25).fill(null));
   };
 
   const handleRandom = () => {
     const selectedCoords = new Set<string>();
-    const newSlots: VolumeSlot[] = [];
+    const newSlots: FixedSlots = Array(25).fill(null);
+    let index = 0;
     
-    while (newSlots.length < 25) {
+    while (index < 25) {
       const randomX = Math.floor(Math.random() * 25) + 1;
       const randomY = Math.floor(Math.random() * 25) + 1;
       const key = `${randomX}/${randomY}`;
       
       if (!selectedCoords.has(key)) {
         selectedCoords.add(key);
-        newSlots.push({ x: randomX, y: randomY });
+        newSlots[index] = { x: randomX, y: randomY };
+        index++;
       }
     }
-    setSelection(newSlots);
+    setSlots(newSlots);
   };
 
   const isCoordinateSelected = (x: number, y: number) => {
-    return selection.some(s => s.x === x && s.y === y);
+    return slots.some(s => s && s.x === x && s.y === y);
   };
 
   const convertToPrognosticos = (): number[] => {
-    // Converte coordenadas (x,y) para array de números de 1-625
-    return selection.map(coord => (coord.x - 1) * 25 + coord.y);
+    // Converte apenas os slots preenchidos (descarta os null)
+    return slots
+      .filter((slot) => slot !== null)
+      .map(coord => (coord!.x - 1) * 25 + coord!.y);
   };
 
   const handleBet = async () => {
@@ -232,11 +251,11 @@ export default function QuinaBetPage() {
                         </td>
                         {[1, 2, 3, 4, 5].map((col) => {
                           const slotIndex = (row - 1) * 5 + (col - 1);
-                          const slot = selection[slotIndex];
+                          const slot = slots[slotIndex];
                           return (
                             <td
                               key={`${row}-${col}`}
-                              className="px-3 py-3 border border-slate-700/50 text-sm font-mono relative group"
+                              className="px-3 py-3 border border-slate-700/50 text-sm font-mono relative group hover:bg-slate-700/30 transition-colors"
                             >
                               {slot ? (
                                 <div className="flex items-center justify-center gap-2">
@@ -245,7 +264,7 @@ export default function QuinaBetPage() {
                                   </span>
                                   <button
                                     onClick={() => removeSlot(slotIndex)}
-                                    className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-1 top-1 p-1 bg-red-600/30 hover:bg-red-600/50 rounded text-red-300"
+                                    className="inline-flex items-center justify-center p-1 bg-red-600/40 hover:bg-red-600/70 rounded transition-all text-red-300 hover:text-red-100 ml-1"
                                     title={t('deleteBtnTitle')}
                                   >
                                     <Trash2 size={14} />
