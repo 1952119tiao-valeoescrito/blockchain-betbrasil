@@ -3,7 +3,10 @@ import React, { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
 import Navbar from '@/components/Navbar';
-import { ShieldCheck, ArrowRight, Zap, Target, Sparkles, Trash2, LayoutGrid } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Zap, Target, Sparkles, Trash2, LayoutGrid, Loader2, CheckCircle2, ExternalLink } from 'lucide-react';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { QUINA_BET_ADDRESS, QUINA_BET_ABI } from '@/constants/quinaBetAbi';
 
 interface VolumeSlot {
   x: number;
@@ -12,6 +15,10 @@ interface VolumeSlot {
 
 export default function QuinaBetPage() {
   const t = useTranslations('QuinaBet');
+  const { address, isConnected } = useAccount();
+  const { writeContract, data: hash, isPending: isWaitingSignature, error } = useWriteContract();
+  const { isLoading: isConfirmingOnChain, isSuccess: isTxSuccess } = useWaitForTransactionReceipt({ hash });
+  
   const [selection, setSelection] = useState<VolumeSlot[]>([]);
   const selectedCount = selection.length;
 
@@ -53,6 +60,29 @@ export default function QuinaBetPage() {
 
   const isCoordinateSelected = (x: number, y: number) => {
     return selection.some(s => s.x === x && s.y === y);
+  };
+
+  const convertToPrognosticos = (): number[] => {
+    // Converte coordenadas (x,y) para array de números de 1-625
+    return selection.map(coord => (coord.x - 1) * 25 + coord.y);
+  };
+
+  const handleBet = async () => {
+    if (!isConnected) return;
+    if (selectedCount !== 25) return;
+
+    const prognosticos = convertToPrognosticos();
+
+    try {
+      writeContract({
+        address: QUINA_BET_ADDRESS as `0x${string}`,
+        abi: QUINA_BET_ABI,
+        functionName: 'realizarApostaQuina',
+        args: [prognosticos as unknown as any],
+      } as any);
+    } catch (err) {
+      console.error('Erro ao enviar aposta:', err);
+    }
   };
 
   return (
@@ -239,24 +269,65 @@ export default function QuinaBetPage() {
 
           {/* ACTION BUTTONS - FULL WIDTH */}
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <button
-              disabled={selectedCount !== 25}
-              className={`
-                flex-1 py-4 font-black text-lg rounded-xl uppercase tracking-tighter transition-all flex items-center justify-center gap-2
-                ${selectedCount === 25
-                  ? 'bg-amber-500 text-black hover:scale-105 shadow-xl'
-                  : 'bg-slate-700 text-gray-500 cursor-not-allowed opacity-50'
-                }
-              `}
-            >
-              {t('btnBet')} <ArrowRight size={20} />
-            </button>
-            <Link href="/quina-bet/como-funciona" className="flex-1">
-              <button className="w-full py-4 font-bold text-lg rounded-xl uppercase tracking-tighter transition-all border border-slate-600 text-gray-300 hover:bg-white/5">
-                {t('btnInfo')}
-              </button>
-            </Link>
+            {!isConnected ? (
+              <div className="flex-1">
+                <ConnectButton label="Conectar Carteira" />
+              </div>
+            ) : isTxSuccess ? (
+              <div className="flex-1 bg-green-500/10 border border-green-500/20 p-6 rounded-xl text-center animate-in zoom-in-95">
+                <CheckCircle2 className="text-green-500 mx-auto mb-3" size={40} />
+                <p className="text-green-500 font-black text-sm uppercase">{t('betConfirmed') || 'Aposta Registrada!'}</p>
+                {hash && (
+                  <a href={`https://basescan.org/tx/${hash}`} target="_blank" rel="noreferrer" className="text-[10px] text-white underline mt-4 block uppercase font-bold flex items-center justify-center gap-1">
+                    Ver no BaseScan <ExternalLink size={12} />
+                  </a>
+                )}
+              </div>
+            ) : (
+              <>
+                <button
+                  onClick={handleBet}
+                  disabled={selectedCount !== 25 || isWaitingSignature || isConfirmingOnChain}
+                  className={`
+                    flex-1 py-4 font-black text-lg rounded-xl uppercase tracking-tighter transition-all flex items-center justify-center gap-2
+                    ${selectedCount === 25 && !isWaitingSignature && !isConfirmingOnChain
+                      ? 'bg-amber-500 text-black hover:scale-105 shadow-[0_0_30px_rgba(217,119,6,0.3)]'
+                      : 'bg-slate-700 text-gray-500 cursor-not-allowed opacity-50'
+                    }
+                  `}
+                >
+                  {isWaitingSignature ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Assine na Carteira
+                    </>
+                  ) : isConfirmingOnChain ? (
+                    <>
+                      <Loader2 className="animate-spin" size={20} />
+                      Confirmando...
+                    </>
+                  ) : (
+                    <>
+                      {t('btnBet')} <ArrowRight size={20} />
+                    </>
+                  )}
+                </button>
+                <Link href="/quina-bet/como-funciona" className="flex-1">
+                  <button className="w-full py-4 font-bold text-lg rounded-xl uppercase tracking-tighter transition-all border border-slate-600 text-gray-300 hover:bg-white/5">
+                    {t('btnInfo')}
+                  </button>
+                </Link>
+              </>
+            )}
           </div>
+
+          {error && (
+            <div className="mt-6 bg-red-500/10 border border-red-500/20 p-4 rounded-xl text-center">
+              <p className="text-[10px] text-red-500 font-bold uppercase leading-tight">
+                {error.message?.includes("rejected") ? "Usuário recusou transação" : "Saldo insuficiente ou erro na rede"}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* HIGHLIGHTS */}
