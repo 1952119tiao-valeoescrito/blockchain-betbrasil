@@ -153,19 +153,19 @@
     "footer": "Verified on Base Blockchain | No House Edge"
   },
   "QuinaBet": {
-    "title": "QUINA",
-    "highlight": "-BET",
-    "subtitle": "Escolha 25 coordenadas e acerte a Quina para o prêmio máximo.",
-    "rulesTitle": "REGRA 1",
+    "title": "QUINA-BET",
+    "highlight": "",
+    "subtitle": "Escolha 25 prognósticos dentre os quais 5 acertos serão contemplados com o prêmio máximo.",
+    "rulesTitle": "25 Prognósticos",
     "numbersLabel": "Números",
-    "rule1": "Você escolhe 25 números entre 1 e 625",
+    "rule1": "Você escolhe 25 prognósticos entre 1/1 e 25/25.",
     "goalTitle": "REGRA 2",
     "matches": "Acertos",
     "rule2": "Apenas 5/5 acertos ganham prêmio",
     "priceTitle": "REGRA 3",
     "rule3": "Valor fixo de 1 USDC por bilhete",
     "matrixTitle": "Matriz 25x25",
-    "matrixInstruction": "Escolha e clique no prognóstico escolhido...",
+    "matrixInstruction": "Clique no botão 'Aleatório', abaixo, para o preenchimento automático dos 25 prognósticos no volante; clique no ícone da lixeira no volante para apagar e faça a substituição manual do(s) prognóstico(s) indesejado(s).",
     "volumeTitle": "Volante de Apostas",
     "volumeHint": "Preenchimento automático conforme seleção da matriz",
     "goldTagline": "A dependência absoluta da sorte é opcional.",
@@ -190,7 +190,7 @@
     "highlight1Title": "Aposta Oficial",
     "highlight1Desc": "Protocolo verificado e auditado. Sem manipulação.",
     "highlight2Title": "Justiça dos 90%",
-    "highlight2Desc": "90% do arrecadado volta para os ganhadores."
+    "highlight2Desc": "90% do arrecadado será distribuído em partes iguais entre os ganhadores. (Nesta modalidade, o prêmio é exclusivo para 5 acertos)."
   },
   "QuinaBetFAQ": {
     "title": "COMO",

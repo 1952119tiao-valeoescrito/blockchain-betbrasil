@@ -140,19 +140,19 @@
     "footer": "Verified on Base Blockchain | No House Edge"
   },
   "QuinaBet": {
-    "title": "QUINA",
-    "highlight": "-BET",
-    "subtitle": "Choose 25 coordinates and hit the Quina for the maximum prize.",
-    "rulesTitle": "RULE 1",
+    "title": "QUINA-BET",
+    "highlight": "",
+    "subtitle": "Select 25 forecasts from which 5 correct ones will be awarded the maximum prize.",
+    "rulesTitle": "25 Forecasts",
     "numbersLabel": "Numbers",
-    "rule1": "You choose 25 numbers from 1 to 625",
+    "rule1": "You choose 25 forecasts from 1/1 to 25/25.",
     "goalTitle": "RULE 2",
     "matches": "Matches",
     "rule2": "Only 5/5 matches win prize",
     "priceTitle": "RULE 3",
     "rule3": "Fixed value of 1 USDC per ticket",
     "matrixTitle": "25x25 Matrix",
-    "matrixInstruction": "Choose and click on your desired forecast...",
+    "matrixInstruction": "Click the 'Random' button below for automatic filling of the 25 forecasts on the slip; click the trash icon on the slip to delete and make manual replacement of unwanted forecast(s).",
     "volumeTitle": "Betting Slip",
     "volumeHint": "Automatic filling as matrix selection progresses",
     "goldTagline": "Absolute dependence on luck is optional.",
@@ -177,7 +177,7 @@
     "highlight1Title": "Official Bet",
     "highlight1Desc": "Verified and audited protocol. No manipulation.",
     "highlight2Title": "Justice of 90%",
-    "highlight2Desc": "90% of collected funds return to winners."
+    "highlight2Desc": "90% of collected funds will be distributed equally among winners. (In this modality, the prize is exclusive to 5 correct matches)."
   },
   "QuinaBetFAQ": {
     "title": "HOW IT",

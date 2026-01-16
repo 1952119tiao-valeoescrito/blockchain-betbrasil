@@ -140,19 +140,19 @@
     "footer": "Verified on Base Blockchain | No House Edge"
   },
   "QuinaBet": {
-    "title": "QUINA",
-    "highlight": "-BET",
-    "subtitle": "Elige 25 coordenadas y acierta la Quina para el premio máximo.",
-    "rulesTitle": "REGLA 1",
+    "title": "QUINA-BET",
+    "highlight": "",
+    "subtitle": "Selecciona 25 pronósticos de los cuales 5 aciertos serán galardonados con el premio máximo.",
+    "rulesTitle": "25 Pronósticos",
     "numbersLabel": "Números",
-    "rule1": "Eliges 25 números entre 1 y 625",
+    "rule1": "Eliges 25 pronósticos entre 1/1 y 25/25.",
     "goalTitle": "REGLA 2",
     "matches": "Aciertos",
     "rule2": "Solo 5/5 aciertos ganan premio",
     "priceTitle": "REGLA 3",
     "rule3": "Valor fijo de 1 USDC por billete",
     "matrixTitle": "Matriz 25x25",
-    "matrixInstruction": "Elige y haz clic en tu pronóstico deseado...",
+    "matrixInstruction": "Haz clic en el botón 'Aleatorio' abajo para rellenar automáticamente los 25 pronósticos en el boleto; haz clic en el icono de basura en el boleto para eliminar y haz la sustitución manual del/de los pronóstico(s) no deseado(s).",
     "volumeTitle": "Volante de Apuestas",
     "volumeHint": "Llenado automático según progresa la selección de matriz",
     "goldTagline": "La dependencia absoluta de la suerte es opcional.",
@@ -177,7 +177,7 @@
     "highlight1Title": "Apuesta Oficial",
     "highlight1Desc": "Protocolo verificado y auditado. Sin manipulación.",
     "highlight2Title": "Justicia del 90%",
-    "highlight2Desc": "El 90% de lo recaudado vuelve a los ganadores."
+    "highlight2Desc": "El 90% de lo recaudado se distribuirá en partes iguales entre los ganadores. (En esta modalidad, el premio es exclusivo para 5 aciertos)."
   },
   "QuinaBetFAQ": {
     "title": "CÓMO",

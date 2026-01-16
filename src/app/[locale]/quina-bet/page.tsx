@@ -146,12 +146,12 @@ export default function QuinaBetPage() {
             
             {/* LEFT: 25x25 SELECTION MATRIX */}
             <div className="flex flex-col">
-              <div className="mb-4">
+              <div className="mb-4 bg-slate-800/40 border border-amber-500/20 rounded-lg p-4">
                 <div className="flex items-center gap-3 mb-2">
                   <LayoutGrid className="text-amber-400" />
                   <h2 className="text-xl font-black text-white uppercase">{t('matrixTitle')}</h2>
                 </div>
-                <p className="text-sm text-gray-400">{t('matrixInstruction')}</p>
+                <p className="text-sm text-gray-300 leading-relaxed">{t('matrixInstruction')}</p>
               </div>
 
               {/* MATRIZ 25x25 COM COORDENADAS */}
@@ -211,10 +211,10 @@ export default function QuinaBetPage() {
               <div className="flex gap-2">
                 <button
                   onClick={handleRandom}
-                  className="flex-1 px-4 py-2 bg-amber-600/30 border border-amber-500/50 rounded-lg text-amber-300 font-bold text-sm hover:bg-amber-600/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-600/40 to-amber-500/30 border-2 border-amber-400 rounded-lg text-amber-200 font-bold text-sm hover:from-amber-600/60 hover:to-amber-500/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(251,146,60,0.5)] hover:shadow-[0_0_30px_rgba(251,146,60,0.8)]"
                   disabled={selectedCount === 25}
                 >
-                  {t('btnRandom')}
+                  ✨ {t('btnRandom')} ✨
                 </button>
                 <button
                   onClick={handleClear}
@@ -288,9 +288,11 @@ export default function QuinaBetPage() {
               <p className="text-xs text-gray-500 mt-3 text-center font-mono">{t('volumeHint')}</p>
               
               {/* GOLD TAGLINE */}
-              <p className="text-sm italic font-light text-amber-300 mt-6 text-center leading-relaxed">
-                {t('goldTagline')}
-              </p>
+              <div className="mt-6 text-center">
+                <p className="text-base font-light text-amber-300 italic leading-relaxed px-4 py-4 border-t-2 border-b-2 border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-amber-400/5 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.3)]">
+                  {t('goldTagline')}
+                </p>
+              </div>
             </div>
           </div>
 
