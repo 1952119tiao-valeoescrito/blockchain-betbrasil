@@ -296,17 +296,6 @@ export default function QuinaBetPage() {
             </div>
           </div>
 
-          {/* JUSTIÇA DOS 90% - RESTORED */}
-          <div className="bg-gradient-to-br from-purple-900/20 to-slate-900/40 border border-purple-500/20 rounded-2xl p-6 mt-8">
-            <div className="flex gap-3">
-              <Zap className="w-6 h-6 text-purple-400 flex-shrink-0 mt-1" />
-              <div className="text-left flex-1">
-                <h3 className="font-bold text-white mb-2">{t('highlight2Title')}</h3>
-                <p className="text-sm text-gray-400">{t('highlight2Desc')}</p>
-              </div>
-            </div>
-          </div>
-
           {/* ACTION BUTTONS - FULL WIDTH */}
           <div className="flex flex-col sm:flex-row gap-4 mt-8">
             {!isConnected ? (
