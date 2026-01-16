@@ -121,7 +121,7 @@ export default function QuinaBetPage() {
           <div className="bg-amber-900/20 border-2 border-amber-700/30 rounded-2xl p-6 text-center">
             <Sparkles className="w-8 h-8 text-amber-400 mx-auto mb-3" />
             <h3 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-2">{t('rulesTitle')}</h3>
-            <p className="text-2xl font-black text-amber-300">25 {t('numbersLabel')}</p>
+            <p className="text-2xl font-black text-amber-300">25 Prognósticos</p>
             <p className="text-xs text-gray-500 mt-2">{t('rule1')}</p>
           </div>
 
@@ -292,6 +292,17 @@ export default function QuinaBetPage() {
                 <p className="text-base font-light text-amber-300 italic leading-relaxed px-4 py-4 border-t-2 border-b-2 border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-amber-400/5 rounded-lg shadow-[0_0_15px_rgba(251,191,36,0.3)]">
                   {t('goldTagline')}
                 </p>
+              </div>
+            </div>
+          </div>
+
+          {/* JUSTIÇA DOS 90% - RESTORED */}
+          <div className="bg-gradient-to-br from-purple-900/20 to-slate-900/40 border border-purple-500/20 rounded-2xl p-6 mt-8">
+            <div className="flex gap-3">
+              <Zap className="w-6 h-6 text-purple-400 flex-shrink-0 mt-1" />
+              <div className="text-left flex-1">
+                <h3 className="font-bold text-white mb-2">{t('highlight2Title')}</h3>
+                <p className="text-sm text-gray-400">{t('highlight2Desc')}</p>
               </div>
             </div>
           </div>
