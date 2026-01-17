@@ -140,12 +140,12 @@
     "footer": "Verified on Base Blockchain | No House Edge"
   },
   "QuinaBet": {
-    "title": "QUINA-BET",
-    "highlight": "",
-    "subtitle": "Select 25 forecasts from which 5 correct ones will be awarded the maximum prize.",
-    "rulesTitle": "25 Forecasts",
-    "numbersLabel": "Numbers",
-    "rule1": "You choose 25 forecasts from 1/1 to 25/25.",
+    "title": "QUINA",
+    "highlight": "-BET",
+    "subtitle": "Choose 25 prognostics from which 5 matches will be awarded the jackpot.",
+    "rulesTitle": "RULE 1",
+    "numbersLabel": "25 Prognostics",
+    "rule1": "You choose 25 prognostics between 1/1 and 25/25.",
     "goalTitle": "RULE 2",
     "matches": "Matches",
     "rule2": "Only 5/5 matches win prize",
